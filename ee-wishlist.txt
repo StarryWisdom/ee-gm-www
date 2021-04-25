@@ -1,0 +1,7 @@
+when paused there seems to be invalid json returned - {"ERROR": "Script error: [string 'function getShipShields(p) ...']:10: attempt to index a nil value (local 'p')"}
+in general \r are embedded in JSON return value
+wishlist - a playerSpaceship:getNumBeams()
+spaceship::getBeamStart[XYZ]
+have the lua max lenght exported to lua
+getRadarTrace
+set javascript mime type (so as to not get a browser console warning
