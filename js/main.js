@@ -1,3 +1,5 @@
+"use strict";
+
 // there may well be a good library for this
 // as of the time of writing this I have not written much javascript code
 // for now being able to peel away the layers and control the svg being created is valuable
