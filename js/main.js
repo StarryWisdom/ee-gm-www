@@ -51,3 +51,30 @@ const svg_helper = {
 		return img;
 	}
 }
+
+const util = {
+	// convert the JSON returned from EE to an array
+	convert_lua_json_to_array : function(json) {
+		const ret=[];
+		// might not need sorting, but I dont think speed matters and I havent confirmed
+		Object.entries(json).sort().forEach(item => {
+			ret.push(item[1]);
+		});
+		return ret;
+	},
+
+	// converts a url on a website to a dat URI
+	convertImageToURI : function(url) {
+		return new Promise (resolve => {
+			const image = new Image();
+			image.onload = function () {
+				const canvas = document.createElement('canvas');
+				canvas.width = this.naturalWidth;
+				canvas.height = this.naturalHeight;
+				canvas.getContext('2d').drawImage(this, 0, 0);
+				resolve(canvas.toDataURL('image/png'));
+			};
+			image.src = url;
+			return image
+	})},
+};
