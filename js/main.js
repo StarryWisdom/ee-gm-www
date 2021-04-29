@@ -1,3 +1,4 @@
+/* jshint node:true, esversion:8*/
 "use strict";
 
 // there may well be a good library for this
@@ -50,7 +51,8 @@ const svg_helper = {
 		img.setAttribute("href",data_url);
 		return img;
 	}
-}
+};
+Object.freeze(svg_helper);
 
 const util = {
 	// convert the JSON returned from EE to an array
@@ -75,6 +77,8 @@ const util = {
 				resolve(canvas.toDataURL('image/png'));
 			};
 			image.src = url;
-			return image
-	})},
+			return image;
+		});
+	},
 };
+Object.freeze(util);
