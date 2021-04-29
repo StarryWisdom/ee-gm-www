@@ -54,17 +54,10 @@ const svg_helper = {
 };
 Object.freeze(svg_helper);
 
+// generic libraries
+// designed for things that there may well be javascript libraries out there
+// if there are it certainly wouldnt be a bad idea to convert to them
 const util = {
-	// convert the JSON returned from EE to an array
-	convert_lua_json_to_array : function(json) {
-		const ret=[];
-		// might not need sorting, but I dont think speed matters and I havent confirmed
-		Object.entries(json).sort().forEach(item => {
-			ret.push(item[1]);
-		});
-		return ret;
-	},
-
 	// converts a url on a website to a dat URI
 	convertImageToURI : function(url) {
 		return new Promise (resolve => {
@@ -82,3 +75,49 @@ const util = {
 	},
 };
 Object.freeze(util);
+
+// functions that are directly related to the EE server
+// so functions that edit exec.lua , get.lua and set.lua
+// along with functions to manipulate the data from the server
+const ee_server = {
+	// convert the JSON returned from EE to an array
+	convert_lua_json_to_array : function(json) {
+		const ret=[];
+		// might not need sorting, but I dont think speed matters and I havent confirmed
+		Object.entries(json).sort().forEach(item => {
+			ret.push(item[1]);
+		});
+		return ret;
+	},
+	// run exec_lua with the code provided
+	exec : async function(lua_code) {
+		const max_exec_length=2048; // this is a constant inside of EE
+		// There also is an execution time limit, but that is something I havent tested yet
+		if (lua_code.length > max_exec_length) {
+			throw "attemped to upload a exec file too large for ee - size = " + lua_code.length;
+		}
+		const response = await fetch(window.location.protocol+"//"+window.location.host+"/exec.lua",{
+			method:"POST",
+			body:lua_code
+		});
+		if (response.ok) {
+			const raw_response_text = await response.text();
+			// in the case of error EE will put newlines into the script which is wrong, hacky fix
+			// at some point EE should be fixed and much fo this can be replaced with a response.json()
+			const fixed_response_text=raw_response_text.replace(/[\r]/gm,'');
+			try {
+				const ret=JSON.parse(fixed_response_text);
+				if (ret.ERROR) {
+					throw ret.ERROR;
+				} else {
+					return ret;
+				}
+			} catch (err) {
+				throw "---\njson not returned from EE - response =\"" + fixed_response_text + "\"\n----";
+			}
+		} else {
+			throw "exec error " + await response.text();
+		}
+	}
+};
+Object.freeze(ee_server);
