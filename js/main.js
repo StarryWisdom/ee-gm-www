@@ -140,3 +140,36 @@ const ee_server = {
 	}
 };
 Object.freeze(ee_server);
+
+class data_cache {
+	constructor () {
+		this._cache = {};
+	}
+	has_key(key) {
+		return this._cache.hasOwnProperty(key);
+	}
+	// it is expected but not required that the value is a promise
+	set(key,value) {
+		if (this.has_key(key)) {
+			throw new Error("attempted to add duplicate entry into the a cache");
+		}
+		this._cache[key]=value;
+	}
+	async get(key) {
+		if (this.has_key(key)) {
+			return this._cache[key];
+		} else {
+			throw "cached element \"" + key+"\" requested which doesnt exist";
+		}
+	}
+	// used for saving it into web storage / JSON files
+	async get_whole_cache () {
+		for (const key in this._cache) {
+			if (this.has_key(key)) {
+				this._cache[key]=await this._cache[key];
+			}
+		}
+		return this._cache;
+	}
+	// TODO add set cache option
+}
