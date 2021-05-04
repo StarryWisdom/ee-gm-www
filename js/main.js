@@ -87,6 +87,9 @@ class error_logger {
 	}
 	error(msg) {
 		this._errors.push(msg);
+		if (gm_ui) {
+			gm_ui.update_button_list();
+		}
 	}
 	get_errors() {
 		return this._errors;
@@ -99,7 +102,6 @@ class error_logger {
 		return error_text;
 	}
 }
-error_logger = new error_logger();
 
 // functions that are directly related to the EE server
 // so functions that edit exec.lua , get.lua and set.lua
@@ -193,3 +195,36 @@ class data_cache {
 	}
 	// TODO add set cache option
 }
+
+// it would be nice if we could find out if a scenario is loaded or not
+// set scenario is worth looking at too
+class ui {
+	constructor () {
+		this._tabs = [
+		];
+		this.update_button_list();
+	}
+	update_button_list() {
+		const tabs=document.getElementById("tab-buttons");
+		util.removeAllChildren(tabs);
+		this._tabs.forEach(tab => {
+		const button = document.createElement("button");
+			button.textContent=tab.get_button_text();
+			button.tab_class=tab;
+			button.onclick= function(){
+				gm_ui.switch_to(this.tab_class);
+			}
+			tabs.appendChild(button);
+		});
+	}
+	async switch_to(tab) {
+		try {
+			util.removeAllChildren(document.getElementById("main-tab"));
+			return document.getElementById("main-tab").appendChild(await tab.show());
+		} catch (error) {
+			error_logger.error(error);
+		}
+	}
+}
+
+error_logger = new error_logger();
