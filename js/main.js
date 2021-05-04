@@ -58,7 +58,7 @@ Object.freeze(svg_helper);
 // designed for things that there may well be javascript libraries out there
 // if there are it certainly wouldnt be a bad idea to convert to them
 const util = {
-	// converts a url on a website to a dat URI
+	// converts a url on a website to a data URI
 	convertImageToURI : function(url) {
 		return new Promise (resolve => {
 			const image = new Image();
@@ -72,6 +72,11 @@ const util = {
 			image.src = url;
 			return image;
 		});
+	},
+	removeAllChildren : function(node) {
+		while (node.firstChild) {
+			node.removeChild(node.firstChild);
+		}
 	},
 };
 Object.freeze(util);
