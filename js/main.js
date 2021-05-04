@@ -126,6 +126,17 @@ const ee_server = {
 		} else {
 			throw "exec error " + await response.text();
 		}
+	},
+	fetch_file : async function(filename) {
+		const response = await fetch(filename);
+		if (!response.ok) {
+			if (response.status==404) {
+				throw new Error("fetch error - file not found \"" + response.url+"\"");
+			} else {
+				throw new Error("fetch error " + response.text());
+			}
+		}
+		return response.text();
 	}
 };
 Object.freeze(ee_server);
