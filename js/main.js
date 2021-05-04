@@ -81,6 +81,26 @@ const util = {
 };
 Object.freeze(util);
 
+class error_logger {
+	constructor() {
+		this._errors=[];
+	}
+	error(msg) {
+		this._errors.push(msg);
+	}
+	get_errors() {
+		return this._errors;
+	}
+	get_button_text() {
+		let error_text="errors";
+		if (this._errors.length!=0) {
+			error_text+=" "+"("+this._errors.length+")";
+		}
+		return error_text;
+	}
+}
+error_logger = new error_logger();
+
 // functions that are directly related to the EE server
 // so functions that edit exec.lua , get.lua and set.lua
 // along with functions to manipulate the data from the server
