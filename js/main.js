@@ -229,6 +229,10 @@ class ui {
 }
 
 error_logger = new error_logger();
+window.addEventListener("unhandledrejection", function(e) {
+	error_logger.error(e.reason);
+	e.preventDefault();
+});
 
 let gm_ui='';
 window.onload=function () {
