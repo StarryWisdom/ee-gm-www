@@ -96,6 +96,9 @@ const ee_server = {
 	},
 	// run exec_lua with the code provided
 	exec : async function(lua_code) {
+		if (typeof(lua_code)!="string") {
+			throw new Error("exec not passed a "+typeof(lua_code)+" rather than the expected string, probably an internal error in this web page.");
+		}
 		const max_exec_length=2048; // this is a constant inside of EE
 		// There also is an execution time limit, but that is something I havent tested yet
 		if (lua_code.length > max_exec_length) {
