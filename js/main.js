@@ -229,3 +229,8 @@ class ui {
 }
 
 error_logger = new error_logger();
+
+let gm_ui='';
+window.onload=function () {
+	gm_ui = new ui();
+}
