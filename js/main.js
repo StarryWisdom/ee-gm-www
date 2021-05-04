@@ -86,6 +86,7 @@ class error_logger {
 		this._errors=[];
 	}
 	error(msg) {
+		console.log(msg);
 		this._errors.push(msg);
 		if (gm_ui) {
 			gm_ui.update_button_list();
