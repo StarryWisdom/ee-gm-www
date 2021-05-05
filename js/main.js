@@ -197,10 +197,40 @@ class data_cache {
 	// TODO add set cache option
 }
 
+// get all of the model data
+// mainly used for infomation like beam port starts, scale of the model etc
+// the things we want out of it may be possible to expose via new EE scripting
+// in which case this may stop needing to exist
+class get_model_data {
+	constructor (cache) {
+		this._cache=cache;
+		this._cache.set("model_data",this.resolve());
+	}
+	async resolve() {
+		const lua=gm_tool.get_lua_without_cache("get_model_data");
+		const models=ee_server.convert_lua_json_to_array(await ee_server.exec(await lua));
+		const ret = {};
+		models.forEach(model => {
+			if ('BeamPosition' in model) {
+				model.BeamPosition=ee_server.convert_lua_json_to_array(model.BeamPosition);
+			}
+			const name = model.Name;
+			delete model.Name;
+			ret[name]=model;
+		});
+		return ret;
+	}
+	async get() {
+		return this._cache.get("model_data");
+	}
+}
+
 class gm_tool {
 	// this needs to be called before any other members are used
 	async init() {
 		this._ee_cache = new data_cache();
+		// set up all of the classes for server requesting data
+		this.get_model_data = new get_model_data(this._ee_cache);
 	}
 	async get_whole_cache() {
 		return this._ee_cache.get_whole_cache();
