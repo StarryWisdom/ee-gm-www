@@ -197,6 +197,19 @@ class data_cache {
 	// TODO add set cache option
 }
 
+class gm_tool {
+	// this needs to be called before any other members are used
+	async init() {
+		this._ee_cache = new data_cache();
+	}
+	async get_whole_cache() {
+		return this._ee_cache.get_whole_cache();
+	}
+	async get_lua_without_cache(filename) {
+		return ee_server.fetch_file("lua/"+filename+".lua");
+	}
+}
+
 class error_log_tab {
 	get_button_text () {
 		return error_logger.get_button_text();
@@ -277,6 +290,9 @@ window.addEventListener("unhandledrejection", function(e) {
 	error_logger.error(e.reason);
 	e.preventDefault();
 });
+
+gm_tool=new gm_tool();
+gm_tool.init();
 
 let gm_ui='';
 window.onload=function () {
