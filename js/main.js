@@ -197,13 +197,12 @@ class data_cache {
 	// TODO add set cache option
 }
 
-// it would be nice if we could find out if a scenario is loaded or not
-// set scenario is worth looking at too
 class ui {
 	constructor () {
 		this._tabs = [
 		];
 		this.update_button_list();
+		this._last_url="";
 	}
 	update_button_list() {
 		const tabs=document.getElementById("tab-buttons");
@@ -214,16 +213,40 @@ class ui {
 			button.tab_class=tab;
 			button.onclick= function(){
 				gm_ui.switch_to(this.tab_class);
-			}
+			};
 			tabs.appendChild(button);
 		});
 	}
 	async switch_to(tab) {
 		try {
 			util.removeAllChildren(document.getElementById("main-tab"));
-			return document.getElementById("main-tab").appendChild(await tab.show());
+			this._active_tab=tab;
+			document.getElementById("main-tab").appendChild(await tab.show());
+			this.update_history();
 		} catch (error) {
 			error_logger.error(error);
+		}
+	}
+	update_history() {
+		let url='index.html?'
+		if (this._active_tab && this._active_tab.page_name != undefined) {
+			url=url+"page="+this._active_tab.page_name;
+		}
+		if (this._last_url!=url) {
+			this.last_url=url;
+			history.pushState(null, '', url);
+		}
+	}
+	async load_page(page) {
+		const args=page.substring(1).split('=');
+		if (args.length == 2) {
+			if (args[0] == "page") {
+				this._tabs.forEach (potentialTab => {
+					if (potentialTab.page_name == args[1]) {
+						gm_ui.switch_to(potentialTab);
+					}
+				});
+			}
 		}
 	}
 }
@@ -237,4 +260,5 @@ window.addEventListener("unhandledrejection", function(e) {
 let gm_ui='';
 window.onload=function () {
 	gm_ui = new ui();
-}
+	gm_ui.load_page(window.location.search);
+};
