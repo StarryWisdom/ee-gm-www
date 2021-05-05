@@ -197,9 +197,30 @@ class data_cache {
 	// TODO add set cache option
 }
 
+class error_log_tab {
+	get_button_text () {
+		return error_logger.get_button_text();
+	}
+	async show () {
+		const page=document.createElement("div");
+		// TODO it would be nice if this updated if the error_logger had new errors
+		error_logger.get_errors().forEach(error => {
+			page.appendChild(document.createTextNode(error));
+			page.appendChild(document.createElement("br"));
+			// if we have a stacktrace we add it
+			if (typeof(error)!='string' && 'stack' in error) { // should be == object
+				page.appendChild(document.createTextNode(error.stack));
+				page.appendChild(document.createElement("br"));
+			}
+		});
+		return page;
+	}
+}
+
 class ui {
 	constructor () {
 		this._tabs = [
+			new error_log_tab(),
 		];
 		this.update_button_list();
 		this._last_url="";
