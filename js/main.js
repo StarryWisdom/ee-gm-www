@@ -260,9 +260,36 @@ class error_log_tab {
 	}
 }
 
+class debug_tab {
+	async show() {
+		const page=document.createElement("div");
+		const cache_details=document.createElement("table");
+		page.appendChild(cache_details);
+		const cache=await gm_tool.get_whole_cache();
+
+		// show all of the sizes for the cache
+		// TODO it might be nice to convert these to kb/mb
+		const row=cache_details.insertRow();
+		row.insertCell().appendChild(document.createTextNode("total size"));
+		row.insertCell().appendChild(document.createTextNode(JSON.stringify(cache).length));
+		for (const key in cache) {
+			if (cache.hasOwnProperty(key)) {
+				const row=cache_details.insertRow();
+				row.insertCell().appendChild(document.createTextNode(key));
+				row.insertCell().appendChild(document.createTextNode(JSON.stringify(cache[key]).length));
+			}
+		}
+		return page;
+	}
+	get_button_text() {
+		return "debug";
+	}
+}
+
 class ui {
 	constructor () {
 		this._tabs = [
+			new debug_tab(),
 			new error_log_tab(),
 		];
 		this.update_button_list();
