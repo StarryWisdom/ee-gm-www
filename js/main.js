@@ -225,12 +225,42 @@ class get_model_data {
 	}
 }
 
+// get template data that cant be fetched from a live object of that type
+// it may be possible with time and work for this to be removed
+// this would require EE scripting to be exapanded
+class get_extra_template_data{
+	constructor (cache) {
+		this._cache=cache;
+		this._cache.set("template_data",this.resolve());
+	}
+	async resolve() {
+		const lua=gm_tool.get_lua_without_cache("get_extra_template_data");
+		const raw=await ee_server.exec(await lua);
+		const template_data=ee_server.convert_lua_json_to_array(raw);
+		const ret = {};
+		template_data.forEach(template => {
+			if ('Name' in template) {
+				const name = template.Name;
+				delete template.Name;
+				ret[name]=template;
+			} else {
+				throw new Error("possible invalid template file");
+			}
+		});
+		return ret;
+	}
+	async get() {
+		return this._cache.get("template_data");
+	}
+}
+
 class gm_tool {
 	// this needs to be called before any other members are used
 	async init() {
 		this._ee_cache = new data_cache();
 		// set up all of the classes for server requesting data
 		this.get_model_data = new get_model_data(this._ee_cache);
+		this.get_extra_template_data = new get_extra_template_data(this._ee_cache);
 	}
 	async get_whole_cache() {
 		return this._ee_cache.get_whole_cache();
