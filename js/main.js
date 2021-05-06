@@ -204,11 +204,13 @@ class data_cache {
 class get_model_data {
 	constructor (cache) {
 		this._cache=cache;
+		// this needlessly fills the cache with the lua
+		// this could be fixed, but is not currently important
+		this._lua_wrapper=new lua_wrapper("get_model_data",caution_level.safe);
 		this._cache.set("model_data",this.resolve());
 	}
 	async resolve() {
-		const lua=gm_tool.get_lua_without_cache("get_model_data");
-		const models = ee_server.convert_lua_json_to_array(await gm_tool.exec_lua(await lua,caution_level.safe));
+		const models = ee_server.convert_lua_json_to_array(await this._lua_wrapper.run());
 		const ret = {};
 		models.forEach(model => {
 			if ('BeamPosition' in model) {
@@ -231,11 +233,13 @@ class get_model_data {
 class get_extra_template_data{
 	constructor (cache) {
 		this._cache=cache;
+		// this needlessly fills the cache with the lua
+		// this could be fixed, but is not currently important
+		this._lua_wrapper=new lua_wrapper("get_extra_template_data",caution_level.safe);
 		this._cache.set("template_data",this.resolve());
 	}
 	async resolve() {
-		const lua=gm_tool.get_lua_without_cache("get_extra_template_data");
-		const raw=await gm_tool.exec_lua(await lua,caution_level.safe);
+		const raw=await this._lua_wrapper.run();
 		const template_data=ee_server.convert_lua_json_to_array(raw);
 		const ret = {};
 		template_data.forEach(template => {
@@ -253,6 +257,32 @@ class get_extra_template_data{
 		return this._cache.get("template_data");
 	}
 }
+
+class lua_wrapper {
+	constructor(filename,caution,prevent_cache) {
+		this._lua = gm_tool.cache_get_lua(filename);
+		this._caution = caution;
+	}
+	async run (settings) {
+		if (settings === undefined) {
+			settings = {};
+		}
+		let code = "";
+		for (const v in settings) {
+			if (settings.hasOwnProperty(v)) {
+				code += v + "=";
+				if (typeof(settings[v]) === "string") {
+					code += '"' + settings[v] + '"';
+				} else {
+					code += settings[v];
+				}
+				code += "\n";
+			}
+		}
+		code += await this._lua;
+		return gm_tool.exec_lua(code,this._caution);
+	}
+};
 
 const caution_level = {
 	reckless : 1, // intended for development, or generating the cache to run during other sessions
@@ -276,8 +306,12 @@ class gm_tool {
 	async get_whole_cache() {
 		return this._ee_cache.get_whole_cache();
 	}
-	async get_lua_without_cache(filename) {
-		return ee_server.fetch_file("lua/"+filename+".lua");
+	async cache_get_lua(filename) {
+		const cache_name=filename+".lua";
+		if (!this._ee_cache.has_key(cache_name)) {
+			this._ee_cache.set(cache_name,ee_server.fetch_file("lua/"+cache_name));
+		}
+		return this._ee_cache._cache[cache_name];
 	}
 	async exec_lua(code,caution) {
 		if (caution==undefined) {
