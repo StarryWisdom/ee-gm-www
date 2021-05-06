@@ -258,6 +258,7 @@ const caution_level = {
 	reckless : 1, // intended for development, or generating the cache to run during other sessions
 	safe : 2, // intended for saturday games, read only (any speed) or read / write with high confidence no issues
 	cautious : 3, // quick read only, intended for the large games for example
+	no_execs : 4, // intended for dev work, to confirm the cache contains everything
 };
 Object.freeze(caution_level);
 
