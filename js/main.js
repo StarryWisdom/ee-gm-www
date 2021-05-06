@@ -208,7 +208,7 @@ class get_model_data {
 	}
 	async resolve() {
 		const lua=gm_tool.get_lua_without_cache("get_model_data");
-		const models=ee_server.convert_lua_json_to_array(await ee_server.exec(await lua));
+		const models = ee_server.convert_lua_json_to_array(await gm_tool.exec_lua(await lua,caution_level.safe));
 		const ret = {};
 		models.forEach(model => {
 			if ('BeamPosition' in model) {
@@ -235,7 +235,7 @@ class get_extra_template_data{
 	}
 	async resolve() {
 		const lua=gm_tool.get_lua_without_cache("get_extra_template_data");
-		const raw=await ee_server.exec(await lua);
+		const raw=await gm_tool.exec_lua(await lua,caution_level.safe);
 		const template_data=ee_server.convert_lua_json_to_array(raw);
 		const ret = {};
 		template_data.forEach(template => {
@@ -254,7 +254,17 @@ class get_extra_template_data{
 	}
 }
 
+const caution_level = {
+	reckless : 1, // intended for development, or generating the cache to run during other sessions
+	safe : 2, // intended for saturday games, read only (any speed) or read / write with high confidence no issues
+	cautious : 3, // quick read only, intended for the large games for example
+};
+Object.freeze(caution_level);
+
 class gm_tool {
+	constructor() {
+		this.caution_level=caution_level.safe;
+	}
 	// this needs to be called before any other members are used
 	async init() {
 		this._ee_cache = new data_cache();
@@ -267,6 +277,16 @@ class gm_tool {
 	}
 	async get_lua_without_cache(filename) {
 		return ee_server.fetch_file("lua/"+filename+".lua");
+	}
+	async exec_lua(code,caution) {
+		if (caution==undefined) {
+			throw new Error("caution level not set");
+		}
+		if (caution >= this.caution_level) {
+			return ee_server.exec(code);
+		} else {
+			throw new Error("script set to be more cautious than this level of running. End users seeing this message is a bug");
+		}
 	}
 }
 
@@ -318,6 +338,7 @@ class debug_tab {
 
 class ui {
 	constructor () {
+		gm_tool.caution_level=caution_level.reckless;
 		this._tabs = [
 			new debug_tab(),
 			new error_log_tab(),
