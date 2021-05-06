@@ -1,6 +1,8 @@
 models = {}
 function ModelData ()
-	local data = {}
+	local data = {
+		BeamPosition = {}
+	}
 	local ret = {
 		setName = function (self,name)
 			data.Name=name
