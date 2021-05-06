@@ -3,7 +3,9 @@ function returnSelf (self)
 	return self
 end
 function ShipTemplate ()
-	local data = {}
+	local data = {
+		Type = "ship"
+	}
 	local ret = {
 		setName = function (self,name)
 			data.Name=name
@@ -22,9 +24,13 @@ function ShipTemplate ()
 				:setModel(data.Model)
 				:setName(name)
 				:setRadarTrace(data.RadarTrace)
+				:setType(data.Type)
+		end,
+		setType = function (self, type)
+			data.Type = type
+			return self
 		end,
 		setLocaleName = returnSelf,
-		setType = returnSelf,
 		setDescription = returnSelf,
 		setHull = returnSelf,
 		setShields = returnSelf,
