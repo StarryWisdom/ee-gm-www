@@ -212,9 +212,7 @@ class get_model_data {
 		const models = ee_server.convert_lua_json_to_array(await this._lua_wrapper.run());
 		const ret = {};
 		models.forEach(model => {
-			if ('BeamPosition' in model) {
-				model.BeamPosition=ee_server.convert_lua_json_to_array(model.BeamPosition);
-			}
+			model.BeamPosition=ee_server.convert_lua_json_to_array(model.BeamPosition);
 			const name = model.Name;
 			delete model.Name;
 			ret[name]=model;
