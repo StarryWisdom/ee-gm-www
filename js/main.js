@@ -375,6 +375,20 @@ class gm_tool_class {
 	}
 }
 
+class data_card_tab {
+	constructor () {
+		this.page_name="data_card";
+	}
+	async show() {
+		const page=document.createElement("div");
+		const data = await gm_tool.get_player_pesudo_template.get("Ender");
+		return page;
+	}
+	get_button_text() {
+		return "data card";
+	}
+}
+
 class error_log_tab {
 	constructor()  {
 		this.page_name="error_log";
@@ -447,6 +461,7 @@ class ui {
 		gm_tool.caution_level=caution_level.reckless;
 		this._tabs = [
 			new home_tab(),
+			new data_card_tab(),
 			new debug_tab(),
 			new error_log_tab(),
 		];
