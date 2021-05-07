@@ -373,6 +373,13 @@ class gm_tool_class {
 			throw new Error("script set to be more cautious than this level of running. End users seeing this message is a bug");
 		}
 	}
+	async cache_image_uri(url) {
+		const cache_name=url;
+		if (!this._ee_cache.has_key(cache_name)) {
+			this._ee_cache.set(cache_name,util.convertImageToURI(url));
+		}
+		return this._ee_cache._cache[cache_name];
+	}
 }
 
 class data_card_tab {
