@@ -423,10 +423,29 @@ class debug_tab {
 	}
 }
 
+class home_tab {
+	constructor() {
+		this.page_name = "home";
+	}
+	async show() {
+		const page = document.createElement("div");
+		const inner = "sadly right now this tool probably isnt useful unless you are able to ask starry questions<br>" +
+			"at some point a home page probably should be .... I dont know .... useful to people<br>" +
+			"but yet here we are, and I am going to use this as a todo list<br>" +
+			"some sort of confirmation that the sandbox is loaded before running code in a random script would be nice<br>"+
+			"this really needs a way to save / load the cache, along with thought about how to fill the cache"+
+			"there is no check to see if the resouces directory is available from the web tool, this should be checked on this page<br>"+
+			"some sort of consideration as to how to split the cache into scenario specific caches should happen before too long<br>";
+		page.innerHTML = inner;
+		return page;
+	}
+}
+
 class ui {
 	constructor () {
 		gm_tool.caution_level=caution_level.reckless;
 		this._tabs = [
+			new home_tab(),
 			new debug_tab(),
 			new error_log_tab(),
 		];
@@ -480,6 +499,8 @@ class ui {
 	}
 	async load_page(page) {
 		const args=page.substring(1).split('=');
+		// this is super lazy and probably needs a better fix later
+		this.switch_to_string("home");
 		if (args.length == 2) {
 			if (args[0] == "page") {
 				this.switch_to_string(args[1]);
