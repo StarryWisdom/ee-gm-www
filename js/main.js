@@ -281,6 +281,57 @@ class lua_wrapper {
 	}
 }
 
+// at the moment this is rather jumbled between getting the pesudo template and the actual template
+// at some point this will probably be cleared up, but at the moment it is something to keep in mind
+class get_player_pesudo_template {
+	constructor(cache) {
+		this._cache = cache;
+		// this is labeled reckless due to the creation and destruction of a playerShip
+		// with more lua side error checking, along with thought about onNewPlayerShip this may be possible to change
+		this._lua = new lua_wrapper("get_player_pesudo_template",caution_level.reckless);
+	}
+	async _postprocess(raw) {
+		// get data needed for the all the postprocessing
+		// TODO needs to handle ships with their typename changed
+		// this will break almost all of xanstas pesudo template ships
+		const template=(await gm_tool.get_extra_template_data.get())[raw.TypeName];
+		const model=(await gm_tool.get_model_data.get())[template.Model];
+
+		Object.entries(raw.Beams).forEach(([beam_num,beam]) => {
+			beam_num = beam_num-1;
+			if (model.BeamPosition[beam_num]) {
+				beam.start_x = model.BeamPosition[beam_num].x;
+				beam.start_y = model.BeamPosition[beam_num].y;
+				beam.start_z = model.BeamPosition[beam_num].z;
+			} else {
+				beam.start_x = 0;
+				beam.start_y = 0;
+				beam.start_z = 0;
+			}
+			// remove beams that have been disabled in lua
+			// beam range is limited to max(0.1,requested_length)
+			// as such there are a number of sub 1u beams that arent really present
+			if (beam.Range<1) {
+				delete raw.Beams[beam_num];
+			}
+		});
+
+		raw.Beams=ee_server.convert_lua_json_to_array(raw.Beams);
+		raw.RadarTrace=template.RadarTrace; // sadly we lack a playership::getRadarTrace() currently
+		raw.Scale=model.Scale;
+		raw.ShieldMax=ee_server.convert_lua_json_to_array(raw.ShieldMax);
+
+		return raw;
+	}
+	async get (template_name) {
+		const cache_entry = "template-" + template_name;
+		if (!this._cache.has_key(cache_entry)) {
+			this._cache.set(cache_entry,this._postprocess(await this._lua.run({ship_template : template_name})));
+		}
+		return this._cache.get(cache_entry);
+	}
+}
+
 const caution_level = {
 	reckless : 1, // intended for development, or generating the cache to run during other sessions
 	safe : 2, // intended for saturday games, read only (any speed) or read / write with high confidence no issues
@@ -299,6 +350,7 @@ class gm_tool_class {
 		// set up all of the classes for server requesting data
 		this.get_model_data = new get_model_data(this._ee_cache);
 		this.get_extra_template_data = new get_extra_template_data(this._ee_cache);
+		this.get_player_pesudo_template = new get_player_pesudo_template(this._ee_cache);
 	}
 	async get_whole_cache() {
 		return this._ee_cache.get_whole_cache();
