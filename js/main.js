@@ -452,9 +452,10 @@ class ui {
 	}
 	async switch_to(tab) {
 		try {
+			const new_tab = await tab.show();
 			util.removeAllChildren(document.getElementById("main-tab"));
 			this._active_tab=tab;
-			document.getElementById("main-tab").appendChild(await tab.show());
+			document.getElementById("main-tab").appendChild(new_tab);
 			this.update_history();
 		} catch (error) {
 			error_logger.error(error);
