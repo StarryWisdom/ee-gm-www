@@ -291,6 +291,7 @@ class get_player_pesudo_template {
 		this._lua = new lua_wrapper("get_player_pesudo_template",caution_level.reckless);
 	}
 	async _postprocess(raw) {
+		raw = await raw;
 		// get data needed for the all the postprocessing
 		// TODO needs to handle ships with their typename changed
 		// this will break almost all of xanstas pesudo template ships
@@ -326,7 +327,7 @@ class get_player_pesudo_template {
 	async get (template_name) {
 		const cache_entry = "template-" + template_name;
 		if (!this._cache.has_key(cache_entry)) {
-			this._cache.set(cache_entry,this._postprocess(await this._lua.run({ship_template : template_name})));
+			this._cache.set(cache_entry,this._postprocess(this._lua.run({ship_template : template_name})));
 		}
 		return this._cache.get(cache_entry);
 	}
