@@ -461,6 +461,13 @@ class ui {
 			error_logger.error(error);
 		}
 	}
+	async switch_to_string(tab) {
+		this._tabs.forEach (potentialTab => {
+			if (potentialTab.page_name == tab) {
+				gm_ui.switch_to(potentialTab);
+			}
+		});
+	}
 	update_history() {
 		let url='index.html?';
 		if (this._active_tab && this._active_tab.page_name != undefined) {
@@ -475,11 +482,7 @@ class ui {
 		const args=page.substring(1).split('=');
 		if (args.length == 2) {
 			if (args[0] == "page") {
-				this._tabs.forEach (potentialTab => {
-					if (potentialTab.page_name == args[1]) {
-						gm_ui.switch_to(potentialTab);
-					}
-				});
+				this.switch_to_string(args[1]);
 			}
 		}
 	}
