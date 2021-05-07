@@ -346,6 +346,9 @@ class error_log_tab {
 }
 
 class debug_tab {
+	constructor () {
+		this.page_name = "debug";
+	}
 	async show() {
 		const page=document.createElement("div");
 		const cache_details=document.createElement("table");
@@ -366,9 +369,6 @@ class debug_tab {
 		}
 		return page;
 	}
-	get_button_text() {
-		return "debug";
-	}
 }
 
 class ui {
@@ -386,7 +386,11 @@ class ui {
 		util.removeAllChildren(tabs);
 		this._tabs.forEach(tab => {
 		const button = document.createElement("button");
-			button.textContent=tab.get_button_text();
+			if ("get_button_text" in tab) {
+				button.textContent=tab.get_button_text();
+			} else {
+				button.textContent=tab.page_name;
+			}
 			button.tab_class=tab;
 			button.onclick= function(){
 				gm_ui.switch_to(this.tab_class);
