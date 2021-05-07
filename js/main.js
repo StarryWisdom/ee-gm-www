@@ -111,8 +111,7 @@ const ee_server = {
 	// convert the JSON returned from EE to an array
 	convert_lua_json_to_array : function(json) {
 		const ret=[];
-		// might not need sorting, but I dont think speed matters and I havent confirmed
-		Object.entries(json).sort().forEach(item => {
+		Object.entries(json).forEach(item => {
 			ret.push(item[1]);
 		});
 		return ret;
