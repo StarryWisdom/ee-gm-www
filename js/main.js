@@ -81,7 +81,7 @@ const util = {
 };
 Object.freeze(util);
 
-class error_logger {
+class error_logger_class {
 	constructor() {
 		this._errors=[];
 	}
@@ -282,7 +282,7 @@ class lua_wrapper {
 		code += await this._lua;
 		return gm_tool.exec_lua(code,this._caution);
 	}
-};
+}
 
 const caution_level = {
 	reckless : 1, // intended for development, or generating the cache to run during other sessions
@@ -292,7 +292,7 @@ const caution_level = {
 };
 Object.freeze(caution_level);
 
-class gm_tool {
+class gm_tool_class {
 	constructor() {
 		this.caution_level=caution_level.safe;
 	}
@@ -409,7 +409,7 @@ class ui {
 		}
 	}
 	update_history() {
-		let url='index.html?'
+		let url='index.html?';
 		if (this._active_tab && this._active_tab.page_name != undefined) {
 			url=url+"page="+this._active_tab.page_name;
 		}
@@ -432,13 +432,13 @@ class ui {
 	}
 }
 
-error_logger = new error_logger();
+const error_logger = new error_logger_class();
 window.addEventListener("unhandledrejection", function(e) {
 	error_logger.error(e.reason);
 	e.preventDefault();
 });
 
-gm_tool=new gm_tool();
+const gm_tool=new gm_tool_class();
 gm_tool.init();
 
 let gm_ui='';
