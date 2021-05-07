@@ -375,6 +375,9 @@ class gm_tool_class {
 }
 
 class error_log_tab {
+	constructor()  {
+		this.page_name="error_log";
+	}
 	get_button_text () {
 		return error_logger.get_button_text();
 	}
