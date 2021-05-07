@@ -299,11 +299,10 @@ class get_player_pesudo_template {
 		const model=(await gm_tool.get_model_data.get())[template.Model];
 
 		Object.entries(raw.Beams).forEach(([beam_num,beam]) => {
-			beam_num = beam_num-1;
-			if (model.BeamPosition[beam_num]) {
-				beam.start_x = model.BeamPosition[beam_num].x;
-				beam.start_y = model.BeamPosition[beam_num].y;
-				beam.start_z = model.BeamPosition[beam_num].z;
+			if (model.BeamPosition[beam_num-1]) {
+				beam.start_x = model.BeamPosition[beam_num-1].x;
+				beam.start_y = model.BeamPosition[beam_num-1].y;
+				beam.start_z = model.BeamPosition[beam_num-1].z;
 			} else {
 				beam.start_x = 0;
 				beam.start_y = 0;
