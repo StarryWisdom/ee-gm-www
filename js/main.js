@@ -469,6 +469,7 @@ class home_tab {
 			"at some point a home page probably should be .... I dont know .... useful to people<br>" +
 			"but yet here we are, and I am going to use this as a todo list<br>" +
 			"some sort of confirmation that the sandbox is loaded before running code in a random script would be nice<br>"+
+			"It is likely this page is going to go horiffically wrong if a scenario is switched while this page is loaded, this needs thought as to how to manage it<br>+"
 			"this really needs a way to save / load the cache, along with thought about how to fill the cache"+
 			"there is no check to see if the resouces directory is available from the web tool, this should be checked on this page<br>"+
 			"some sort of consideration as to how to split the cache into scenario specific caches should happen before too long<br>";
