@@ -379,6 +379,21 @@ class gm_tool_class {
 		}
 		return this._ee_cache._cache[cache_name];
 	}
+	// this needs thought when templates and pesudo templates are properly split
+	// at that time its worth considering if it should only return the keys to be fed into
+	// the template and pesudo template functions
+	async get_all_player_templates() {
+		const templates = await this.get_extra_template_data.get();
+		const ret = {};
+		for (const name in templates) {
+			if (templates.hasOwnProperty(name)) {
+				if (templates[name].Type=="playership") {
+					ret[name]=templates[name];
+				}
+			}
+		}
+		return ret;
+	}
 }
 
 class data_card_tab {
