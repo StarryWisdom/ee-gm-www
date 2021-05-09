@@ -134,7 +134,15 @@ const ee_server = {
 			const raw_response_text = await response.text();
 			// in the case of error EE will put newlines into the script which is wrong, hacky fix
 			// at some point EE should be fixed and much fo this can be replaced with a response.json()
-			const fixed_response_text=raw_response_text.replace(/[\r]/gm,'');
+			let fixed_response_text = raw_response_text.replace(/[\r]/gm,'');
+			// \ is currently not escaped in EE
+			fixed_response_text = fixed_response_text.replace(/\\/g,'\\\\');
+			// qoutes are not generally correctly escaped
+			// this needs fixing inside of EE, but we can fix the one situation of a single string being returned for right now
+			if (fixed_response_text[0] && fixed_response_text[fixed_response_text.length-1]=='"') {
+				fixed_response_text = fixed_response_text.replace(/"(.)/g,'\\"$1');
+				fixed_response_text = fixed_response_text.substring(1);
+			}
 			let ret;
 			if (fixed_response_text!="") {
 				try {
