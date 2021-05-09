@@ -117,6 +117,7 @@ const ee_server = {
 		return ret;
 	},
 	// run exec_lua with the code provided
+	// TODO errors should give a script name
 	exec : async function(lua_code) {
 		if (typeof(lua_code)!="string") {
 			throw new Error("exec not passed a "+typeof(lua_code)+" rather than the expected string, probably an internal error in this web page.");
@@ -153,11 +154,11 @@ const ee_server = {
 						return ret;
 					}
 				} catch (err) {
-					throw "---\njson not returned from EE - response =\"" + fixed_response_text + "\"\n----";
+					throw new Error("---\njson not returned from EE - response =\"" + fixed_response_text + "\"\n----");
 				}
 			}
 		} else {
-			throw "exec error " + await response.text();
+			throw new Error("exec error " + await response.text());
 		}
 	},
 	fetch_file : async function(filename) {
