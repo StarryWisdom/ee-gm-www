@@ -135,15 +135,18 @@ const ee_server = {
 			// in the case of error EE will put newlines into the script which is wrong, hacky fix
 			// at some point EE should be fixed and much fo this can be replaced with a response.json()
 			const fixed_response_text=raw_response_text.replace(/[\r]/gm,'');
-			try {
-				const ret=JSON.parse(fixed_response_text);
-				if (ret.ERROR) {
-					throw ret.ERROR;
-				} else {
-					return ret;
+			let ret;
+			if (fixed_response_text!="") {
+				try {
+					ret=JSON.parse(fixed_response_text);
+					if (ret && ret.ERROR) {
+						throw ret.ERROR;
+					} else {
+						return ret;
+					}
+				} catch (err) {
+					throw "---\njson not returned from EE - response =\"" + fixed_response_text + "\"\n----";
 				}
-			} catch (err) {
-				throw "---\njson not returned from EE - response =\"" + fixed_response_text + "\"\n----";
 			}
 		} else {
 			throw "exec error " + await response.text();
