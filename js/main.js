@@ -490,6 +490,61 @@ class home_tab {
 	}
 }
 
+class script_tab {
+	constructor () {
+		this.page_name = "script";
+	}
+	async show() {
+		const page = document.createElement("div");
+		const input = document.createElement("textarea");
+		input.style = "width : 100%";
+		input.rows = "10";
+		page.appendChild(input);
+		page.appendChild(document.createElement("br"));
+		const button = document.createElement("button");
+		button.textContent = "max simplify";
+		page.appendChild(button);
+		const output = document.createElement("textarea");
+		output.style = "width : 100%";
+		output.rows = "10";
+		page.appendChild(document.createElement("br"));
+		page.appendChild(output);
+		button.onclick = function () {
+			let str = input.value;
+			// this is kind of fragile
+			// we implicitly are somewhat depending on the order that EE creates the export string
+			// likewise we are assuming EE wont have newfunctions like setCallSignNewSuffix
+			// mostly it should be simple to fix and even if it breaks it wont be at gm time
+
+			// we are going to remove all of the functions we dont care about
+			// we do this via changing them to rm then removing all of them in one regex
+			str = str.replace(/:setBeamWeaponTurret/g,':rm');
+			str = str.replace(/:setBeamWeapon/g,':rm');
+			str = str.replace(/:setCallSign/g,':rm');
+			str = str.replace(/:setRotationMaxSpeed/g,':rm');
+			str = str.replace(/:setShortRangeRadarRange/g,':rm');
+			str = str.replace(/:setWeaponStorageMax/g,':rm');
+			str = str.replace(/:setWeaponStorage/g,':rm');
+			str = str.replace(/:orderStandGround/g,':rm');
+			str = str.replace(/:setWeaponTubeCount/g,':rm');
+			str = str.replace(/:setTubeSize/g,':rm');
+			str = str.replace(/:setShieldsMax/g,':rm');
+			str = str.replace(/:setShields/g,':rm');
+			str = str.replace(/:setHullMax/g,':rm');
+			str = str.replace(/:setHull/g,':rm');
+			str = str.replace(/:rm\([^)]*\)/g,'');
+			// todo map the type name to the pesudo template
+			// todo setTemplate
+			// todo setTypeName
+
+			output.textContent = str;
+		};
+		// TODO some sort of mirroring code
+		// TODO inner tabs?
+		return page;
+	}
+}
+
 class ui {
 	constructor () {
 		gm_tool.caution_level=caution_level.reckless;
@@ -498,6 +553,7 @@ class ui {
 			new data_card_tab(),
 			new debug_tab(),
 			new error_log_tab(),
+			new script_tab(),
 		];
 		this.update_button_list();
 		this._last_url="";
