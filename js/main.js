@@ -144,17 +144,17 @@ const ee_server = {
 				fixed_response_text = fixed_response_text.replace(/"(.)/g,'\\"$1');
 				fixed_response_text = fixed_response_text.substring(1);
 			}
-			let ret;
 			if (fixed_response_text!="") {
+				let ret;
 				try {
 					ret=JSON.parse(fixed_response_text);
-					if (ret && ret.ERROR) {
-						throw ret.ERROR;
-					} else {
-						return ret;
-					}
 				} catch (err) {
 					throw new Error("---\njson not returned from EE - response =\"" + fixed_response_text + "\"\n----");
+				}
+				if (ret && ret.ERROR) {
+					throw ret.ERROR;
+				} else {
+					return ret;
 				}
 			}
 		} else {
