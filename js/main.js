@@ -437,13 +437,66 @@ const svg_elements = {
 	}
 };
 
+class player_template_data_card {
+	constructor (template_name) {
+		this._data = gm_tool.get_player_pesudo_template.get(template_name);
+	}
+	async get_svg(){
+		const data = await this._data;
+		const svgData = svg_helper.create_svg(300,300,0,0,10000,10000);
+		const radar = svg_elements.create_radar_ovelay(5);
+		svgData.appendChild(radar);
+		radar.setAttribute("transform","translate(5000,5000)");
+		return svgData;
+	}
+}
+
 class data_card_tab {
 	constructor () {
 		this.page_name="data_card";
 	}
+	async _add_svg_for_template(div,template_name) {
+		const data_card = new player_template_data_card(template_name);
+		const svg=await data_card.get_svg();
+		div.appendChild(svg);
+	}
 	async show() {
-		const page=document.createElement("div");
-		const data = await gm_tool.get_player_pesudo_template.get("Ender");
+		const page = document.createElement("div");
+		const card = document.createElement("div");
+		const sel = document.createElement("select");
+		page.appendChild(sel);
+		const templates = await gm_tool.get_all_player_templates();
+		const this_card = this;
+		const change_to = async function(template) {
+			util.removeAllChildren(card);
+			if (template == "*ALL*") {
+				for (const template_name in templates) {
+					if (templates.hasOwnProperty(template_name)) {
+						this_card._add_svg_for_template(card,template_name);
+					}
+				}
+			} else {
+				this_card._add_svg_for_template(card,template);
+			}
+			page.appendChild(card);
+		}
+
+		sel.onchange = async function (option) {
+			change_to(this.options[this.selectedIndex].value);
+		};
+		const new_option = function (name) {
+			const option = document.createElement("option")
+			option.value = name;
+			option.textContent = name;
+			sel.appendChild(option);
+		};
+		new_option("*ALL*");
+		change_to("*ALL*");
+		for (const template_name in templates) {
+			if (templates.hasOwnProperty(template_name)) {
+				new_option(template_name);
+			}
+		}
 		return page;
 	}
 	get_button_text() {
