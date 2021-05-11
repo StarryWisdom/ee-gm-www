@@ -118,7 +118,7 @@ const ee_server = {
 	},
 	// run exec_lua with the code provided
 	// TODO errors should give a script name
-	exec : async function(lua_code) {
+	exec : async function(lua_code,error_location) {
 		if (typeof(lua_code)!="string") {
 			throw new Error("exec not passed a "+typeof(lua_code)+" rather than the expected string, probably an internal error in this web page.");
 		}
@@ -152,6 +152,9 @@ const ee_server = {
 					throw new Error("---\njson not returned from EE - response =\"" + fixed_response_text + "\"\n----");
 				}
 				if (ret && ret.ERROR) {
+					if (error_location) {
+						ret.ERROR="within file"+error_location+"\n" + ret.ERROR;
+					}
 					throw ret.ERROR;
 				} else {
 					return ret;
@@ -269,6 +272,7 @@ class get_extra_template_data{
 
 class lua_wrapper {
 	constructor(filename,caution,prevent_cache) {
+		this._filename = filename;
 		this._lua = gm_tool.cache_get_lua(filename);
 		this._caution = caution;
 	}
@@ -289,7 +293,7 @@ class lua_wrapper {
 			}
 		}
 		code += await this._lua;
-		return gm_tool.exec_lua(code,this._caution);
+		return gm_tool.exec_lua(code,this._caution,this._filename);
 	}
 }
 
@@ -374,12 +378,12 @@ class gm_tool_class {
 		}
 		return this._ee_cache._cache[cache_name];
 	}
-	async exec_lua(code,caution) {
+	async exec_lua(code,caution,filename) {
 		if (caution==undefined) {
 			throw new Error("caution level not set");
 		}
 		if (caution >= this.caution_level) {
-			return ee_server.exec(code);
+			return ee_server.exec(code,filename);
 		} else {
 			throw new Error("script set to be more cautious than this level of running. End users seeing this message is a bug");
 		}
