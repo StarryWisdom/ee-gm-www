@@ -410,6 +410,9 @@ class gm_tool_class {
 		}
 		return ret;
 	}
+	// there kind of wants to be a for_each_player_template
+	// before adding it consider how it will interact with async code
+	// the obvious answer is badly, thus I'm not writing it right now
 }
 
 class data_card_tab {
