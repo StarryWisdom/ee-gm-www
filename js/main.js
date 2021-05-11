@@ -415,6 +415,28 @@ class gm_tool_class {
 	// the obvious answer is badly, thus I'm not writing it right now
 }
 
+// elements that should be generic between several EE svg generators
+const svg_elements = {
+	// the lines on the radar
+	// the scale is in milli-units (IE the same distance used for beams, not the sci distance)
+	create_radar_ovelay : function(num_rings) {
+		let radar=svg_helper.create_g("none","#A8A8A8");
+		radar.setAttribute("stroke-width",25);
+		for (let i=1; i<=num_rings; i++) {
+			radar.appendChild(svg_helper.create_circle(0,0,i*1000));
+		}
+		const radar_lines=12;
+		for (let i=0; i<radar_lines; i++) {
+			const angle=Math.PI*2/radar_lines*i;
+			const line_length=Math.floor(num_rings)*1000;
+			const x2=line_length*Math.sin(angle);
+			const y2=line_length*Math.cos(angle);
+			radar.appendChild(svg_helper.create_line(0,0,x2,y2));
+		}
+		return radar;
+	}
+};
+
 class data_card_tab {
 	constructor () {
 		this.page_name="data_card";
