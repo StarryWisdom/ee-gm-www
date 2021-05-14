@@ -649,6 +649,22 @@ class script_tab {
 	}
 }
 
+class in_dev_tab {
+	constructor () {
+		this.page_name = "in-dev";
+	}
+	async show() {
+		const page = document.createElement("div");
+		const button = document.createElement("button");
+		button.textContent = "run";
+		button.onclick = function() {
+			gm_tool.upload_to_script_storage.tmp_go("print(\"atest\")");
+		};
+		page.appendChild(button);
+		return page;
+	}
+}
+
 class ui {
 	constructor () {
 		gm_tool.caution_level=caution_level.reckless;
@@ -658,6 +674,7 @@ class ui {
 			new debug_tab(),
 			new error_log_tab(),
 			new script_tab(),
+			new in_dev_tab()
 		];
 		this.update_button_list();
 		this._last_url="";
