@@ -356,6 +356,27 @@ const caution_level = {
 };
 Object.freeze(caution_level);
 
+class upload_to_script_storage {
+	constructor(cache) {
+		this._cache = cache;
+		// this may no longer be reckless when I think about it
+		this._setup = new lua_wrapper("in-progress/upload/setup",caution_level.reckless);
+		this._start = new lua_wrapper("in-progress/upload/start",caution_level.reckless);
+		this._segment = new lua_wrapper("in-progress/upload/segment",caution_level.reckless);
+		this._end = new lua_wrapper("in-progress/upload/end",caution_level.reckless);
+	}
+	async _upload_segment(id,str) {
+		return await this._segment.run({"slot" : id, "str" : str});
+	}
+	async tmp_go(str) {
+		await this._setup.run();
+		const id=await this._start.run();
+		// TODO split the str into multiple groups
+		console.log(await this._upload_segment(id,str));
+		await this._end.run({"slot" : id});
+	}
+};
+
 class gm_tool_class {
 	constructor() {
 		this.caution_level=caution_level.safe;
@@ -367,6 +388,7 @@ class gm_tool_class {
 		this.get_model_data = new get_model_data(this._ee_cache);
 		this.get_extra_template_data = new get_extra_template_data(this._ee_cache);
 		this.get_player_pesudo_template = new get_player_pesudo_template(this._ee_cache);
+		this.upload_to_script_storage = new upload_to_script_storage(this._ee_cache);
 	}
 	async get_whole_cache() {
 		return this._ee_cache.get_whole_cache();

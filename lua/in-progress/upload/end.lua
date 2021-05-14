@@ -1,0 +1,1 @@
+return getScriptStorage()._cuf_gm.upload_end(slot);
