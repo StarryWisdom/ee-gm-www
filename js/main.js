@@ -649,6 +649,45 @@ class script_tab {
 	}
 }
 
+class sat_tab {
+	constructor () {
+		this.page_name = "saturday";
+		this._sat_start_lua = new lua_wrapper("in-progress/sat-start",caution_level.safe);
+		this._sat_end_lua = new lua_wrapper("in-progress/sat-end",caution_level.safe);
+		this._comm_lua = new lua_wrapper("in-progress/message_all_ship_sci",caution_level.safe);
+	}
+	async show() {
+		const page = document.createElement("div");
+		const comms = document.createElement("button");
+		comms.textContent = "comms message";
+		page.appendChild(comms);
+		const _comm_lua = this._comm_lua;
+		comms.onclick = function () {
+			_comm_lua.run({msg : "test"});
+		}
+		const start = document.createElement("button");
+		start.textContent = "start";
+		const _sat_start_lua = this._sat_start_lua;
+		start.onclick = function () {
+			_sat_start_lua.run({max_time : 120, max_range : 5000, energy_cost : 100, no_eng_msg : "no energy"});
+		}
+		const end = document.createElement("button");
+		const input = document.createElement("input");
+		input.setAttribute("type","number");
+		page.appendChild(document.createElement("br"));
+		page.appendChild(input);
+		page.appendChild(document.createElement("br"));
+		end.textContent = "end";
+		const _sat_end_lua = this._sat_end_lua;
+		end.onclick = function () {
+			_sat_end_lua.run();
+		}
+		page.appendChild(start);
+		page.appendChild(end);
+		return page;
+	}
+}
+
 class in_dev_tab {
 	constructor () {
 		this.page_name = "in-dev";
@@ -673,6 +712,7 @@ class ui {
 			new data_card_tab(),
 			new debug_tab(),
 			new error_log_tab(),
+			new sat_tab(),
 			new script_tab(),
 			new in_dev_tab()
 		];
