@@ -688,6 +688,21 @@ class sat_tab {
 	}
 }
 
+class rift_tab { // 29th?
+	constructor () {
+		this.page_name = "rift";
+	}
+	async show() {
+		const page = document.createElement("div");
+		// settings for
+		// radius
+		// what happens on contact to players
+		// what happens on contacts to npc's
+		// expansion rate
+		return page;
+	}
+}
+
 class in_dev_tab {
 	constructor () {
 		this.page_name = "in-dev";
@@ -713,6 +728,7 @@ class ui {
 			new debug_tab(),
 			new error_log_tab(),
 			new sat_tab(),
+			new rift_tab(),
 			new script_tab(),
 			new in_dev_tab()
 		];
