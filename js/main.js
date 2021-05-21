@@ -285,7 +285,7 @@ class lua_wrapper {
 			if (settings.hasOwnProperty(v)) {
 				code += v + "=";
 				if (typeof(settings[v]) === "string") {
-					code += '"' + settings[v].replace(/\\/g,'\\\\').replace(/"/g,'\\"') + '"';
+					code += '"' + settings[v].replace(/\\/g,'\\\\').replace(/"/g,'\\"').replace(/\r/g,'').replace(/\n/g,'\\n') + '"';
 				} else {
 					code += settings[v];
 				}
