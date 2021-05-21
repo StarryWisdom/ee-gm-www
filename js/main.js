@@ -663,16 +663,17 @@ class sat_tab {
 		page.appendChild(comms);
 		const _comm_lua = this._comm_lua;
 		comms.onclick = function () {
-			_comm_lua.run({msg : "test"});
+			_comm_lua.run({msg : "All of the ships and stations near redshirt have been through an area of space where the warp readings where 500 ghz, it seems likely that this is the origin of the local kraylor attacks. your scanners have been  reconfigured to send out pings to measure the local warp frequency is. (check the 'other' tab on the science screen to activate it)"});
 		}
 		const start = document.createElement("button");
 		start.textContent = "start";
 		const _sat_start_lua = this._sat_start_lua;
-		start.onclick = function () {
-			_sat_start_lua.run({max_time : 120, max_range : 5000, energy_cost : 100, no_eng_msg : "no energy"});
-		}
 		const end = document.createElement("button");
-		const input = document.createElement("input");
+		const input = document.createElement("input"); // TODO long term this probably should convert with error checking
+		input.value = 120;
+		start.onclick = function () {
+			_sat_start_lua.run({max_time : parseFloat(input.value), max_range : 5000, energy_cost : 100, no_eng_msg : "insufficient power", name : "active warp ping"});
+		}
 		input.setAttribute("type","number");
 		page.appendChild(document.createElement("br"));
 		page.appendChild(input);
