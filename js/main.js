@@ -369,10 +369,19 @@ class upload_to_script_storage {
 		return await this._segment.run({"slot" : id, "str" : str});
 	}
 	async tmp_go(str) {
+		const max_length=1024;// we are just going to be cautious on the chunks we upload rather than check the exact number of chars
 		await this._setup.run();
 		const id=await this._start.run();
-		// TODO split the str into multiple groups
-		console.log(await this._upload_segment(id,str));
+		let i = 0;
+		for (;;) {
+			const cur_string=str.slice(i*max_length,(i+1)*max_length);
+			i++;
+			const response = await this._upload_segment(id,cur_string);
+			if (i*max_length>str.length) {
+				break;
+			}
+		}
+		// TODO we should clear old strings
 		await this._end.run({"slot" : id});
 	}
 };
