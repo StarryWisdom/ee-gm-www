@@ -349,10 +349,10 @@ class get_player_pesudo_template {
 }
 
 const caution_level = {
-	reckless : 1, // intended for development, or generating the cache to run during other sessions
-	safe : 2, // intended for saturday games, read only (any speed) or read / write with high confidence no issues
-	cautious : 3, // quick read only, intended for the large games for example
-	no_execs : 4, // intended for dev work, to confirm the cache contains everything
+	reckless : 1,
+	safe : 2,
+	cautious : 3,
+	no_execs : 4,
 };
 Object.freeze(caution_level);
 
@@ -389,6 +389,9 @@ class gm_tool_class {
 		this.get_extra_template_data = new get_extra_template_data(this._ee_cache);
 		this.get_player_pesudo_template = new get_player_pesudo_template(this._ee_cache);
 		this.upload_to_script_storage = new upload_to_script_storage(this._ee_cache);
+	}
+	set_caution_level(level) {
+		this.caution_level = caution_level[level];
 	}
 	async get_whole_cache() {
 		return this._ee_cache.get_whole_cache();
@@ -581,6 +584,30 @@ class home_tab {
 	}
 	async show() {
 		const page = document.createElement("div");
+		["reckless" , "safe", "cautious", "no_execs"].forEach( state => {
+			const desc = {
+				"reckless" : "intended for development, or generating the cache to run during other sessions",
+				"safe" : "intended for saturday games, read only (any speed) or read / write with high confidence no issues",
+				"cautious" : "quick read only, intended for the large games for example",
+				"no_execs" : "intended for dev work, to confirm the cache contains everything",
+			}
+			const radio = document.createElement("input");
+			radio.type = "radio";
+			radio.name = "carefulness";
+			radio.value = state;
+			if (caution_level[state] == gm_tool.caution_level) {
+				radio.checked = "checked";
+			}
+			radio.onclick = function () {
+				gm_tool.set_caution_level(this.value);
+			}
+			page.appendChild(radio);
+			page.appendChild(document.createTextNode(state+" - "+desc[state]))
+			page.appendChild(document.createElement("br"))
+		});
+		
+		const todo = document.createElement("div");
+		page.appendChild(todo);
 		const inner = "sadly right now this tool probably isnt useful unless you are able to ask starry questions<br>" +
 			"at some point a home page probably should be .... I dont know .... useful to people<br>" +
 			"but yet here we are, and I am going to use this as a todo list<br>" +
@@ -589,7 +616,7 @@ class home_tab {
 			"this really needs a way to save / load the cache, along with thought about how to fill the cache<br>"+
 			"there is no check to see if the resouces directory is available from the web tool, this should be checked on this page<br>"+
 			"some sort of consideration as to how to split the cache into scenario specific caches should happen before too long<br>";
-		page.innerHTML = inner;
+		todo.innerHTML = inner;
 		return page;
 	}
 }
