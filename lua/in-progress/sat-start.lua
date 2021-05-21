@@ -39,7 +39,6 @@ end
 
 for i=0,32 do
 	if (getPlayerShip(i) ~= nil) then
-		local name="temp"
 		getPlayerShip(i):addCustomButton("Science","tmp_s",name,getScriptStorage().tmp_fn[i])
 		getPlayerShip(i):addCustomButton("Operations","tmp_o",name,getScriptStorage().tmp_fn[i])
 		getPlayerShip(i):addCustomButton("Single","tmp_i",name,getScriptStorage().tmp_fn[i])
