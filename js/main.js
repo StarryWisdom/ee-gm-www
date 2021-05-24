@@ -384,7 +384,7 @@ class upload_to_script_storage {
 		// TODO we should clear old strings
 		await this._end.run({"slot" : id});
 	}
-};
+}
 
 class gm_tool_class {
 	constructor() {
@@ -513,13 +513,13 @@ class data_card_tab {
 				this_card._add_svg_for_template(card,template);
 			}
 			page.appendChild(card);
-		}
+		};
 
 		sel.onchange = async function (option) {
 			change_to(this.options[this.selectedIndex].value);
 		};
 		const new_option = function (name) {
-			const option = document.createElement("option")
+			const option = document.createElement("option");
 			option.value = name;
 			option.textContent = name;
 			sel.appendChild(option);
@@ -599,7 +599,7 @@ class home_tab {
 				"safe" : "intended for saturday games, read only (any speed) or read / write with high confidence no issues",
 				"cautious" : "quick read only, intended for the large games for example",
 				"no_execs" : "intended for dev work, to confirm the cache contains everything",
-			}
+			};
 			const radio = document.createElement("input");
 			radio.type = "radio";
 			radio.name = "carefulness";
@@ -609,10 +609,10 @@ class home_tab {
 			}
 			radio.onclick = function () {
 				gm_tool.set_caution_level(this.value);
-			}
+			};
 			page.appendChild(radio);
-			page.appendChild(document.createTextNode(state+" - "+desc[state]))
-			page.appendChild(document.createElement("br"))
+			page.appendChild(document.createTextNode(state+" - "+desc[state]));
+			page.appendChild(document.createElement("br"));
 		});
 		
 		const todo = document.createElement("div");
@@ -720,7 +720,7 @@ class sat_tab {
 		const _comm_lua = this._comm_lua;
 		comms.onclick = function () {
 			_comm_lua.run({msg : "All of the ships and stations near redshirt have been through an area of space where the warp readings where 500 ghz, it seems likely that this is the origin of the local kraylor attacks. your scanners have been  reconfigured to send out pings to measure the local warp frequency is. (check the 'other' tab on the science screen to activate it)"});
-		}
+		};
 		const start = document.createElement("button");
 		start.textContent = "start";
 		const _sat_start_lua = this._sat_start_lua;
@@ -729,7 +729,7 @@ class sat_tab {
 		input.value = 120;
 		start.onclick = function () {
 			_sat_start_lua.run({max_time : parseFloat(input.value), max_range : 5000, energy_cost : 100, no_eng_msg : "insufficient power", name : "active warp ping"});
-		}
+		};
 		input.setAttribute("type","number");
 		page.appendChild(document.createElement("br"));
 		page.appendChild(input);
@@ -738,7 +738,7 @@ class sat_tab {
 		const _sat_end_lua = this._sat_end_lua;
 		end.onclick = function () {
 			_sat_end_lua.run();
-		}
+		};
 		page.appendChild(start);
 		page.appendChild(end);
 		return page;
