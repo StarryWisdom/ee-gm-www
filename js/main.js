@@ -633,9 +633,29 @@ class home_tab {
 class script_tab {
 	constructor () {
 		this.page_name = "script";
+		this._gmclick1 = new lua_wrapper("gm_click1",caution_level.cautious);
+		this._gmclick2 = new lua_wrapper("gm_click2",caution_level.cautious);
 	}
 	async show() {
 		const page = document.createElement("div");
+		const gmclick_button = document.createElement("button");
+		gmclick_button.textContent = "get gmclick";
+		const gmclick1 = this._gmclick1;
+		gmclick_button.onclick = function () {
+			gmclick1.run();
+		};
+		const show_gmclick_button = document.createElement("button");
+		show_gmclick_button.textContent = "show gmclick";
+		const gmclick2 = this._gmclick2;
+		const results = document.createElement("div");
+		show_gmclick_button.onclick = async function () {
+			const loc = await gmclick2.run();
+			results.innerHTML = loc.x + "," + loc.y;
+		};
+		page.appendChild(gmclick_button);
+		page.appendChild(show_gmclick_button);
+		page.appendChild(results);
+		page.appendChild(document.createTextNode("note this should be automatically updated, but currently isnt"));
 		const input = document.createElement("textarea");
 		input.style = "width : 100%";
 		input.rows = "10";
