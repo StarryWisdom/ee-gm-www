@@ -817,6 +817,8 @@ class sat_tab {
 		};
 		page.appendChild(start);
 		page.appendChild(end);
+		// above this is old, and probably wants intergrating elsewhere
+		// even if its only into snippets
 		return page;
 	}
 }
@@ -852,6 +854,54 @@ class in_dev_tab {
 	}
 }
 
+class mirror_tool_tab {
+	constructor() {
+		this._mirror_tool = new lua_wrapper("in-progress/mirror-tool",caution_level.reckless);
+		this.page_name = "mirror";
+	}
+	async show() {
+		const page = document.createElement("div");
+		const button = document.createElement("button");
+		button.textContent = "enable";
+		const _mirror_tool = this._mirror_tool;
+
+		const input = document.createElement("textarea");
+		input.style = "width : 100%";
+		input.rows = "10";
+		page.appendChild(input);
+		page.appendChild(document.createElement("br"));
+
+
+		button.onclick = function () {
+			_mirror_tool.run();
+		};
+		page.appendChild(button);
+		return page;
+	}
+}
+
+class prebuilt_tab {
+	constructor() {
+		this.page_name = "prebuild";
+	}
+	async show() {
+		const page = document.createElement("div");
+		const base_list=["bigbase_01.txt", "diamond_01.txt", "icarus_style_01.txt", "missile_platform_base_01.txt" ];
+		base_list.forEach(base => {
+			console.log(base);
+			const button = document.createElement("button");
+			button.textContent = base;
+			button.onclick = async function () {
+				// I probably should cache this
+				const lua = ee_server.fetch_file("lua/base snippets/"+base); // TODO WRONG
+				gm_tool.upload_to_script_storage.tmp_go(await lua);
+			};
+			page.appendChild(button);
+		});
+		return page;
+	}
+}
+
 class ui {
 	constructor () {
 		gm_tool.caution_level=caution_level.reckless;
@@ -863,7 +913,9 @@ class ui {
 			new sat_tab(),
 			new rift_tab(),
 			new script_tab(),
-			new in_dev_tab()
+			new in_dev_tab(),
+			new mirror_tool_tab(),
+			new prebuilt_tab(),
 		];
 		this.update_button_list();
 		this._last_url="";
