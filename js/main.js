@@ -495,12 +495,45 @@ class player_template_data_card {
 	constructor (template_name) {
 		this._data = gm_tool.get_player_soft_template.get(template_name);
 	}
+	_create_beam_arcs(ship_data) {
+		const beams = ship_data.Beams;
+		const beams_element=svg_helper.create_g("none","#ff0000");
+		beams.forEach(beam => {
+// TODO turret arc
+			const beam_cx=beam.start_x*ship_data.Scale;// maybe this should be pre multiplied?
+			const beam_cy=beam.start_y*ship_data.Scale;
+			const beam_length=beam.Range;
+			const direction1=(beam.Direction+90-(beam.Arc/2))/360*(Math.PI*2);
+			const direction2=direction1+(beam.Arc/360*(Math.PI*2));
+			const dx1=beam_length*Math.sin(direction1);
+			const dy1=beam_length*Math.cos(direction1);
+			const dx2=beam_length*Math.sin(direction2);
+			const dy2=beam_length*Math.cos(direction2);
+			const path_data="M "+beam_cx+" "+beam_cy+" l "+dx1+" "+dy1+
+			// todo large arc
+			" M "+beam_cx+" "+beam_cy+" m "+dx1+" "+dy1+"A"+beam_length+" "+beam_length+" 0 0 0 "+(dx2+beam_cx)+" "+(dy2+beam_cy)+
+			" M "+beam_cx+" "+beam_cy+" l "+dx2+" "+dy2;
+			beams_element.appendChild(svg_helper.create_path(path_data));
+		});
+		return beams_element;
+	}
+	// compute beam arcs
+	// take each path
+	// calculate where they interesect
+	// if it intersects split at that point, calculate next intersection
 	async get_svg(){
 		const data = await this._data;
 		const svgData = svg_helper.create_svg(300,300,0,0,10000,10000);
 		const radar = svg_elements.create_radar_ovelay(5);
-		svgData.appendChild(radar);
 		radar.setAttribute("transform","translate(5000,5000)");
+		radar.appendChild(this._create_beam_arcs(data));
+
+		//TODO the x,y locations are placed probably wrongly
+		// TODO width, height are pre scaled (and probably wrong)
+		const uri=await gm_tool.cache_image_uri("resources/"+data.RadarTrace);
+		radar.appendChild(svg_helper.create_png_image(-250,-250,500,500,uri));
+		//console.log(new XMLSerializer().serializeToString(svgData));
+		svgData.appendChild(radar);
 		return svgData;
 	}
 }
