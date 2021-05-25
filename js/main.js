@@ -196,7 +196,7 @@ class data_cache {
 		if (this.has_key(key)) {
 			return this._cache[key];
 		} else {
-			throw "cached element \"" + key+"\" requested which doesnt exist";
+			throw new Error("cached element \"" + key+"\" requested which doesnt exist");
 		}
 	}
 	// used for saving it into web storage / JSON files
