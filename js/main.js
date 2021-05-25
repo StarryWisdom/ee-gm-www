@@ -699,9 +699,6 @@ class script_tab {
 			str = str.replace(/:setJumpDrive/g,':rm');
 			str = str.replace(/:rm\([^)]*\)/g,'');
 			str = str.replace(/^[ \t]*/gm,'');
-			// todo map the type name to the pesudo template
-			// todo setTemplate
-			// todo setTypeName
 			// now we sort
 
 			let string_array = str.split("\n").sort();
