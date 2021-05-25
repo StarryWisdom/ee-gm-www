@@ -297,20 +297,20 @@ class lua_wrapper {
 	}
 }
 
-// at the moment this is rather jumbled between getting the pesudo template and the actual template
+// at the moment this is rather jumbled between getting the soft template and the actual template
 // at some point this will probably be cleared up, but at the moment it is something to keep in mind
-class get_player_pesudo_template {
+class get_player_soft_template {
 	constructor(cache) {
 		this._cache = cache;
 		// this is labeled reckless due to the creation and destruction of a playerShip
 		// with more lua side error checking, along with thought about onNewPlayerShip this may be possible to change
-		this._lua = new lua_wrapper("get_player_pesudo_template",caution_level.reckless);
+		this._lua = new lua_wrapper("get_player_soft_template",caution_level.reckless);
 	}
 	async _postprocess(raw) {
 		raw = await raw;
 		// get data needed for the all the postprocessing
 		// TODO needs to handle ships with their typename changed
-		// this will break almost all of xanstas pesudo template ships
+		// this will break almost all of xanstas soft template ships
 		const template=(await gm_tool.get_extra_template_data.get())[raw.TypeName];
 		const model=(await gm_tool.get_model_data.get())[template.Model];
 
@@ -396,7 +396,7 @@ class gm_tool_class {
 		// set up all of the classes for server requesting data
 		this.get_model_data = new get_model_data(this._ee_cache);
 		this.get_extra_template_data = new get_extra_template_data(this._ee_cache);
-		this.get_player_pesudo_template = new get_player_pesudo_template(this._ee_cache);
+		this.get_player_soft_template = new get_player_soft_template(this._ee_cache);
 		this.upload_to_script_storage = new upload_to_script_storage(this._ee_cache);
 	}
 	set_caution_level(level) {
@@ -429,9 +429,9 @@ class gm_tool_class {
 		}
 		return this._ee_cache._cache[cache_name];
 	}
-	// this needs thought when templates and pesudo templates are properly split
+	// this needs thought when templates and soft templates are properly split
 	// at that time its worth considering if it should only return the keys to be fed into
-	// the template and pesudo template functions
+	// the template and soft template functions
 	async get_all_player_templates() {
 		const templates = await this.get_extra_template_data.get();
 		const ret = {};
@@ -473,7 +473,7 @@ const svg_elements = {
 
 class player_template_data_card {
 	constructor (template_name) {
-		this._data = gm_tool.get_player_pesudo_template.get(template_name);
+		this._data = gm_tool.get_player_soft_template.get(template_name);
 	}
 	async get_svg(){
 		const data = await this._data;
