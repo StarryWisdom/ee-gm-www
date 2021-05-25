@@ -692,12 +692,36 @@ class script_tab {
 			str = str.replace(/:setShields/g,':rm');
 			str = str.replace(/:setHullMax/g,':rm');
 			str = str.replace(/:setHull/g,':rm');
+			str = str.replace(/:setImpulseMaxSpeed/g,':rm');
+			str = str.replace(/:setWeaponTubeDirection/g,':rm');
+			str = str.replace(/:setJumpDrive/g,':rm');
 			str = str.replace(/:rm\([^)]*\)/g,'');
+			str = str.replace(/^[ \t]*/gm,'');
 			// todo map the type name to the pesudo template
 			// todo setTemplate
 			// todo setTypeName
+			// now we sort
 
-			output.textContent = str;
+			let string_array = str.split("\n").sort();
+			string_array = string_array.filter(line => line!="");
+
+			const sorted_array = {
+				CpuShip : [],
+				other : [],
+			};
+			string_array.forEach(line => {
+				if (line.match(/^CpuShip/)) {
+					// this is wrong as its assuming any type name seen is a template, this may be fixable sandbox side for soft template
+					//line = line.replace(/:setTemplate\("([^"]*)"\)(.*):setTypeName\(("[^"]*")\)/,"setTemplate($3)$2")
+					line = line.replace(/CpuShip\(\)(.*):setTemplate\("([^"]*)"\)(.*):setTypeName\(("[^"]*")\)/,"ship_template[$4].create('Kraylor',$4)$3")
+					sorted_array.CpuShip.push(line);
+				} else {
+					sorted_array.other.push(line);
+				}
+			});
+
+			const str_output = sorted_array.CpuShip.join("\n").concat("\n",sorted_array.other.join("\n"))
+			output.textContent = str_output;
 		};
 		// TODO some sort of mirroring code
 		// TODO inner tabs?
