@@ -650,7 +650,9 @@ class script_tab {
 		const results = document.createElement("div");
 		show_gmclick_button.onclick = async function () {
 			const loc = await gmclick2.run();
-			results.innerHTML = loc.x + "," + loc.y;
+			if (loc) {
+				results.innerHTML = loc.x + "," + loc.y;
+			}
 		};
 		page.appendChild(gmclick_button);
 		page.appendChild(show_gmclick_button);
