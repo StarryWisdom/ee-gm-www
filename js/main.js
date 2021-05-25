@@ -17,19 +17,19 @@ const svg_helper = {
 		return svgData;
 	},
 	create_circle : function(cx,cy,r) {
-		const circle=document.createElementNS("http://www.w3.org/2000/svg","circle");
+		const circle = document.createElementNS("http://www.w3.org/2000/svg","circle");
 		circle.setAttribute("cx",cx);
 		circle.setAttribute("cy",cy);
 		circle.setAttribute("r",r);
 		return circle;
 	},
 	create_path : function(d) {
-		const path=document.createElementNS("http://www.w3.org/2000/svg","path");
+		const path = document.createElementNS("http://www.w3.org/2000/svg","path");
 		path.setAttribute("d",d);
 		return path;
 	},
 	create_line : function(x1,y1,x2,y2) {
-		const line=document.createElementNS("http://www.w3.org/2000/svg","line");
+		const line = document.createElementNS("http://www.w3.org/2000/svg","line");
 		line.setAttribute("x1",x1);
 		line.setAttribute("y1",y1);
 		line.setAttribute("x2",x2);
@@ -37,13 +37,13 @@ const svg_helper = {
 		return line;
 	},
 	create_g : function(fill,color) {
-		const g=document.createElementNS("http://www.w3.org/2000/svg","g");
+		const g = document.createElementNS("http://www.w3.org/2000/svg","g");
 		g.setAttribute("fill",fill);
 		g.setAttribute("stroke",color);
 		return g;
 	},
 	create_png_image : function(x,y,width,height,data_url) {
-		const img=document.createElementNS("http://www.w3.org/2000/svg","image");
+		const img = document.createElementNS("http://www.w3.org/2000/svg","image");
 		img.setAttribute("x",x);
 		img.setAttribute("y",y);
 		img.setAttribute("width",width);
@@ -83,7 +83,7 @@ Object.freeze(util);
 
 class error_logger_class {
 	constructor() {
-		this._errors=[];
+		this._errors = [];
 	}
 	error(msg) {
 		console.log(msg);
@@ -98,7 +98,7 @@ class error_logger_class {
 	get_button_text() {
 		let error_text="errors";
 		if (this._errors.length!=0) {
-			error_text+=" "+"("+this._errors.length+")";
+			error_text += " "+"("+this._errors.length+")";
 		}
 		return error_text;
 	}
@@ -119,10 +119,10 @@ const ee_server = {
 	// run exec_lua with the code provided
 	// TODO errors should give a script name
 	exec : async function(lua_code,error_location) {
-		if (typeof(lua_code)!="string") {
+		if (typeof(lua_code) != "string") {
 			throw new Error("exec not passed a "+typeof(lua_code)+" rather than the expected string, probably an internal error in this web page.");
 		}
-		const max_exec_length=2048; // this is a constant inside of EE
+		const max_exec_length = 2048; // this is a constant inside of EE
 		// There also is an execution time limit, but that is something I havent tested yet
 		if (lua_code.length > max_exec_length) {
 			throw "attemped to upload a exec file too large for ee - size = " + lua_code.length;
@@ -144,7 +144,7 @@ const ee_server = {
 				fixed_response_text = fixed_response_text.replace(/"(.)/g,'\\"$1');
 				fixed_response_text = fixed_response_text.substring(1);
 			}
-			if (fixed_response_text!="") {
+			if (fixed_response_text != "") {
 				let ret;
 				try {
 					ret=JSON.parse(fixed_response_text);
@@ -153,7 +153,7 @@ const ee_server = {
 				}
 				if (ret && ret.ERROR) {
 					if (error_location) {
-						ret.ERROR="within file"+error_location+"\n" + ret.ERROR;
+						ret.ERROR = "within file"+error_location+"\n" + ret.ERROR;
 					}
 					throw ret.ERROR;
 				} else {
@@ -167,7 +167,7 @@ const ee_server = {
 	fetch_file : async function(filename) {
 		const response = await fetch(filename);
 		if (!response.ok) {
-			if (response.status==404) {
+			if (response.status == 404) {
 				throw new Error("fetch error - file not found \"" + response.url+"\"");
 			} else {
 				throw new Error("fetch error " + response.text());
@@ -190,7 +190,7 @@ class data_cache {
 		if (this.has_key(key)) {
 			throw new Error("attempted to add duplicate entry into the a cache");
 		}
-		this._cache[key]=value;
+		this._cache[key] = value;
 	}
 	async get(key) {
 		if (this.has_key(key)) {
@@ -203,7 +203,7 @@ class data_cache {
 	async get_whole_cache () {
 		for (const key in this._cache) {
 			if (this.has_key(key)) {
-				this._cache[key]=await this._cache[key];
+				this._cache[key] = await this._cache[key];
 			}
 		}
 		return this._cache;
@@ -217,10 +217,10 @@ class data_cache {
 // in which case this may stop needing to exist
 class get_model_data {
 	constructor (cache) {
-		this._cache=cache;
+		this._cache = cache;
 		// this needlessly fills the cache with the lua
 		// this could be fixed, but is not currently important
-		this._lua_wrapper=new lua_wrapper("get_model_data",caution_level.safe);
+		this._lua_wrapper = new lua_wrapper("get_model_data",caution_level.safe);
 		this._cache.set("model_data",this.resolve());
 	}
 	async resolve() {
@@ -230,7 +230,7 @@ class get_model_data {
 			model.BeamPosition=ee_server.convert_lua_json_to_array(model.BeamPosition);
 			const name = model.Name;
 			delete model.Name;
-			ret[name]=model;
+			ret[name] = model;
 		});
 		return ret;
 	}
@@ -244,15 +244,15 @@ class get_model_data {
 // this would require EE scripting to be exapanded
 class get_extra_template_data{
 	constructor (cache) {
-		this._cache=cache;
+		this._cache = cache;
 		// this needlessly fills the cache with the lua
 		// this could be fixed, but is not currently important
-		this._lua_wrapper=new lua_wrapper("get_extra_template_data",caution_level.safe);
+		this._lua_wrapper = new lua_wrapper("get_extra_template_data",caution_level.safe);
 		this._cache.set("template_data",this.resolve());
 	}
 	async resolve() {
-		const raw=await this._lua_wrapper.run();
-		const template_data=ee_server.convert_lua_json_to_array(raw);
+		const raw = await this._lua_wrapper.run();
+		const template_data = ee_server.convert_lua_json_to_array(raw);
 		const ret = {};
 		template_data.forEach(template => {
 			if ('Name' in template) {
@@ -330,8 +330,8 @@ class get_player_soft_template {
 		// get data needed for the all the postprocessing
 		// TODO needs to handle ships with their typename changed
 		// this will break almost all of xanstas soft template ships
-		const template=(await gm_tool.get_extra_template_data.get())[raw.TypeName];
-		const model=(await gm_tool.get_model_data.get())[template.Model];
+		const template = (await gm_tool.get_extra_template_data.get())[raw.TypeName];
+		const model = (await gm_tool.get_model_data.get())[template.Model];
 
 		Object.entries(raw.Beams).forEach(([beam_num,beam]) => {
 			if (model.BeamPosition[beam_num-1]) {
@@ -351,10 +351,10 @@ class get_player_soft_template {
 			}
 		});
 
-		raw.Beams=ee_server.convert_lua_json_to_array(raw.Beams);
-		raw.RadarTrace=template.RadarTrace; // sadly we lack a playership::getRadarTrace() currently
-		raw.Scale=model.Scale;
-		raw.ShieldMax=ee_server.convert_lua_json_to_array(raw.ShieldMax);
+		raw.Beams = ee_server.convert_lua_json_to_array(raw.Beams);
+		raw.RadarTrace = template.RadarTrace; // sadly we lack a playership::getRadarTrace() currently
+		raw.Scale = model.Scale;
+		raw.ShieldMax = ee_server.convert_lua_json_to_array(raw.ShieldMax);
 
 		return raw;
 	}
@@ -388,12 +388,12 @@ class upload_to_script_storage {
 		return await this._segment.run({"slot" : id, "str" : str});
 	}
 	async tmp_go(str) {
-		const max_length=1024;// we are just going to be cautious on the chunks we upload rather than check the exact number of chars
+		const max_length = 1024;// we are just going to be cautious on the chunks we upload rather than check the exact number of chars
 		await this._setup.run();
-		const id=await this._start.run();
+		const id = await this._start.run();
 		let i = 0;
 		for (;;) {
-			const cur_string=str.slice(i*max_length,(i+1)*max_length);
+			const cur_string = str.slice(i*max_length,(i+1)*max_length);
 			i++;
 			const response = await this._upload_segment(id,cur_string);
 			if (i*max_length>str.length) {
@@ -407,7 +407,7 @@ class upload_to_script_storage {
 
 class gm_tool_class {
 	constructor() {
-		this.caution_level=caution_level.safe;
+		this.caution_level = caution_level.safe;
 	}
 	// this needs to be called before any other members are used
 	async init() {
@@ -426,14 +426,14 @@ class gm_tool_class {
 		return this._ee_cache.get_whole_cache();
 	}
 	async cache_get_lua(filename) {
-		const cache_name=filename+".lua";
+		const cache_name = filename+".lua";
 		if (!this._ee_cache.has_key(cache_name)) {
 			this._ee_cache.set(cache_name,ee_server.fetch_file("lua/"+cache_name));
 		}
 		return this._ee_cache._cache[cache_name];
 	}
 	async exec_lua(code,caution,filename) {
-		if (caution==undefined) {
+		if (caution == undefined) {
 			throw new Error("caution level not set");
 		}
 		if (caution >= this.caution_level) {
@@ -443,7 +443,7 @@ class gm_tool_class {
 		}
 	}
 	async cache_image_uri(url) {
-		const cache_name=url;
+		const cache_name = url;
 		if (!this._ee_cache.has_key(cache_name)) {
 			this._ee_cache.set(cache_name,util.convertImageToURI(url));
 		}
@@ -457,8 +457,8 @@ class gm_tool_class {
 		const ret = {};
 		for (const name in templates) {
 			if (templates.hasOwnProperty(name)) {
-				if (templates[name].Type=="playership") {
-					ret[name]=templates[name];
+				if (templates[name].Type == "playership") {
+					ret[name] = templates[name];
 				}
 			}
 		}
@@ -479,12 +479,12 @@ const svg_elements = {
 		for (let i=1; i<=num_rings; i++) {
 			radar.appendChild(svg_helper.create_circle(0,0,i*1000));
 		}
-		const radar_lines=12;
+		const radar_lines = 12;
 		for (let i=0; i<radar_lines; i++) {
-			const angle=Math.PI*2/radar_lines*i;
-			const line_length=Math.floor(num_rings)*1000;
-			const x2=line_length*Math.sin(angle);
-			const y2=line_length*Math.cos(angle);
+			const angle = Math.PI*2/radar_lines*i;
+			const line_length = Math.floor(num_rings)*1000;
+			const x2 = line_length*Math.sin(angle);
+			const y2 = line_length*Math.cos(angle);
 			radar.appendChild(svg_helper.create_line(0,0,x2,y2));
 		}
 		return radar;
@@ -500,16 +500,16 @@ class player_template_data_card {
 		const beams_element=svg_helper.create_g("none","#ff0000");
 		beams.forEach(beam => {
 // TODO turret arc
-			const beam_cx=beam.start_x*ship_data.Scale;// maybe this should be pre multiplied?
-			const beam_cy=beam.start_y*ship_data.Scale;
-			const beam_length=beam.Range;
-			const direction1=(beam.Direction+90-(beam.Arc/2))/360*(Math.PI*2);
-			const direction2=direction1+(beam.Arc/360*(Math.PI*2));
-			const dx1=beam_length*Math.sin(direction1);
-			const dy1=beam_length*Math.cos(direction1);
-			const dx2=beam_length*Math.sin(direction2);
-			const dy2=beam_length*Math.cos(direction2);
-			const path_data="M "+beam_cx+" "+beam_cy+" l "+dx1+" "+dy1+
+			const beam_cx = beam.start_x*ship_data.Scale;// maybe this should be pre multiplied?
+			const beam_cy = beam.start_y*ship_data.Scale;
+			const beam_length = beam.Range;
+			const direction1 = (beam.Direction+90-(beam.Arc/2))/360*(Math.PI*2);
+			const direction2 = direction1+(beam.Arc/360*(Math.PI*2));
+			const dx1 = beam_length*Math.sin(direction1);
+			const dy1 = beam_length*Math.cos(direction1);
+			const dx2 = beam_length*Math.sin(direction2);
+			const dy2 = beam_length*Math.cos(direction2);
+			const path_data = "M "+beam_cx+" "+beam_cy+" l "+dx1+" "+dy1+
 			// todo large arc
 			" M "+beam_cx+" "+beam_cy+" m "+dx1+" "+dy1+"A"+beam_length+" "+beam_length+" 0 0 0 "+(dx2+beam_cx)+" "+(dy2+beam_cy)+
 			" M "+beam_cx+" "+beam_cy+" l "+dx2+" "+dy2;
@@ -530,7 +530,7 @@ class player_template_data_card {
 
 		//TODO the x,y locations are placed probably wrongly
 		// TODO width, height are pre scaled (and probably wrong)
-		const uri=await gm_tool.cache_image_uri("resources/"+data.RadarTrace);
+		const uri = await gm_tool.cache_image_uri("resources/"+data.RadarTrace);
 		radar.appendChild(svg_helper.create_png_image(-250,-250,500,500,uri));
 		//console.log(new XMLSerializer().serializeToString(svgData));
 		svgData.appendChild(radar);
@@ -540,11 +540,11 @@ class player_template_data_card {
 
 class data_card_tab {
 	constructor () {
-		this.page_name="data_card";
+		this.page_name = "data_card";
 	}
 	async _add_svg_for_template(div,template_name) {
 		const data_card = new player_template_data_card(template_name);
-		const svg=await data_card.get_svg();
+		const svg = await data_card.get_svg();
 		div.appendChild(svg);
 	}
 	async show() {
@@ -593,13 +593,13 @@ class data_card_tab {
 
 class error_log_tab {
 	constructor()  {
-		this.page_name="error_log";
+		this.page_name = "error_log";
 	}
 	get_button_text () {
 		return error_logger.get_button_text();
 	}
 	async show () {
-		const page=document.createElement("div");
+		const page = document.createElement("div");
 		// TODO it would be nice if this updated if the error_logger had new errors
 		error_logger.get_errors().forEach(error => {
 			page.appendChild(document.createTextNode(error));
@@ -619,19 +619,19 @@ class debug_tab {
 		this.page_name = "debug";
 	}
 	async show() {
-		const page=document.createElement("div");
-		const cache_details=document.createElement("table");
+		const page = document.createElement("div");
+		const cache_details = document.createElement("table");
 		page.appendChild(cache_details);
-		const cache=await gm_tool.get_whole_cache();
+		const cache = await gm_tool.get_whole_cache();
 
 		// show all of the sizes for the cache
 		// TODO it might be nice to convert these to kb/mb
-		const row=cache_details.insertRow();
+		const row = cache_details.insertRow();
 		row.insertCell().appendChild(document.createTextNode("total size"));
 		row.insertCell().appendChild(document.createTextNode(JSON.stringify(cache).length));
 		for (const key in cache) {
 			if (cache.hasOwnProperty(key)) {
-				const row=cache_details.insertRow();
+				const row = cache_details.insertRow();
 				row.insertCell().appendChild(document.createTextNode(key));
 				row.insertCell().appendChild(document.createTextNode(JSON.stringify(cache[key]).length));
 			}
@@ -921,17 +921,17 @@ class ui {
 		this._last_url="";
 	}
 	update_button_list() {
-		const tabs=document.getElementById("tab-buttons");
+		const tabs = document.getElementById("tab-buttons");
 		util.removeAllChildren(tabs);
 		this._tabs.forEach(tab => {
 		const button = document.createElement("button");
 			if ("get_button_text" in tab) {
-				button.textContent=tab.get_button_text();
+				button.textContent = tab.get_button_text();
 			} else {
-				button.textContent=tab.page_name;
+				button.textContent = tab.page_name;
 			}
-			button.tab_class=tab;
-			button.onclick= function(){
+			button.tab_class = tab;
+			button.onclick = function(){
 				gm_ui.switch_to(this.tab_class);
 			};
 			tabs.appendChild(button);
@@ -941,7 +941,7 @@ class ui {
 		try {
 			const new_tab = await tab.show();
 			util.removeAllChildren(document.getElementById("main-tab"));
-			this._active_tab=tab;
+			this._active_tab = tab;
 			document.getElementById("main-tab").appendChild(new_tab);
 			this.update_history();
 		} catch (error) {
@@ -960,8 +960,8 @@ class ui {
 		if (this._active_tab && this._active_tab.page_name != undefined) {
 			url=url+"page="+this._active_tab.page_name;
 		}
-		if (this._last_url!=url) {
-			this.last_url=url;
+		if (this._last_url != url) {
+			this.last_url = url;
 			history.pushState(null, '', url);
 		}
 	}
