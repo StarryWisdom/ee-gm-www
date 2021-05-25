@@ -297,6 +297,25 @@ class lua_wrapper {
 	}
 }
 
+class get_cpuship_soft_templates {
+	constructor(cache) {
+		this._cache = cache;
+		// this basically cant become non reckless
+		// this is due to the fact its running random chunks of sandbox code
+		// its probably possible to make it behave better, but flawless is unlikely
+		this._lua = new lua_wrapper("sandbox/get_cpuship_soft_tempate",caution_level.reckless);
+		this._cache.set("npc_ships",this.resolve());
+	}
+	async resolve() {
+		const ret = ee_server.convert_lua_json_to_array(await this._lua.run());
+		console.log(ret);
+		return ret;
+	}
+	async get() {
+		return this._cache.get("npc_ships");
+	}
+}
+
 // at the moment this is rather jumbled between getting the soft template and the actual template
 // at some point this will probably be cleared up, but at the moment it is something to keep in mind
 class get_player_soft_template {
@@ -398,6 +417,7 @@ class gm_tool_class {
 		this.get_extra_template_data = new get_extra_template_data(this._ee_cache);
 		this.get_player_soft_template = new get_player_soft_template(this._ee_cache);
 		this.upload_to_script_storage = new upload_to_script_storage(this._ee_cache);
+		this.get_cpuship_data = new get_cpuship_soft_templates(this._ee_cache);
 	}
 	set_caution_level(level) {
 		this.caution_level = caution_level[level];
