@@ -2,7 +2,7 @@ _ENV = getScriptStorage()._gm_cuf_env
 local ret = {}
 for k,v in pairs(ship_template) do
 	local get_ship_data = function (create,tbl)
-		local ship = create("Human",tbl.gm_name)
+		local ship = create("Human Navy",tbl.gm_name)
 		tbl["type_name"] = ship:getTypeName()
 		ship:destroy()
 	end
