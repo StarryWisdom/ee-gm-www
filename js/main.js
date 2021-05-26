@@ -426,7 +426,7 @@ class gm_tool_class {
 		for (;;) {
 			const cur_string = str.slice(i*max_length,(i+1)*max_length);
 			i++;
-			const response = await this.call_www_function("upload_segment",id,str);
+			const response = await this.call_www_function("upload_segment",id,cur_string);
 			if (i*max_length>str.length) {
 				break;
 			}
