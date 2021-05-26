@@ -133,15 +133,16 @@ const ee_server = {
 		});
 		if (response.ok) {
 			const raw_response_text = await response.text();
-			// in the case of error EE will put newlines into the script which is wrong, hacky fix
 			// at some point EE should be fixed and much fo this can be replaced with a response.json()
-			let fixed_response_text = raw_response_text.replace(/[\r]/gm,'').replace(/[\n]/gm,'\\n');
 			// \ is currently not escaped in EE
-			fixed_response_text = fixed_response_text.replace(/\\/g,'\\\\');
+			let fixed_response_text = raw_response_text.replace(/\\/g,'\\\\');
+			// in the case of error EE will put newlines into the script which is wrong, hacky fix
+			fixed_response_text = fixed_response_text.replace(/[\r]/gm,'').replace(/[\n]/gm,'\\n');
 			// qoutes are not generally correctly escaped
 			// this needs fixing inside of EE, but we can fix the one situation of a single string being returned for right now
 			if (fixed_response_text[0] && fixed_response_text[fixed_response_text.length-1]=='"') {
 				fixed_response_text = fixed_response_text.replace(/"(.)/g,'\\"$1');
+				fixed_response_text = fixed_response_text.replace(/\t/g,'\\t')
 				fixed_response_text = fixed_response_text.substring(1);
 			}
 			if (fixed_response_text != "") {
@@ -418,6 +419,10 @@ class gm_tool_class {
 		this.get_player_soft_template = new get_player_soft_template(this._ee_cache);
 		this.upload_to_script_storage = new upload_to_script_storage(this._ee_cache);
 		this.get_cpuship_data = new get_cpuship_soft_templates(this._ee_cache);
+		// this probably wants splitting into boostrap code (less than 1 EE upload segment) including upload_to_script_storage
+		// and everything else (with it being conditionally executed if not already loaded)
+		this._www_gm_tools = new lua_wrapper("www_gm_tools",caution_level.cautious);
+		await this._www_gm_tools.run();
 	}
 	set_caution_level(level) {
 		this.caution_level = caution_level[level];
