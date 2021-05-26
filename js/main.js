@@ -272,7 +272,7 @@ class get_extra_template_data{
 }
 
 class lua_wrapper {
-	constructor(filename,caution,prevent_cache) {
+	constructor(filename,caution) {
 		this._filename = filename;
 		this._lua = gm_tool.cache_get_lua(filename);
 		this._caution = caution;
