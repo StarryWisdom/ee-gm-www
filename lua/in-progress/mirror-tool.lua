@@ -1,5 +1,5 @@
 _ENV = getScriptStorage()._gm_cuf_env
-getScriptStorage().fun = function () 
+getScriptStorage().fun = function ()
 	print("1")
 	initialGMFunctions()
 end
