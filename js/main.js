@@ -116,15 +116,15 @@ const ee_server = {
 		});
 		return ret;
 	},
+	max_exec_length : 2048, // this is a constant inside of EE
 	// run exec_lua with the code provided
 	// TODO errors should give a script name
 	exec : async function(lua_code,error_location) {
 		if (typeof(lua_code) != "string") {
 			throw new Error("exec not passed a "+typeof(lua_code)+" rather than the expected string, probably an internal error in this web page.");
 		}
-		const max_exec_length = 2048; // this is a constant inside of EE
 		// There also is an execution time limit, but that is something I havent tested yet
-		if (lua_code.length > max_exec_length) {
+		if (lua_code.length > this.max_exec_length) {
 			throw "attemped to upload a exec file too large for ee - size = " + lua_code.length;
 		}
 		const response = await fetch(window.location.protocol+"//"+window.location.host+"/exec.lua",{
@@ -442,7 +442,11 @@ class gm_tool_class {
 			throw new Error("caution level not set");
 		}
 		if (caution >= this.caution_level) {
-			return ee_server.exec(code,filename);
+			if (code.length <= ee_server.max_exec_length) {
+				return ee_server.exec(code,filename);
+			} else {
+				this.upload_to_script_storage.tmp_go(code);
+			}
 		} else {
 			throw new Error("script set to be more cautious than this level of running. End users seeing this message is a bug");
 		}
