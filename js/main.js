@@ -850,11 +850,13 @@ class rift_tab { // 29th?
 class in_dev_tab {
 	constructor () {
 		this.page_name = "in-dev";
+		this._upload = new lua_wrapper("sandbox/update_system_debug",caution_level.reckless)
 	}
 	async show() {
 		const page = document.createElement("div");
 		const button = document.createElement("button");
 		button.textContent = "run";
+		console.log(await this._upload.run());
 		button.onclick = function() {
 			gm_tool.upload_to_script_storage.tmp_go("print(\"atest\")");
 		};
