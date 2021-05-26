@@ -702,8 +702,6 @@ class home_tab {
 class script_tab {
 	constructor () {
 		this.page_name = "script";
-		this._gmclick1 = new lua_wrapper("gm_click1",caution_level.cautious);
-		this._gmclick2 = new lua_wrapper("gm_click2",caution_level.cautious);
 	}
 	async show() {
 		const page = document.createElement("div");
@@ -711,14 +709,14 @@ class script_tab {
 		gmclick_button.textContent = "get gmclick";
 		const gmclick1 = this._gmclick1;
 		gmclick_button.onclick = function () {
-			gmclick1.run();
+			gm_tool.call_www_function("get_gm_click1");
 		};
 		const show_gmclick_button = document.createElement("button");
 		show_gmclick_button.textContent = "show gmclick";
 		const gmclick2 = this._gmclick2;
 		const results = document.createElement("div");
 		show_gmclick_button.onclick = async function () {
-			const loc = await gmclick2.run();
+			const loc = await gm_tool.call_www_function("get_gm_click2");
 			if (loc) {
 				results.innerHTML = loc.x + "," + loc.y;
 			}

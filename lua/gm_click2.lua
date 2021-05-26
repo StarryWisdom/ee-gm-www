@@ -1,1 +1,0 @@
-return getScriptStorage().last_gm_click
