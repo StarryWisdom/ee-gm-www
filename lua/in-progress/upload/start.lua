@@ -1,6 +1,4 @@
-for i=0,1000000 do
-	if (getScriptStorage()._cuf_gm._upload_slot[i] == nil) then
-		getScriptStorage()._cuf_gm._upload_slot[i] = ""
-		return i
-	end
-end
+local slot_id = getScriptStorage()._cuf_gm.uploads.slot_id
+getScriptStorage()._cuf_gm.uploads.slots[slot_id] = ""
+getScriptStorage()._cuf_gm.uploads.slot_id = slot_id + 1
+return slot_id

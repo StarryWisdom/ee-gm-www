@@ -380,7 +380,6 @@ class upload_to_script_storage {
 	constructor(cache) {
 		this._cache = cache;
 		// this may no longer be reckless when I think about it
-		this._setup = new lua_wrapper("in-progress/upload/setup",caution_level.reckless);
 		this._start = new lua_wrapper("in-progress/upload/start",caution_level.reckless);
 		this._segment = new lua_wrapper("in-progress/upload/segment",caution_level.reckless);
 		this._end = new lua_wrapper("in-progress/upload/end",caution_level.reckless);
@@ -390,7 +389,6 @@ class upload_to_script_storage {
 	}
 	async tmp_go(str) {
 		const max_length = 1024;// we are just going to be cautious on the chunks we upload rather than check the exact number of chars
-		await this._setup.run();
 		const id = await this._start.run();
 		let i = 0;
 		for (;;) {
@@ -421,6 +419,8 @@ class gm_tool_class {
 		this.get_cpuship_data = new get_cpuship_soft_templates(this._ee_cache);
 		// this probably wants splitting into boostrap code (less than 1 EE upload segment) including upload_to_script_storage
 		// and everything else (with it being conditionally executed if not already loaded)
+		this._bootstrap = new lua_wrapper("bootstrap",caution_level.cautious);
+		await this._bootstrap.run();
 		this._www_gm_tools = new lua_wrapper("www_gm_tools",caution_level.cautious);
 		await this._www_gm_tools.run();
 	}
