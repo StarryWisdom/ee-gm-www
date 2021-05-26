@@ -1,6 +1,6 @@
 _ENV = getScriptStorage()._gm_cuf_env
+local ret = {}
 for k,v in pairs(ship_template) do
-	local ret = {}
 	local get_ship_data = function (create,tbl)
 		local ship = create("Human",tbl.gm_name)
 		tbl["type_name"] = ship:getTypeName()
