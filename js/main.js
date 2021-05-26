@@ -125,7 +125,7 @@ const ee_server = {
 		}
 		// There also is an execution time limit, but that is something I havent tested yet
 		if (lua_code.length > this.max_exec_length) {
-			throw "attemped to upload a exec file too large for ee - size = " + lua_code.length;
+			throw new Error("attemped to upload a exec file too large for ee - size = " + lua_code.length);
 		}
 		const response = await fetch(window.location.protocol+"//"+window.location.host+"/exec.lua",{
 			method:"POST",
