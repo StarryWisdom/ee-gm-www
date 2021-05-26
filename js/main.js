@@ -376,34 +376,6 @@ const caution_level = {
 };
 Object.freeze(caution_level);
 
-class upload_to_script_storage {
-	constructor(cache) {
-		this._cache = cache;
-		// this may no longer be reckless when I think about it
-		this._start = new lua_wrapper("in-progress/upload/start",caution_level.reckless);
-		this._segment = new lua_wrapper("in-progress/upload/segment",caution_level.reckless);
-		this._end = new lua_wrapper("in-progress/upload/end",caution_level.reckless);
-	}
-	async _upload_segment(id,str) {
-		return await this._segment.run({"slot" : id, "str" : str});
-	}
-	async tmp_go(str) {
-		const max_length = 1024;// we are just going to be cautious on the chunks we upload rather than check the exact number of chars
-		const id = await this._start.run();
-		let i = 0;
-		for (;;) {
-			const cur_string = str.slice(i*max_length,(i+1)*max_length);
-			i++;
-			const response = await this._upload_segment(id,cur_string);
-			if (i*max_length>str.length) {
-				break;
-			}
-		}
-		// TODO we should clear old strings
-		await this._end.run({"slot" : id});
-	}
-}
-
 class gm_tool_class {
 	constructor() {
 		this.caution_level = caution_level.safe;
@@ -415,7 +387,6 @@ class gm_tool_class {
 		this.get_model_data = new get_model_data(this._ee_cache);
 		this.get_extra_template_data = new get_extra_template_data(this._ee_cache);
 		this.get_player_soft_template = new get_player_soft_template(this._ee_cache);
-		this.upload_to_script_storage = new upload_to_script_storage(this._ee_cache);
 		this.get_cpuship_data = new get_cpuship_soft_templates(this._ee_cache);
 		// this probably wants splitting into boostrap code (less than 1 EE upload segment) including upload_to_script_storage
 		// and everything else (with it being conditionally executed if not already loaded)
@@ -426,6 +397,42 @@ class gm_tool_class {
 	}
 	set_caution_level(level) {
 		this.caution_level = caution_level[level];
+	}
+	async call_www_function(name) {
+		let code = "return getScriptStorage()._cuf_gm."+name+"(";
+		let first = true;
+		const args = Array.from(arguments);
+		args.splice(0,1);
+		args.forEach(arg => {
+			if (first) {
+				first = false;
+			} else {
+				code += ",";
+			}
+			if (typeof(arg) === "string") {
+				console.log(arg)
+				code += '"' + arg.replace(/\\/g,'\\\\').replace(/"/g,'\\"').replace(/\r/g,'').replace(/\n/g,'\\n') + '"';
+			} else {
+				code += arg;
+			}
+		});
+		code+=")";
+		return this.exec_lua(code,caution_level.safe,""); // safe is wrong
+	}
+	async upload_to_script_storage_and_exec(str) {
+		const max_length = 1024;// we are just going to be cautious on the chunks we upload rather than check the exact number of chars
+		const id = await this.call_www_function("upload_start");
+		let i = 0;
+		for (;;) {
+			const cur_string = str.slice(i*max_length,(i+1)*max_length);
+			i++;
+			const response = await this.call_www_function("upload_segment",id,str);
+			if (i*max_length>str.length) {
+				break;
+			}
+		}
+		// TODO we should clear old strings
+		await this.call_www_function("upload_end",id);
 	}
 	async get_whole_cache() {
 		return this._ee_cache.get_whole_cache();
@@ -445,7 +452,7 @@ class gm_tool_class {
 			if (code.length <= ee_server.max_exec_length) {
 				return ee_server.exec(code,filename);
 			} else {
-				this.upload_to_script_storage.tmp_go(code);
+				this.upload_to_script_storage_and_exec(code);
 			}
 		} else {
 			throw new Error("script set to be more cautious than this level of running. End users seeing this message is a bug");
@@ -858,7 +865,7 @@ class in_dev_tab {
 		button.textContent = "run";
 		console.log(await this._upload.run());
 		button.onclick = function() {
-			gm_tool.upload_to_script_storage.tmp_go("print(\"atest\")");
+			gm_tool.upload_to_script_storage_and_exec("print(\"atest\")");
 		};
 		page.appendChild(button);
 		return page;
@@ -905,7 +912,7 @@ class prebuilt_tab {
 			button.onclick = async function () {
 				// I probably should cache this
 				const lua = ee_server.fetch_file("lua/base snippets/"+base); // TODO WRONG
-				gm_tool.upload_to_script_storage.tmp_go(await lua);
+				gm_tool.upload_to_script_storage_and_exec(await lua);
 			};
 			page.appendChild(button);
 		});
