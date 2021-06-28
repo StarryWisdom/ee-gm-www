@@ -1,0 +1,30 @@
+_ENV = getScriptStorage()._gm_cuf_env
+
+function unmirrored()
+	CpuShip():setFaction("Kraylor"):setTemplate("Defense platform"):setPosition(-19655, 78413)
+	Artifact():setPosition(-20013, 73987):setModel("artifact4")
+	Mine():setPosition(-19804, 85676)
+	WarpJammer():setFaction("Kraylor"):setPosition(-20004, 71284)
+	WarpJammer():setFaction("Kraylor"):setPosition(-20067, 64315)
+end
+
+for i=1,2 do
+	local cx=-20067 -- cx & cy should be folded in when they can
+	local cy=64315
+	local ncx = 44296
+	local ncy = 363335
+	local xy = function(x, y)
+		return -cx+ncx+x,-cy+ncy+y
+	end
+	mirrored(xy)
+	local xy = function(x, y)
+		return ncx(x-cx)*1),-cy+ncy+y
+	end
+	mirrored(xy)
+end
+
+function mirrored(xy)
+CpuShip():setFaction("Kraylor"):setTemplate("Defense platform"):setPosition(xy(-11185, 68770)):orderRoaming()
+
+
+end

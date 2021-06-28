@@ -902,7 +902,7 @@ class prebuilt_tab {
 	}
 	async show() {
 		const page = document.createElement("div");
-		const base_list=["bigbase_01.txt", "diamond_01.txt", "icarus_style_01.txt", "missile_platform_base_01.txt" ];
+		const base_list=["bigbase_01.txt", "diamond_01.txt", "icarus_style_01.txt", "missile_platform_base_01.txt" , "spiral_01.txt"];
 		base_list.forEach(base => {
 			console.log(base);
 			const button = document.createElement("button");
