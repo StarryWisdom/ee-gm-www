@@ -116,7 +116,7 @@ const ee_server = {
 		});
 		return ret;
 	},
-	max_exec_length : 2048, // this is a constant inside of EE
+	max_exec_length : 16384, // this is a constant inside of EE
 	// run exec_lua with the code provided
 	// TODO errors should give a script name
 	exec : async function(lua_code,error_location) {
@@ -420,7 +420,7 @@ class gm_tool_class {
 		return this.exec_lua(code,caution_level.safe,""); // safe is wrong
 	}
 	async upload_to_script_storage_and_exec(str) {
-		const max_length = 1024;// we are just going to be cautious on the chunks we upload rather than check the exact number of chars
+		const max_length = ee_server.max_exec_length/2;// we are just going to be cautious on the chunks we upload rather than check the exact number of chars
 		const id = await this.call_www_function("upload_start");
 		let i = 0;
 		for (;;) {
