@@ -856,12 +856,20 @@ class sat_tab {
 	}
 }
 
-class rift_tab { // 29th?
+class rift_tab {
 	constructor () {
 		this.page_name = "rift";
 	}
 	async show() {
 		const page = document.createElement("div");
+
+		const rift = document.createElement("button");
+		rift.textContent = "go";
+		rift.onclick = function () {
+			gm_tool.call_www_function("gm_click_wrapper",{fn : "subspace_rift",'max_radius' : 500,'max_time' : 1.5, 'on_end' : 'end_rift'});
+		};
+		page.appendChild(rift);
+
 		// settings for
 		// radius
 		// what happens on contact to players
@@ -933,25 +941,17 @@ class prebuilt_tab {
 			};
 			page.appendChild(button);
 		});
-		const rift = document.createElement("button");
-		rift.textContent = "rift test";
-		const end = document.createElement("button");
-		rift.onclick = function () {
-			gm_tool.call_www_function("rift_example",0,0,3000,120,"base1");
-		};
 		page.appendChild(document.createElement("br"));
 
 		const sat=["start0","start1","start2","start3","start4","start5"];
 		sat.forEach(base => {
 			const rift = document.createElement("button");
 			rift.textContent = base;
-			const end = document.createElement("button");
 			rift.onclick = function () {
 				gm_tool.call_www_function(base);
 			};
 			page.appendChild(rift);
 		});
-		page.appendChild(rift);
 		return page;
 	}
 }

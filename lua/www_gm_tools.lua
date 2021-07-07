@@ -13,7 +13,147 @@ add_function("get_gm_click2",function ()
 	return getScriptStorage().last_gm_click
 end)
 
-add_function("rift_example",function (x,y, max_radius, max_time, onEnd)
+-- todo we need a safe wrapper around function calling here
+-- and better documentation for functions
+add_function("gm_click_wrapper",function (args)
+	-- todo type assert
+	onGMClick(function (x,y)
+		-- note args.fn leaks to the called function
+		args.x = x
+		args.y = y
+		getScriptStorage()._cuf_gm[args.fn](args)
+	end)
+end)
+
+add_function("end_rift",function (args)
+	local count = 10
+	local dist_from_origin = 500
+	local x = args.x
+	local y = args.y
+	local faction = "Kraylor"
+	local missile_type = "EMP"
+	local size = "Small"
+	for i = 0,count do
+		local spawn_x = x + math.sin(i*(math.pi*2/count))*dist_from_origin
+		local spawn_y = y - math.cos(i*(math.pi*2/count))*dist_from_origin
+		local missile = 0
+		if missile_type == "Nuke" then
+			missile = Nuke()
+		elseif missile_type == "EMP" then
+			missile = EMPMissile()
+		elseif missile_type == "HVLI" then
+			missile = HVLI()
+		elseif missile_type == "Homing" then
+			missile = HomingMissile()
+		else
+			-- script error
+			print("script error")
+		end
+		missile:setPosition(spawn_x,spawn_y):setHeading(i*(360/count)):setFaction(faction):setMissileSize(size) -- targeting?
+
+		local possible_targets = missile:getObjectsInRange(5000)
+		local current_best
+		local current_best_value = 999999
+		-- this wants to happen for non HVLI, but they are semi buggy right now, so deal with that later
+		for i = 1, #possible_targets do
+			local possible = possible_targets[i]
+			if possible:isValid() and possible:isEnemy(missile) then
+				if possible.typeName == "CpuShip" or possible.typeName == "PlayerSpaceship" or possible.typeName == "SpaceStation" then
+					--local delta_angle=
+					local x1,y1 = missile:getPosition()
+					local x2,y2 = possible:getPosition()
+					local dx,dy = x1-x2, y1-y2
+					local current_value = math.sqrt(dx*dx+dy*dy)-- distance
+					print(math.abs(math.atan2(dx,dy)),missile:getHeading()/360*math.pi)
+					--print((math.abs(math.atan2(dy,dx))/math.pi)-(missile:getHeading()/360*math.pi))
+					--current_value = current_value + ((math.abs(math.atan2(dy,dx))/math.pi)-(missile:getHeading()/360))*4000
+
+					-- badness due to angle, debatably this is wrong in extreme cases
+					-- on top of us but at a too sharp turn to make for instance
+					if current_value < current_best_value then
+						current_best_value = current_value
+						current_best = possible
+					end
+				end
+			end
+		end
+		if current_best then
+			missile:setTarget(current_best)
+			print(current_best:getCallSign())
+		end
+	end
+end)
+
+add_function("subspace_rift",function (args)
+	-- todo type assert
+	local x = args.x
+	local y = args.y
+	local max_radius = args.max_radius
+	local max_time = args.max_time
+	local on_end = args.on_end
+	-- we need graphical type at some point
+	-- we also need to have a function for "run this each update"
+	-- consideration needs to be given as to how to have a rift that never ends
+-- we are going to require a central artifact
+-- this requirement probably should be removed at some point
+	local rift = {}
+-- merge with sandbox
+	local valid = true
+	rift.isValid = function ()
+		return valid
+	end
+	rift.destroy = function ()
+		valid = false
+		-- I really need to check if these are valid before calling destroy
+		rift.center:destroy()
+		for j=#rift.all_elements,1,-1 do
+			rift.all_elements[j]:destroy()
+		end
+	end
+	rift.center = Artifact():setPosition(x,y):setCallSign("Subspace rift")
+	rift.all_elements = {}
+	rift.start_time = getScenarioTime()
+	local number_in_ring = 20
+	for i=number_in_ring,1,-1 do
+		local clockwise_obj=Artifact()
+		clockwise_obj.angle_offset=i*(3.14159*2/number_in_ring)
+		clockwise_obj.orbit_speed=60/(2*math.pi)
+		table.insert(rift.all_elements,clockwise_obj)
+		local counterclockwise_obj=Artifact()
+		counterclockwise_obj.angle_offset=i*(3.14159*2/number_in_ring)
+		counterclockwise_obj.orbit_speed=-60/(2*math.pi)
+		table.insert(rift.all_elements,counterclockwise_obj)
+	end
+	local update_data = {
+	update = function (self, obj, delta)
+		local max_radius = max_radius -- how large it is when it has reached the maxium size
+		local max_time = max_time -- how long it takes to reach the maxium radius
+		local current_radius = (getScenarioTime()-obj.start_time)*(max_radius/max_time)
+		if current_radius > max_radius then
+			if on_end ~= nil then
+				getScriptStorage()._cuf_gm[on_end]({x=x,y=y})
+			end
+			rift:destroy()
+			current_radius = max_radius
+			return
+		end
+		for j=#obj.all_elements,1,-1 do
+			local rift_element=obj.all_elements[j]
+			if rift_element:isValid() then
+				local orbit_pos=(getScenarioTime()/rift_element.orbit_speed)+rift_element.angle_offset
+				rift_element:setPosition(x+(math.cos(orbit_pos)*current_radius),y+(math.sin(orbit_pos)*current_radius))
+			else
+				table.remove(obj.all_elements,j)
+			end
+		end
+	end,
+		edit = {},
+		name = "why do I fill this"
+	}
+	update_system:addUpdate(rift,"subspace_rift",update_data)
+end)
+
+add_function("rift_example",function (x,y, max_radius, max_time, onEnd) -- in time this should be removed
 -- we are going to require a central artifact
 -- this requirement probably should be removed at some point
 	local rift = {}
