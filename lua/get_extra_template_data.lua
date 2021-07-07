@@ -62,6 +62,9 @@ function ShipTemplate ()
 		setDockClasses = returnSelf,
 		setCloaking = returnSelf,
 		setSharesEnergyWithDocked = returnSelf,
+		setRepairDocked = returnSelf,
+		setRestocksMissilesDocked = returnSelf,
+		setRestocksScanProbes = returnSelf,
 	}
 	table.insert(templates,data)
 	return ret
