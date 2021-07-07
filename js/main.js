@@ -412,6 +412,25 @@ class gm_tool_class {
 			if (typeof(arg) === "string") {
 				console.log(arg)
 				code += '"' + arg.replace(/\\/g,'\\\\').replace(/"/g,'\\"').replace(/\r/g,'').replace(/\n/g,'\\n') + '"';
+			} else if (typeof(arg)=="object") {
+				// this needs some sort of merging with the code for args
+				code += "{";
+				let inner_first = true;
+				for (const key in arg) {
+					console.log(key)
+					if (inner_first) {
+						inner_first = false;
+					} else {
+						code += ",";
+					}
+					code += key +" = ";
+					if (typeof(arg[key]) === "string") {
+						code += '"' + arg[key].replace(/\\/g,'\\\\').replace(/"/g,'\\"').replace(/\r/g,'').replace(/\n/g,'\\n') + '"';
+					} else {
+						code += arg[key];
+					}
+				}
+				code += "}";
 			} else {
 				code += arg;
 			}
