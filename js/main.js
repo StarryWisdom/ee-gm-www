@@ -398,6 +398,28 @@ class gm_tool_class {
 	set_caution_level(level) {
 		this.caution_level = caution_level[level];
 	}
+	// convert argument into something to be merged with a string for call_www_function
+	// main uses are escaping strings, flattening object
+	_call_convert_to_string(arg) {
+		if (typeof(arg) === "string") {
+			return '"' + arg.replace(/\\/g,'\\\\').replace(/"/g,'\\"').replace(/\r/g,'').replace(/\n/g,'\\n') + '"';
+		} else if (typeof(arg)=="object") {
+			let first = true;
+			let ret = "{"
+			for (const key in arg) {
+				if (first) {
+					first = false;
+				} else {
+					ret += ",";
+				}
+				ret += key + " = " + this._call_convert_to_string(arg[key]);
+			}
+			ret += "}"
+			return ret;
+		} else {
+			return arg;
+		}
+	}
 	async call_www_function(name) {
 		let code = "return getScriptStorage()._cuf_gm."+name+"(";
 		let first = true;
@@ -409,31 +431,7 @@ class gm_tool_class {
 			} else {
 				code += ",";
 			}
-			if (typeof(arg) === "string") {
-				console.log(arg)
-				code += '"' + arg.replace(/\\/g,'\\\\').replace(/"/g,'\\"').replace(/\r/g,'').replace(/\n/g,'\\n') + '"';
-			} else if (typeof(arg)=="object") {
-				// this needs some sort of merging with the code for args
-				code += "{";
-				let inner_first = true;
-				for (const key in arg) {
-					console.log(key)
-					if (inner_first) {
-						inner_first = false;
-					} else {
-						code += ",";
-					}
-					code += key +" = ";
-					if (typeof(arg[key]) === "string") {
-						code += '"' + arg[key].replace(/\\/g,'\\\\').replace(/"/g,'\\"').replace(/\r/g,'').replace(/\n/g,'\\n') + '"';
-					} else {
-						code += arg[key];
-					}
-				}
-				code += "}";
-			} else {
-				code += arg;
-			}
+			code += this._call_convert_to_string(arg);
 		});
 		code+=")";
 		return this.exec_lua(code,caution_level.safe,""); // safe is wrong
