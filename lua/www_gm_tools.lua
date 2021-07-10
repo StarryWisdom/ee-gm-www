@@ -26,12 +26,12 @@ add_function("gm_click_wrapper",function (args)
 end)
 
 add_function("end_rift",function (args)
-	local count = 10
+	local count = 15
 	local dist_from_origin = 500
 	local x = args.x
 	local y = args.y
 	local faction = "Kraylor"
-	local missile_type = "EMP"
+	local missile_type = "HVLI"
 	local size = "Small"
 	for i = 0,count do
 		local spawn_x = x + math.sin(i*(math.pi*2/count))*dist_from_origin
