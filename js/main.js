@@ -864,7 +864,7 @@ class rift_tab {
 		const rift = document.createElement("button");
 		rift.textContent = "go";
 		rift.onclick = function () {
-			gm_tool.call_www_function("gm_click_wrapper",{fn : "subspace_rift",'max_radius' : 500,'max_time' : 1.5, 'on_end' : 'end_rift'});
+			gm_tool.call_www_function("gm_click_wrapper",{call : "subspace_rift",'max_radius' : 500,'max_time' : 10, 'on_end' : {call : 'end_rift'}});
 		};
 		page.appendChild(rift);
 
