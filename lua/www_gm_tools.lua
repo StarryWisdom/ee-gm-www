@@ -203,7 +203,7 @@ add_function("rift_example",function (args) -- in time this should be removed
 		local current_radius = (getScenarioTime()-obj.start_time)*(max_radius/max_time)
 		if current_radius > max_radius then
 			if onEnd ~= nil then
-				getScriptStorage()._cuf_gm[onEnd]()
+				indirect_call({call = onEnd})
 			end
 			rift:destroy()
 			current_radius = max_radius
