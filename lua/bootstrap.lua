@@ -17,7 +17,13 @@ if (getScriptStorage()._cuf_gm == nil) then
 		return slots[slot];
 	end)
 	add_function("upload_end", function (slot)
-		return load(getScriptStorage()._cuf_gm.uploads.slots[slot])()
+		local fn, err = load(getScriptStorage()._cuf_gm.uploads.slots[slot])
+		if fn then
+			return fn()
+		else
+			print(err)
+			error(err)
+		end
 	end)
 	add_function("upload_start", function ()
 		local slot_id = getScriptStorage()._cuf_gm.uploads.slot_id
