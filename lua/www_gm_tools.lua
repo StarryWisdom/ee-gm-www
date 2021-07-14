@@ -1,15 +1,11 @@
 -- all of the scripting functions common between all scripts
 _ENV = getScriptStorage()._gm_cuf_env
 
-local add_function = getScriptStorage()._cuf_gm.add_function
+local get_function = getScriptStorage()._cuf_gm.get_function
+local add_function = get_function("add_function")
 
-getScriptStorage()._cuf_gm.indirect_call = function (args)
-	assert(type(args)=="table")
-	assert(type(args.call)=="string")
-	assert(getScriptStorage()._cuf_gm[args.call] ~= nil)
-	getScriptStorage()._cuf_gm[args.call](args)
-end
-local indirect_call = getScriptStorage()._cuf_gm.indirect_call
+local describe_function = get_function("describe_function")
+local indirect_call = get_function("indirect_call")
 
 add_function("get_gm_click1",function ()
 	onGMClick(function (x,y)
@@ -26,8 +22,14 @@ end)
 add_function("gm_click_wrapper",function (args)
 	-- todo type assert
 	onGMClick(function (x,y)
-		args.location= {x = x, y = y}
-		indirect_call(args)
+		-- we dont want to change the parameters table as we may be called multiple times
+		-- and if the internal value isn't copyied it would result in wrong locations
+		local parameters = {}
+		for k,v in pairs(args.args) do
+			parameters[k] = v
+		end
+		parameters.location= {x = x, y = y}
+		indirect_call(parameters)
 	end)
 end)
 

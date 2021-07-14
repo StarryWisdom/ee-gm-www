@@ -420,20 +420,11 @@ class gm_tool_class {
 			return arg;
 		}
 	}
-	async call_www_function(name) {
-		let code = "return getScriptStorage()._cuf_gm."+name+"(";
-		let first = true;
-		const args = Array.from(arguments);
-		args.splice(0,1);
-		args.forEach(arg => {
-			if (first) {
-				first = false;
-			} else {
-				code += ",";
-			}
-			code += this._call_convert_to_string(arg);
-		});
-		code+=")";
+	async call_www_function(name,args = {}) {
+		let code = "return getScriptStorage()._cuf_gm.indirect_call(";
+		args["call"]=name
+		code +=  this._call_convert_to_string(args);
+		code += ")";
 		return this.exec_lua(code,caution_level.safe,""); // safe is wrong
 	}
 	async upload_to_script_storage_and_exec(str) {
@@ -443,13 +434,13 @@ class gm_tool_class {
 		for (;;) {
 			const cur_string = str.slice(i*max_length,(i+1)*max_length);
 			i++;
-			const response = await this.call_www_function("upload_segment",id,cur_string);
+			const response = await this.call_www_function("upload_segment",{slot : id , str : cur_string});
 			if (i*max_length>str.length) {
 				break;
 			}
 		}
 		// TODO we should clear old strings
-		await this.call_www_function("upload_end",id);
+		await this.call_www_function("upload_end",{slot : id});
 	}
 	async get_whole_cache() {
 		return this._ee_cache.get_whole_cache();
@@ -864,7 +855,7 @@ class rift_tab {
 		const rift = document.createElement("button");
 		rift.textContent = "go";
 		rift.onclick = function () {
-			gm_tool.call_www_function("gm_click_wrapper",{call : "subspace_rift",'max_radius' : 500,'max_time' : 10, 'on_end' : {call : 'end_rift'}});
+			gm_tool.call_www_function("gm_click_wrapper",{args : {call : "subspace_rift",'max_radius' : 500,'max_time' : 10, 'on_end' : {call : 'end_rift'}}});
 		};
 		page.appendChild(rift);
 
