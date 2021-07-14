@@ -19,8 +19,7 @@ add_function("gm_click_wrapper",function (args)
 	-- todo type assert
 	onGMClick(function (x,y)
 		-- note args.fn leaks to the called function
-		args.x = x
-		args.y = y
+		args.location= {x = x, y = y}
 		getScriptStorage()._cuf_gm[args.fn](args)
 	end)
 end)
@@ -28,8 +27,8 @@ end)
 add_function("end_rift",function (args)
 	local count = 15
 	local dist_from_origin = 500
-	local x = args.x
-	local y = args.y
+	local x = args.location.x
+	local y = args.location.y
 	local faction = "Kraylor"
 	local missile_type = "HVLI"
 	local size = "Small"
@@ -86,8 +85,8 @@ end)
 
 add_function("subspace_rift",function (args)
 	-- todo type assert
-	local x = args.x
-	local y = args.y
+	local x = args.location.x
+	local y = args.location.y
 	local max_radius = args.max_radius
 	local max_time = args.max_time
 	local on_end = args.on_end
@@ -131,7 +130,7 @@ add_function("subspace_rift",function (args)
 		local current_radius = (getScenarioTime()-obj.start_time)*(max_radius/max_time)
 		if current_radius > max_radius then
 			if on_end ~= nil then
-				getScriptStorage()._cuf_gm[on_end.fn]({x=x,y=y})
+				getScriptStorage()._cuf_gm[on_end.fn]({location = args.location})
 			end
 			rift:destroy()
 			current_radius = max_radius
