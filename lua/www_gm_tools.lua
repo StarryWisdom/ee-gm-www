@@ -131,7 +131,7 @@ add_function("subspace_rift",function (args)
 		local current_radius = (getScenarioTime()-obj.start_time)*(max_radius/max_time)
 		if current_radius > max_radius then
 			if on_end ~= nil then
-				getScriptStorage()._cuf_gm[on_end]({x=x,y=y})
+				getScriptStorage()._cuf_gm[on_end.fn]({x=x,y=y})
 			end
 			rift:destroy()
 			current_radius = max_radius
