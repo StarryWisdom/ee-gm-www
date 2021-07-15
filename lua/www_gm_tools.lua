@@ -149,9 +149,9 @@ describe_function("subspace_rift",
 	-- todo type assert
 	local x = args.location.x
 	local y = args.location.y
-	local max_radius = args.max_radius
-	local max_time = args.max_time
-	local on_end = args.on_end
+	local max_radius = args.max_radius or 500
+	local max_time = args.max_time or 10
+	local on_end = args.on_end or {call = "end_rift"}
 	-- we need graphical type at some point
 	-- we also need to have a function for "run this each update"
 	-- consideration needs to be given as to how to have a rift that never ends
