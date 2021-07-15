@@ -458,18 +458,60 @@ class gm_tool_class {
 		// this needs improvement
 		const args = this._function_descriptions[function_name];
 		let desc = "";
+		let onclick = false;
 		if (args.this != undefined) {
 			desc = args.this[1];
+			onclick = true; // wrong but works for now
 		}
 
-		const title = document.createElement("h4");
+		const title = document.createElement("a");
 		title.textContent = function_name + " settings";
 		title.title = desc;
 		div.appendChild(title);
-
-		// for each setting
-		// go button
 		div.appendChild(document.createElement("br"));
+
+		const params = {}
+		for (const arg in args) {
+			if (arg == "this") {
+				continue;
+			}
+			const name = document.createElement("a");
+			name.textContent = arg;
+			div.appendChild(name);
+
+			// we need to check what type of input
+			const input = document.createElement("input");
+			params[arg]={type : "number", input : input};
+			input.setAttribute("type","number");
+			div.appendChild(input);
+			// todo set default value
+			// todo check min / max
+			// todo strings
+			// todo title text
+
+			const inner_div = document.createElement("div");
+			div.appendChild(inner_div);
+
+			div.appendChild(document.createElement("br"));
+		}
+
+		const run = document.createElement("button");
+		run.textContent = "go";
+		if (onclick) {
+			run.onclick = function () {
+				const call = {call : function_name};
+				for (const p in params) {
+					// needs error check
+					// likewise needs check for min / max
+					call[p] = parseFloat(params[p].input.value);
+				}
+				gm_tool.call_www_function("gm_click_wrapper",{args : call});
+			};
+			div.appendChild(run);
+		} else {
+			// todo
+		}
+
 		return div;
 	}
 	async exec_lua(code,caution,filename) {
@@ -864,16 +906,7 @@ class rift_tab {
 		this.page_name = "rift";
 	}
 	async show() {
-		const page = document.createElement("div");
-		const rift = document.createElement("button");
-		rift.textContent = "go";
-		rift.onclick = function () {
-			gm_tool.call_www_function("gm_click_wrapper",{args : {call : "subspace_rift"}});
-		};
-		page.appendChild(rift);
-		page.appendChild(gm_tool.make_edit_div_for_function("subspace_rift"))
-
-		return page;
+		return gm_tool.make_edit_div_for_function("subspace_rift");
 	}
 }
 
