@@ -877,9 +877,8 @@ class in_dev_tab {
 		const page = document.createElement("div");
 		const button = document.createElement("button");
 		button.textContent = "run";
-		console.log(await this._upload.run());
 		button.onclick = function() {
-			gm_tool.upload_to_script_storage_and_exec("print(\"atest\")");
+			console.log(await this._upload.run());
 		};
 		page.appendChild(button);
 		return page;
