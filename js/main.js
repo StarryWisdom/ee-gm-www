@@ -430,16 +430,16 @@ class gm_tool_class {
 	}
 	async upload_to_script_storage_and_exec(str) {
 		const max_length = ee_server.max_exec_length/2;// we are just going to be cautious on the chunks we upload rather than check the exact number of chars
-		const id = await this.call_www_function("upload_start");
 		let i = 0;
-		for (;;) {
-			const cur_string = str.slice(i*max_length,(i+1)*max_length);
-			i++;
-			const response = await this.call_www_function("upload_segment",{slot : id , str : cur_string});
-			if (i*max_length>str.length) {
-				break;
-			}
+		let parts = [];
+		for (;i*max_length<=str.length;i++) {
+			parts[i+1]=str.slice(i*max_length,(i+1)*max_length);
 		}
+		const id = await this.call_www_function("upload_start",{parts : i});
+		for (let l = 1; l<=i ;l++) {
+			parts[l] = this.call_www_function("upload_segment",{slot : id , part : l, str : parts[l]});
+		}
+		await Promise.all(parts)
 		// TODO we should clear old strings
 		return this.call_www_function("upload_end",{slot : id});
 	}

@@ -21,13 +21,26 @@ if (getScriptStorage()._cuf_gm == nil) then
 	end
 	add_function("add_function",add_function)
 	add_function("upload_segment", function (args)
-		local slot = args.slot
-		slots = getScriptStorage()._cuf_gm.uploads.slots
-		slots[slot] = slots[slot] .. args.str
-		return slots[slot];
+		assert(type(args)=="table")
+		assert(type(args.slot)=="number")
+		assert(getScriptStorage()._cuf_gm.uploads.slots[args.slot] ~= nil)
+		assert(type(args.part)=="number")
+		assert(getScriptStorage()._cuf_gm.uploads.slots[args.slot].parts[args.part] == nil)
+		assert(type(args.str)=="string")
+		getScriptStorage()._cuf_gm.uploads.slots[args.slot].parts[args.part] = args.str
 	end)
 	add_function("upload_end", function (args)
-		local fn, err = load(getScriptStorage()._cuf_gm.uploads.slots[args.slot])
+		assert(type(args)=="table")
+		assert(type(args.slot)=="number")
+		assert(getScriptStorage()._cuf_gm.uploads.slots[args.slot] ~= nil)
+		local end_str = ""
+		for i = 1, getScriptStorage()._cuf_gm.uploads.slots[args.slot].total_parts do
+			assert(type(getScriptStorage()._cuf_gm.uploads.slots[args.slot].parts[i])=="string")
+			end_str = end_str .. getScriptStorage()._cuf_gm.uploads.slots[args.slot].parts[i]
+		end
+		getScriptStorage()._cuf_gm.uploads.slots[args.slot].str = end_str
+		getScriptStorage()._cuf_gm.uploads.slots[args.slot].parts = nil
+		local fn, err = load(end_str)
 		if fn then
 			return fn()
 		else
@@ -35,9 +48,11 @@ if (getScriptStorage()._cuf_gm == nil) then
 			error(err)
 		end
 	end)
-	add_function("upload_start", function ()
+	add_function("upload_start", function (args)
+		assert(type(args)=="table")
+		assert(type(args.parts)=="number")
 		local slot_id = getScriptStorage()._cuf_gm.uploads.slot_id
-		getScriptStorage()._cuf_gm.uploads.slots[slot_id] = ""
+		getScriptStorage()._cuf_gm.uploads.slots[slot_id] = {total_parts = args.parts, parts = {}}
 		getScriptStorage()._cuf_gm.uploads.slot_id = slot_id + 1
 		return slot_id
 	end)
