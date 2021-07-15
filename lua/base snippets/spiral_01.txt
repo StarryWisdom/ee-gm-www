@@ -1,0 +1,30 @@
+_ENV = getScriptStorage()._gm_cuf_env
+function unmirrored()
+	WarpJammer():setFaction("Kraylor"):setPosition(44296, 363335)
+end
+
+function mirrored(xy)
+	ship_template["Missile Pod D2"].create('Kraylor',"Missile Pod D2"):setPosition(xy(-51284, 74864))
+	ship_template["Missile Pod D2"].create('Kraylor',"Missile Pod D2"):setPosition(xy(-52010, 75912))
+	ship_template["Missile Pod D2"].create('Kraylor',"Missile Pod D2"):setPosition(xy(-52857, 76880))
+	ship_template["Missile Pod D2"].create('Kraylor',"Missile Pod D2"):setPosition(xy(-53784, 77687))
+	ship_template["Missile Pod D2"].create('Kraylor',"Missile Pod D2"):setPosition(xy(-54809, 78424))
+	ship_template["Missile Pod D2"].create('Kraylor',"Missile Pod D2"):setPosition(xy(-55865, 78946))
+	ship_template["Missile Pod D2"].create('Kraylor',"Missile Pod D2"):setPosition(xy(-56969, 79364))
+	ship_template["Missile Pod D2"].create('Kraylor',"Missile Pod D2"):setPosition(xy(-58087, 79674))
+end
+
+for i=1,6 do
+	local cx=-59996 -- cx & cy should be folded in when they can
+	local cy=79917
+	local rotation_angle = ((3.14159*2)/6)*i
+	local xy = function(x, y)
+	local dist = distance(cx,cy,x,y)
+	local angle = math.atan2(y-cy,x-cx) + rotation_angle
+	local ncx = 44296
+	local ncy = 363335
+		return ncx+(math.cos(angle)*dist),ncy+(math.sin(angle)*dist)
+	end
+	mirrored(xy)
+end
+unmirrored()
