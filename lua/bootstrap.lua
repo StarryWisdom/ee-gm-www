@@ -44,7 +44,7 @@ if (getScriptStorage()._cuf_gm == nil) then
 	add_function("indirect_call",function (args)
 		assert(type(args)=="table")
 		assert(type(args.call)=="string")
-		assert(getScriptStorage()._cuf_gm.functions[args.call] ~= nil)
+		assert(getScriptStorage()._cuf_gm.functions[args.call] ~= nil, "attempted to call an undefined function")
 		assert(type(getScriptStorage()._cuf_gm.functions[args.call].fn) == "function")
 		-- todo check arguments are in the format described by describe_function
 		return getScriptStorage()._cuf_gm.functions[args.call].fn(args)
