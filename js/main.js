@@ -453,6 +453,14 @@ class gm_tool_class {
 		}
 		return this._ee_cache._cache[cache_name];
 	}
+	make_edit_div_for_function(function_name) {
+		const div = document.createElement("div");
+		div.textContent=function_name + " settings";
+		div.appendChild(document.createElement("br"));
+		// this needs improvement
+		const args = this._function_descriptions["subspace_rift"]
+		return div;
+	}
 	async exec_lua(code,caution,filename) {
 		if (caution == undefined) {
 			throw new Error("caution level not set");
@@ -846,19 +854,14 @@ class rift_tab {
 	}
 	async show() {
 		const page = document.createElement("div");
-
 		const rift = document.createElement("button");
 		rift.textContent = "go";
 		rift.onclick = function () {
 			gm_tool.call_www_function("gm_click_wrapper",{args : {call : "subspace_rift",'max_radius' : 500,'max_time' : 10, 'on_end' : {call : 'end_rift'}}});
 		};
 		page.appendChild(rift);
+		page.appendChild(gm_tool.make_edit_div_for_function("subspace_rift"))
 
-		// settings for
-		// radius
-		// what happens on contact to players
-		// what happens on contacts to npc's
-		// expansion rate
 		return page;
 	}
 }
