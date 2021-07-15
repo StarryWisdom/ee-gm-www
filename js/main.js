@@ -394,7 +394,7 @@ class gm_tool_class {
 		await this._bootstrap.run();
 		this._www_gm_tools = new lua_wrapper("www_gm_tools",caution_level.cautious);
 		await this._www_gm_tools.run();
-		console.log(await this.call_www_function("get_descriptions"))
+		this._function_descriptions = await this.call_www_function("get_descriptions");
 	}
 	set_caution_level(level) {
 		this.caution_level = caution_level[level];
@@ -1021,10 +1021,12 @@ window.addEventListener("unhandledrejection", function(e) {
 });
 
 const gm_tool=new gm_tool_class();
-gm_tool.init();
 
-let gm_ui='';
-window.onload=function () {
+let gm_ui;
+// tbh this is kind of a mess for init and needs looking at
+window.onload = async function () {
+	let temp = gm_tool.init();
 	gm_ui = new ui();
+	await temp;
 	gm_ui.load_page(window.location.search);
 };
