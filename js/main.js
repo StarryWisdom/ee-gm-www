@@ -455,10 +455,21 @@ class gm_tool_class {
 	}
 	make_edit_div_for_function(function_name) {
 		const div = document.createElement("div");
-		div.textContent=function_name + " settings";
-		div.appendChild(document.createElement("br"));
 		// this needs improvement
-		const args = this._function_descriptions["subspace_rift"]
+		const args = this._function_descriptions[function_name];
+		let desc = "";
+		if (args.this != undefined) {
+			desc = args.this[1];
+		}
+
+		const title = document.createElement("h4");
+		title.textContent = function_name + " settings";
+		title.title = desc;
+		div.appendChild(title);
+
+		// for each setting
+		// go button
+		div.appendChild(document.createElement("br"));
 		return div;
 	}
 	async exec_lua(code,caution,filename) {

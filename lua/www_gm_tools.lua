@@ -8,10 +8,10 @@ add_function("describe_function",function (name,description,args,fn)
 	-- this is about 90% verifying that the data is good
 	-- and 10% repacking the arguments to be used later in a more convient format
 	assert(type(name)=="string")
-	assert(type(description)=="string")
+	assert(type(description)=="table")
 	assert(type(args)=="table")
 	assert(type(fn)=="function")
-	local description = {}
+	local description = {this = description}
 	for arg_name,arg_description in pairs(args) do
 		local required = false
 		local num
@@ -141,7 +141,7 @@ add_function("end_rift",function (args)
 end)
 
 describe_function("subspace_rift",
-	"creates a tuneable rift effect, along with callback at end",
+	{"creates a tuneable rift effect, along with callback at end", "onclick"},
 	{
 		max_time = { "required" , number = {min = 0}} -- max?
 	},
