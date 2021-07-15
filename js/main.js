@@ -807,36 +807,30 @@ class script_tab {
 class sat_tab {
 	constructor () {
 		this.page_name = "saturday";
-		this._sat_start_lua = new lua_wrapper("in-progress/sat-start",caution_level.safe);
-		this._sat_end_lua = new lua_wrapper("in-progress/sat-end",caution_level.safe);
-		this._comm_lua = new lua_wrapper("in-progress/message_all_ship_sci",caution_level.safe);
 	}
 	async show() {
 		const page = document.createElement("div");
 		const comms = document.createElement("button");
 		comms.textContent = "comms message";
 		page.appendChild(comms);
-		const _comm_lua = this._comm_lua;
 		comms.onclick = function () {
-			_comm_lua.run({msg : "All of the ships and stations near redshirt have been through an area of space where the warp readings where 500 ghz, it seems likely that this is the origin of the local kraylor attacks. your scanners have been  reconfigured to send out pings to measure the local warp frequency is. (check the 'other' tab on the science screen to activate it)"});
+			gm_tool.call_www_function("old_test_comms",{msg : "All of the ships and stations near redshirt have been through an area of space where the warp readings where 500 ghz, it seems likely that this is the origin of the local kraylor attacks. your scanners have been  reconfigured to send out pings to measure the local warp frequency is. (check the 'other' tab on the science screen to activate it)"});
 		};
 		const start = document.createElement("button");
 		start.textContent = "start";
-		const _sat_start_lua = this._sat_start_lua;
 		const end = document.createElement("button");
 		const input = document.createElement("input"); // TODO long term this probably should convert with error checking
 		input.value = 120;
 		start.onclick = function () {
-			_sat_start_lua.run({max_time : parseFloat(input.value), max_range : 5000, energy_cost : 100, no_eng_msg : "insufficient power", name : "active warp ping"});
+			gm_tool.call_www_function("old_test_start",{max_time : parseFloat(input.value), max_range : 5000, energy_cost : 100, no_eng_msg : "insufficient power", name : "active warp ping"});
 		};
 		input.setAttribute("type","number");
 		page.appendChild(document.createElement("br"));
 		page.appendChild(input);
 		page.appendChild(document.createElement("br"));
 		end.textContent = "end";
-		const _sat_end_lua = this._sat_end_lua;
 		end.onclick = function () {
-			_sat_end_lua.run();
+			gm_tool.call_www_function("old_test_end")
 		};
 		page.appendChild(start);
 		page.appendChild(end);
