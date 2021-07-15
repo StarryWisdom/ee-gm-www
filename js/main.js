@@ -441,7 +441,7 @@ class gm_tool_class {
 			}
 		}
 		// TODO we should clear old strings
-		await this.call_www_function("upload_end",{slot : id});
+		return this.call_www_function("upload_end",{slot : id});
 	}
 	async get_whole_cache() {
 		return this._ee_cache.get_whole_cache();
@@ -461,7 +461,7 @@ class gm_tool_class {
 			if (code.length <= ee_server.max_exec_length) {
 				return ee_server.exec(code,filename);
 			} else {
-				this.upload_to_script_storage_and_exec(code);
+				return this.upload_to_script_storage_and_exec(code);
 			}
 		} else {
 			throw new Error("script set to be more cautious than this level of running. End users seeing this message is a bug");
