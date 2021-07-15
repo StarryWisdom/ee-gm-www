@@ -989,6 +989,9 @@ class prebuilt_tab {
 class ui {
 	constructor () {
 		gm_tool.caution_level=caution_level.reckless;
+		this._last_url="";
+	}
+	async init () {
 		this._tabs = [
 			new home_tab(),
 			new data_card_tab(),
@@ -1002,7 +1005,6 @@ class ui {
 			new prebuilt_tab(),
 		];
 		this.update_button_list();
-		this._last_url="";
 	}
 	update_button_list() {
 		const tabs = document.getElementById("tab-buttons");
@@ -1068,12 +1070,10 @@ window.addEventListener("unhandledrejection", function(e) {
 });
 
 const gm_tool=new gm_tool_class();
+let gm_ui = new ui();
 
-let gm_ui;
-// tbh this is kind of a mess for init and needs looking at
 window.onload = async function () {
-	let temp = gm_tool.init();
-	gm_ui = new ui();
-	await temp;
+	await gm_tool.init();
+	gm_ui.init();
 	gm_ui.load_page(window.location.search);
 };
