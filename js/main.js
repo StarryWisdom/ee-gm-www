@@ -877,7 +877,7 @@ class in_dev_tab {
 		const page = document.createElement("div");
 		const button = document.createElement("button");
 		button.textContent = "run";
-		button.onclick = function() {
+		button.onclick = async function() {
 			console.log(await this._upload.run());
 		};
 		page.appendChild(button);
