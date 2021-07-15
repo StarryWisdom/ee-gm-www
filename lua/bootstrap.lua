@@ -7,16 +7,17 @@ if (getScriptStorage()._cuf_gm == nil) then
 			script_functions = {},
 		},
 		functions = {
+			-- an array of elements with a fn and args element
 		},
 		get_function = function (name)
 			assert(type(name)=="string")
 			return getScriptStorage()._cuf_gm.functions[name].fn
 		end
 	}
-	local add_function = function (name, fun)
+	local add_function = function (name, fun, args)
 		assert(type(name)=="string")
 		assert(type(fun)=="function")
-		getScriptStorage()._cuf_gm.functions[name] = {fn = fun}
+		getScriptStorage()._cuf_gm.functions[name] = {fn = fun, args = args}
 	end
 	add_function("add_function",add_function)
 	add_function("upload_segment", function (args)

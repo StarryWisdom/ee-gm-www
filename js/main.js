@@ -394,6 +394,7 @@ class gm_tool_class {
 		await this._bootstrap.run();
 		this._www_gm_tools = new lua_wrapper("www_gm_tools",caution_level.cautious);
 		await this._www_gm_tools.run();
+		console.log(await this.call_www_function("get_descriptions"))
 	}
 	set_caution_level(level) {
 		this.caution_level = caution_level[level];

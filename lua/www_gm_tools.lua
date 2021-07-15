@@ -4,8 +4,56 @@ _ENV = getScriptStorage()._gm_cuf_env
 local get_function = getScriptStorage()._cuf_gm.get_function
 local add_function = get_function("add_function")
 
+add_function("describe_function",function (name,description,args,fn)
+	-- this is about 90% verifying that the data is good
+	-- and 10% repacking the arguments to be used later in a more convient format
+	assert(type(name)=="string")
+	assert(type(description)=="string")
+	assert(type(args)=="table")
+	assert(type(fn)=="function")
+	local description = {}
+	for arg_name,arg_description in pairs(args) do
+		local required = false
+		local num
+		for k,v in pairs(arg_description) do
+			-- first we are doing the numeric part of the array, as such we are checking the value part
+			if v == "required" then
+				required = true
+				goto continue
+			end
+			-- now onto named parts like the type
+			if k == "number" then
+				num = {}
+				for k, v in pairs(v) do
+					if k == "min" then
+						num.min = v
+						goto continue_number
+					end
+					assert(false,"unknown tag for number in describe_function")
+					::continue_number::
+				end
+				description[arg_name] = num
+				goto continue
+			end
+			assert(false,"unknown tag describing a variable in describe_function")
+			::continue::
+		end
+		assert(required,"describe_function requires the \"required\" tag")
+		assert(num,"describe_function requires the \"number\" tag")
+	end
+	add_function(name,fn, description)
+end)
 local describe_function = get_function("describe_function")
 local indirect_call = get_function("indirect_call")
+
+add_function("get_descriptions", function ()
+	local ret = {}
+	-- strip out the function itself
+	for name,fn in pairs(getScriptStorage()._cuf_gm.functions) do
+		ret[name]=fn.args
+	end
+	return ret
+end)
 
 add_function("get_gm_click1",function ()
 	onGMClick(function (x,y)
@@ -92,7 +140,12 @@ add_function("end_rift",function (args)
 	end
 end)
 
-add_function("subspace_rift",function (args)
+describe_function("subspace_rift",
+	"creates a tuneable rift effect, along with callback at end",
+	{
+		max_time = { "required" , number = {min = 0}} -- max?
+	},
+	function (args)
 	-- todo type assert
 	local x = args.location.x
 	local y = args.location.y
