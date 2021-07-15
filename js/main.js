@@ -404,6 +404,19 @@ class gm_tool_class {
 	_call_convert_to_string(arg) {
 		if (typeof(arg) === "string") {
 			return '"' + arg.replace(/\\/g,'\\\\').replace(/"/g,'\\"').replace(/\r/g,'').replace(/\n/g,'\\n') + '"';
+		} else if (Array.isArray(arg)) {
+			let ret = "{";
+			let first = true;
+			arg.forEach( i => {
+				if (first) {
+					first = false;
+				} else {
+					ret += ",";
+				}
+				ret += this._call_convert_to_string(i);
+			});
+			ret += "}"
+			return ret;
 		} else if (typeof(arg)=="object") {
 			let first = true;
 			let ret = "{"
