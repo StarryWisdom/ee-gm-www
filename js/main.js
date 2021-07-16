@@ -914,12 +914,17 @@ class sat_tab {
 	}
 }
 
-class rift_tab {
+class callback_tab {
 	constructor () {
-		this.page_name = "rift";
+		this.page_name = "callbacks";
 	}
 	async show() {
-		return gm_tool.make_edit_div_for_function("subspace_rift");
+		const page = document.createElement("div");
+		// this is kind of digging into gm_tool more than it should
+		for (const fun in gm_tool._function_descriptions) {
+			page.appendChild(gm_tool.make_edit_div_for_function(fun));
+		}
+		return page;
 	}
 }
 
@@ -1070,7 +1075,7 @@ class ui {
 			new debug_tab(),
 			new error_log_tab(),
 			new sat_tab(),
-			new rift_tab(),
+			new callback_tab(),
 			new script_tab(),
 			new in_dev_tab(),
 			new mirror_tool_tab(),
