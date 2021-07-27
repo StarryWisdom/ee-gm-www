@@ -142,7 +142,7 @@ const ee_server = {
 			// this needs fixing inside of EE, but we can fix the one situation of a single string being returned for right now
 			if (fixed_response_text[0] && fixed_response_text[fixed_response_text.length-1]=='"') {
 				fixed_response_text = fixed_response_text.replace(/"(.)/g,'\\"$1');
-				fixed_response_text = fixed_response_text.replace(/\t/g,'\\t')
+				fixed_response_text = fixed_response_text.replace(/\t/g,'\\t');
 				fixed_response_text = fixed_response_text.substring(1);
 			}
 			if (fixed_response_text != "") {
@@ -415,20 +415,22 @@ class gm_tool_class {
 				}
 				ret += this._call_convert_to_string(i);
 			});
-			ret += "}"
+			ret += "}";
 			return ret;
 		} else if (typeof(arg)=="object") {
 			let first = true;
-			let ret = "{"
+			let ret = "{";
 			for (const key in arg) {
-				if (first) {
-					first = false;
-				} else {
-					ret += ",";
+				if (arg.hasOwnProperty(key)) {
+					if (first) {
+						first = false;
+					} else {
+						ret += ",";
+					}
+					ret += key + " = " + this._call_convert_to_string(arg[key]);
 				}
-				ret += key + " = " + this._call_convert_to_string(arg[key]);
 			}
-			ret += "}"
+			ret += "}";
 			return ret;
 		} else {
 			return arg;
@@ -436,7 +438,7 @@ class gm_tool_class {
 	}
 	async call_www_function(name,args = {}) {
 		let code = "return getScriptStorage()._cuf_gm.indirect_call(";
-		args["call"]=name
+		args.call=name;
 		code +=  this._call_convert_to_string(args);
 		code += ")";
 		return this.exec_lua(code,caution_level.safe,""); // safe is wrong
@@ -452,7 +454,7 @@ class gm_tool_class {
 		for (let l = 1; l<=i ;l++) {
 			parts[l] = this.call_www_function("upload_segment",{slot : id , part : l, str : parts[l]});
 		}
-		await Promise.all(parts)
+		await Promise.all(parts);
 		// TODO we should clear old strings
 		return this.call_www_function("upload_end",{slot : id});
 	}
@@ -483,29 +485,31 @@ class gm_tool_class {
 		div.appendChild(title);
 		div.appendChild(document.createElement("br"));
 
-		const params = {}
+		const params = {};
 		for (const arg in args) {
-			if (arg == "this") {
-				continue;
+			if (args.hasOwnProperty(arg)) {
+				if (arg == "this") {
+					continue;
+				}
+				const name = document.createElement("a");
+				name.textContent = arg;
+				div.appendChild(name);
+
+				// we need to check what type of input
+				const input = document.createElement("input");
+				params[arg]={type : "number", input : input};
+				input.setAttribute("type","number");
+				div.appendChild(input);
+				// todo set default value
+				// todo check min / max
+				// todo strings
+				// todo title text
+
+				const inner_div = document.createElement("div");
+				div.appendChild(inner_div);
+
+				div.appendChild(document.createElement("br"));
 			}
-			const name = document.createElement("a");
-			name.textContent = arg;
-			div.appendChild(name);
-
-			// we need to check what type of input
-			const input = document.createElement("input");
-			params[arg]={type : "number", input : input};
-			input.setAttribute("type","number");
-			div.appendChild(input);
-			// todo set default value
-			// todo check min / max
-			// todo strings
-			// todo title text
-
-			const inner_div = document.createElement("div");
-			div.appendChild(inner_div);
-
-			div.appendChild(document.createElement("br"));
 		}
 
 		const run = document.createElement("button");
@@ -514,9 +518,11 @@ class gm_tool_class {
 			run.onclick = function () {
 				const call = {call : function_name};
 				for (const p in params) {
-					// needs error check
-					// likewise needs check for min / max
-					call[p] = parseFloat(params[p].input.value);
+					if (params.hasOwnProperty(p)) {
+						// needs error check
+						// likewise needs check for min / max
+						call[p] = parseFloat(params[p].input.value);
+					}
 				}
 				gm_tool.call_www_function("gm_click_wrapper",{args : call});
 			};
@@ -790,13 +796,11 @@ class script_tab {
 		const page = document.createElement("div");
 		const gmclick_button = document.createElement("button");
 		gmclick_button.textContent = "get gmclick";
-		const gmclick1 = this._gmclick1;
 		gmclick_button.onclick = function () {
 			gm_tool.call_www_function("get_gm_click1");
 		};
 		const show_gmclick_button = document.createElement("button");
 		show_gmclick_button.textContent = "show gmclick";
-		const gmclick2 = this._gmclick2;
 		const results = document.createElement("div");
 		show_gmclick_button.onclick = async function () {
 			const loc = await gm_tool.call_www_function("get_gm_click2");
@@ -862,14 +866,14 @@ class script_tab {
 				if (line.match(/^CpuShip/)) {
 					// this is wrong as its assuming any type name seen is a template, this may be fixable sandbox side for soft template
 					//line = line.replace(/:setTemplate\("([^"]*)"\)(.*):setTypeName\(("[^"]*")\)/,"setTemplate($3)$2")
-					line = line.replace(/CpuShip\(\)(.*):setTemplate\("([^"]*)"\)(.*):setTypeName\(("[^"]*")\)/,"ship_template[$4].create('Kraylor',$4)$3")
+					line = line.replace(/CpuShip\(\)(.*):setTemplate\("([^"]*)"\)(.*):setTypeName\(("[^"]*")\)/,"ship_template[$4].create('Kraylor',$4)$3");
 					sorted_array.CpuShip.push(line);
 				} else {
 					sorted_array.other.push(line);
 				}
 			});
 
-			const str_output = sorted_array.CpuShip.join("\n").concat("\n",sorted_array.other.join("\n"))
+			const str_output = sorted_array.CpuShip.join("\n").concat("\n",sorted_array.other.join("\n"));
 			output.textContent = str_output;
 		};
 		// TODO some sort of mirroring code
@@ -904,7 +908,7 @@ class sat_tab {
 		page.appendChild(document.createElement("br"));
 		end.textContent = "end";
 		end.onclick = function () {
-			gm_tool.call_www_function("old_test_end")
+			gm_tool.call_www_function("old_test_end");
 		};
 		page.appendChild(start);
 		page.appendChild(end);
@@ -922,7 +926,9 @@ class callback_tab {
 		const page = document.createElement("div");
 		// this is kind of digging into gm_tool more than it should
 		for (const fun in gm_tool._function_descriptions) {
-			page.appendChild(gm_tool.make_edit_div_for_function(fun));
+			if (gm_tool._function_descriptions.hasOwnProperty(fun)) {
+				page.appendChild(gm_tool.make_edit_div_for_function(fun));
+			}
 		}
 		return page;
 	}
@@ -931,7 +937,7 @@ class callback_tab {
 class in_dev_tab {
 	constructor () {
 		this.page_name = "in-dev";
-		this._upload = new lua_wrapper("sandbox/update_system_debug",caution_level.reckless)
+		this._upload = new lua_wrapper("sandbox/update_system_debug",caution_level.reckless);
 	}
 	async show() {
 		const page = document.createElement("div");
