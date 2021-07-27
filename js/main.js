@@ -88,9 +88,12 @@ class error_logger_class {
 	error(msg) {
 		console.log(msg);
 		this._errors.push(msg);
-		if (gm_ui) {
-			gm_ui.update_button_list();
+		if (this.callback) {
+			this.callback();
 		}
+	}
+	on_error_call(callback) {
+		this.callback = callback;
 	}
 	get_errors() {
 		return this._errors;
@@ -674,8 +677,9 @@ class data_card_tab {
 }
 
 class error_log_tab {
-	constructor()  {
+	constructor(parent)  {
 		this.page_name = "error_log";
+		error_logger.on_error_call(function () {parent.update_button_list()});
 	}
 	get_button_text () {
 		return error_logger.get_button_text();
@@ -969,16 +973,16 @@ class ui {
 	}
 	async init () {
 		this._tabs = [
-			new home_tab(),
-			new data_card_tab(),
-			new debug_tab(),
-			new error_log_tab(),
-			new sat_tab(),
-			new callback_tab(),
-			new script_tab(),
-			new in_dev_tab(),
-			new mirror_tool_tab(),
-			new prebuilt_tab(),
+			new home_tab(this),
+			new data_card_tab(this),
+			new debug_tab(this),
+			new error_log_tab(this),
+			new sat_tab(this),
+			new callback_tab(this),
+			new script_tab(this),
+			new in_dev_tab(this),
+			new mirror_tool_tab(this),
+			new prebuilt_tab(this),
 		];
 		this.update_button_list();
 	}
@@ -993,8 +997,9 @@ class ui {
 				button.textContent = tab.page_name;
 			}
 			button.tab_class = tab;
+			const tabbed_element = this;
 			button.onclick = function(){
-				gm_ui.switch_to(this.tab_class);
+				tabbed_element.switch_to(this.tab_class);
 			};
 			tabs.appendChild(button);
 		});
@@ -1013,7 +1018,7 @@ class ui {
 	async switch_to_string(tab) {
 		this._tabs.forEach (potentialTab => {
 			if (potentialTab.page_name == tab) {
-				gm_ui.switch_to(potentialTab);
+				this.switch_to(potentialTab);
 			}
 		});
 	}
@@ -1046,10 +1051,10 @@ window.addEventListener("unhandledrejection", function(e) {
 });
 
 const gm_tool=new gm_tool_class();
-let gm_ui = new ui();
 
 window.onload = async function () {
 	await gm_tool.init();
+	const gm_ui = new ui();
 	gm_ui.init();
 	gm_ui.load_page(window.location.search);
 };
