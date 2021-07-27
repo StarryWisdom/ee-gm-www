@@ -379,6 +379,10 @@ class gm_tool_class {
 		await this._www_gm_tools.run();
 		this._function_descriptions = await this.call_www_function("get_descriptions");
 	}
+	get_prebuilt() {
+		// this wants to change to support local storage at some point soon
+		return prebuilt;
+	}
 	// convert argument into something to be merged with a string for call_www_function
 	// main uses are escaping strings, flattening object
 	_call_convert_to_string(arg) {
@@ -928,13 +932,14 @@ class mirror_tool_tab {
 
 class prebuilt_tab {
 	constructor() {
-		this.page_name = "prebuild";
+		this.page_name = "prebuilt";
 	}
 	async show() {
 		const page = document.createElement("div");
+		// this isnt needed any more?
+		// think about removal
 		const base_list=["bigbase_01.txt", "diamond_01.txt", "icarus_style_01.txt", "missile_platform_base_01.txt" , "spiral_01.txt"];
 		base_list.forEach(base => {
-			console.log(base);
 			const button = document.createElement("button");
 			button.textContent = base;
 			button.onclick = async function () {
@@ -946,67 +951,7 @@ class prebuilt_tab {
 		});
 		page.appendChild(document.createElement("br"));
 
-		// this all wants to be kicked into a json file / local storage at some point
-		const prebuilt = [
-			{name : "start0",
-			call_list : [
-				{call : "base0"}
-			]},
-			{name : "start1",
-			call_list : [
-				{call : "rift_example", a : 41023, b : 365191, c : 7000, d : 60, e : "base1"},
-				{call : "rift_example", a : 44382, b : 359059, c : 7000, d : 60},
-				{call : "rift_example", a : 48041, b : 364988, c : 7000, d : 60},
-				{call : "rift_example", a : 45067, b : 372934, c : 4000, d : 60},
-				{call : "rift_example", a : 53032, b : 357862, c : 4000, d : 60},
-				{call : "rift_example", a : 36259, b : 358047, c : 4000, d : 60}
-			]},
-			{name : "start2",
-			call_list : [
-				{call : "rift_example", a : 43071, b : 367398, c : 7000, d : 60, e : "base2"},
-				{call : "rift_example", a : 47202, b : 366427, c : 7000, d : 60},
-				{call : "rift_example", a : 48427, b : 362364, c : 7000, d : 60},
-				{call : "rift_example", a : 45521, b : 359272, c : 7000, d : 60},
-				{call : "rift_example", a : 41390, b : 360243, c : 7000, d : 60},
-				{call : "rift_example", a : 40165, b : 364306, c : 7000, d : 60}
-			]},
-			{name : "start3",
-			call_list : [
-				{call : "rift_example", a : 33479, b : 353054, c : 7000, d : 90, e : "base3"},
-				{call : "rift_example", a : 35633, b : 363809, c : 7000, d : 90},
-				{call : "rift_example", a : 43352, b : 371851, c : 7000, d : 90},
-				{call : "rift_example", a : 43663, b : 348382, c : 7000, d : 90},
-				{call : "rift_example", a : 52341, b : 365122, c : 7000, d : 90},
-				{call : "rift_example", a : 54199, b : 353741, c : 7000, d : 90},
-				{call : "rift_example", a : 43780, b : 355428, c : 7000, d : 90},
-				{call : "rift_example", a : 43843, b : 362397, c : 7000, d : 90}
-			]},
-			{name : "start4",
-			call_list : [
-				{call : "rift_example", a : 43967, b : 352016, c : 7000, d : 90, e : "base4"},
-				{call : "rift_example", a : 51377, b : 354478, c : 7000, d : 90},
-				{call : "rift_example", a : 36358, b : 354485, c : 7000, d : 90},
-				{call : "rift_example", a : 43719, b : 362112, c : 7000, d : 90},
-				{call : "rift_example", a : 53732, b : 361946, c : 7000, d : 90},
-				{call : "rift_example", a : 51316, b : 369529, c : 7000, d : 90},
-				{call : "rift_example", a : 43719, b : 371959, c : 7000, d : 90},
-				{call : "rift_example", a : 36327, b : 369458, c : 7000, d : 90},
-				{call : "rift_example", a : 33706, b : 362112, c : 7000, d : 90}
-			]},
-			{name : "start5",
-			call_list : [
-				{call : "rift_example", a : 35158, b : 370882, c : 10000, d : 120, e : "base5"},
-				{call : "rift_example", a : 43736, b : 379711, c : 10000, d : 120},
-				{call : "rift_example", a : 52655, b : 371014, c : 10000, d : 120},
-				{call : "rift_example", a : 61374, b : 362198, c : 10000, d : 120},
-				{call : "rift_example", a : 43865, b : 362200, c : 10000, d : 120},
-				{call : "rift_example", a : 26331, b : 362254, c : 10000, d : 120},
-				{call : "rift_example", a : 34997, b : 353254, c : 10000, d : 120},
-				{call : "rift_example", a : 43805, b : 344713, c : 10000, d : 120},
-				{call : "rift_example", a : 52673, b : 353298, c : 10000, d : 120}
-		]}];
-
-		prebuilt.forEach(base => {
+		gm_tool.get_prebuilt().forEach(base => {
 			const run = document.createElement("button");
 			run.textContent = base.name;
 			run.onclick = function () {
