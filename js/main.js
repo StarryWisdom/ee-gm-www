@@ -221,7 +221,7 @@ class get_model_data {
 		this._cache = cache;
 		// this needlessly fills the cache with the lua
 		// this could be fixed, but is not currently important
-		this._lua_wrapper = new lua_wrapper("get_model_data",caution_level.safe);
+		this._lua_wrapper = new lua_wrapper("get_model_data");
 		this._cache.set("model_data",this.resolve());
 	}
 	async resolve() {
@@ -248,7 +248,7 @@ class get_extra_template_data{
 		this._cache = cache;
 		// this needlessly fills the cache with the lua
 		// this could be fixed, but is not currently important
-		this._lua_wrapper = new lua_wrapper("get_extra_template_data",caution_level.safe);
+		this._lua_wrapper = new lua_wrapper("get_extra_template_data");
 		this._cache.set("template_data",this.resolve());
 	}
 	async resolve() {
@@ -272,10 +272,9 @@ class get_extra_template_data{
 }
 
 class lua_wrapper {
-	constructor(filename,caution) {
+	constructor(filename) {
 		this._filename = filename;
 		this._lua = gm_tool.cache_get_lua(filename);
-		this._caution = caution;
 	}
 	async run (settings) {
 		if (settings === undefined) {
@@ -294,17 +293,14 @@ class lua_wrapper {
 			}
 		}
 		code += await this._lua;
-		return gm_tool.exec_lua(code,this._caution,this._filename);
+		return gm_tool.exec_lua(code,this._filename);
 	}
 }
 
 class get_cpuship_soft_templates {
 	constructor(cache) {
 		this._cache = cache;
-		// this basically cant become non reckless
-		// this is due to the fact its running random chunks of sandbox code
-		// its probably possible to make it behave better, but flawless is unlikely
-		this._lua = new lua_wrapper("sandbox/get_cpuship_soft_tempate",caution_level.reckless);
+		this._lua = new lua_wrapper("sandbox/get_cpuship_soft_tempate");
 		this._cache.set("npc_ships",this.resolve());
 	}
 	async resolve() {
@@ -322,9 +318,7 @@ class get_cpuship_soft_templates {
 class get_player_soft_template {
 	constructor(cache) {
 		this._cache = cache;
-		// this is labeled reckless due to the creation and destruction of a playerShip
-		// with more lua side error checking, along with thought about onNewPlayerShip this may be possible to change
-		this._lua = new lua_wrapper("get_player_soft_template",caution_level.reckless);
+		this._lua = new lua_wrapper("get_player_soft_template");
 	}
 	async _postprocess(raw) {
 		raw = await raw;
@@ -368,18 +362,7 @@ class get_player_soft_template {
 	}
 }
 
-const caution_level = {
-	reckless : 1,
-	safe : 2,
-	cautious : 3,
-	no_execs : 4,
-};
-Object.freeze(caution_level);
-
 class gm_tool_class {
-	constructor() {
-		this.caution_level = caution_level.safe;
-	}
 	// this needs to be called before any other members are used
 	async init() {
 		this._ee_cache = new data_cache();
@@ -390,14 +373,11 @@ class gm_tool_class {
 		this.get_cpuship_data = new get_cpuship_soft_templates(this._ee_cache);
 		// this probably wants splitting into boostrap code (less than 1 EE upload segment) including upload_to_script_storage
 		// and everything else (with it being conditionally executed if not already loaded)
-		this._bootstrap = new lua_wrapper("bootstrap",caution_level.cautious);
+		this._bootstrap = new lua_wrapper("bootstrap");
 		await this._bootstrap.run();
-		this._www_gm_tools = new lua_wrapper("www_gm_tools",caution_level.cautious);
+		this._www_gm_tools = new lua_wrapper("www_gm_tools");
 		await this._www_gm_tools.run();
 		this._function_descriptions = await this.call_www_function("get_descriptions");
-	}
-	set_caution_level(level) {
-		this.caution_level = caution_level[level];
 	}
 	// convert argument into something to be merged with a string for call_www_function
 	// main uses are escaping strings, flattening object
@@ -441,7 +421,7 @@ class gm_tool_class {
 		args.call=name;
 		code +=  this._call_convert_to_string(args);
 		code += ")";
-		return this.exec_lua(code,caution_level.safe,""); // safe is wrong
+		return this.exec_lua(code,"");
 	}
 	async upload_to_script_storage_and_exec(str) {
 		const max_length = ee_server.max_exec_length/2;// we are just going to be cautious on the chunks we upload rather than check the exact number of chars
@@ -533,18 +513,11 @@ class gm_tool_class {
 
 		return div;
 	}
-	async exec_lua(code,caution,filename) {
-		if (caution == undefined) {
-			throw new Error("caution level not set");
-		}
-		if (caution >= this.caution_level) {
-			if (code.length <= ee_server.max_exec_length) {
-				return ee_server.exec(code,filename);
-			} else {
-				return this.upload_to_script_storage_and_exec(code);
-			}
+	async exec_lua(code,filename) {
+		if (code.length <= ee_server.max_exec_length) {
+			return ee_server.exec(code,filename);
 		} else {
-			throw new Error("script set to be more cautious than this level of running. End users seeing this message is a bug");
+			return this.upload_to_script_storage_and_exec(code);
 		}
 	}
 	async cache_image_uri(url) {
@@ -751,30 +724,6 @@ class home_tab {
 	}
 	async show() {
 		const page = document.createElement("div");
-		["reckless" , "safe", "cautious", "no_execs"].forEach( state => {
-			const desc = {
-				"reckless" : "intended for development, or generating the cache to run during other sessions",
-				"safe" : "intended for saturday games, read only (any speed) or read / write with high confidence no issues",
-				"cautious" : "quick read only, intended for the large games for example",
-				"no_execs" : "intended for dev work, to confirm the cache contains everything",
-			};
-			const radio = document.createElement("input");
-			radio.type = "radio";
-			radio.name = "carefulness";
-			radio.value = state;
-			if (caution_level[state] == gm_tool.caution_level) {
-				radio.checked = "checked";
-			}
-			radio.onclick = function () {
-				gm_tool.set_caution_level(this.value);
-			};
-			page.appendChild(radio);
-			page.appendChild(document.createTextNode(state+" - "+desc[state]));
-			page.appendChild(document.createElement("br"));
-		});
-		
-		const todo = document.createElement("div");
-		page.appendChild(todo);
 		const inner = "sadly right now this tool probably isnt useful unless you are able to ask starry questions<br>" +
 			"at some point a home page probably should be .... I dont know .... useful to people<br>" +
 			"but yet here we are, and I am going to use this as a todo list<br>" +
@@ -783,7 +732,7 @@ class home_tab {
 			"this really needs a way to save / load the cache, along with thought about how to fill the cache<br>"+
 			"there is no check to see if the resouces directory is available from the web tool, this should be checked on this page<br>"+
 			"some sort of consideration as to how to split the cache into scenario specific caches should happen before too long<br>";
-		todo.innerHTML = inner;
+		page.innerHTML = inner;
 		return page;
 	}
 }
@@ -937,7 +886,7 @@ class callback_tab {
 class in_dev_tab {
 	constructor () {
 		this.page_name = "in-dev";
-		this._upload = new lua_wrapper("sandbox/update_system_debug",caution_level.reckless);
+		this._upload = new lua_wrapper("sandbox/update_system_debug");
 	}
 	async show() {
 		const page = document.createElement("div");
@@ -953,7 +902,7 @@ class in_dev_tab {
 
 class mirror_tool_tab {
 	constructor() {
-		this._mirror_tool = new lua_wrapper("in-progress/mirror-tool",caution_level.reckless);
+		this._mirror_tool = new lua_wrapper("in-progress/mirror-tool");
 		this.page_name = "mirror";
 	}
 	async show() {
@@ -1071,7 +1020,6 @@ class prebuilt_tab {
 
 class ui {
 	constructor () {
-		gm_tool.caution_level=caution_level.reckless;
 		this._last_url="";
 	}
 	async init () {
