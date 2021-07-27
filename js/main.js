@@ -679,7 +679,7 @@ class data_card_tab {
 class error_log_tab {
 	constructor(parent)  {
 		this.page_name = "error_log";
-		error_logger.on_error_call(function () {parent.update_button_list()});
+		error_logger.on_error_call(function () {parent.update_button_list();});
 	}
 	get_button_text () {
 		return error_logger.get_button_text();
@@ -967,79 +967,87 @@ class prebuilt_tab {
 	}
 }
 
-class ui {
-	constructor () {
-		this._last_url="";
+class tabbed_ui {
+	constructor(parent,my_div) {
+		this.parent = parent;
+		this._my_div = my_div;
+		this._button_div = document.createElement("div"); // this orignally was style="float: left, clear:none" , this may be uneeded however
+		my_div.appendChild(this._button_div);
+		this._tabs = [];
 	}
-	async init () {
-		this._tabs = [
-			new home_tab(this),
-			new data_card_tab(this),
-			new debug_tab(this),
-			new error_log_tab(this),
-			new sat_tab(this),
-			new callback_tab(this),
-			new script_tab(this),
-			new in_dev_tab(this),
-			new mirror_tool_tab(this),
-			new prebuilt_tab(this),
-		];
+	add_tab(tab) {
+		this._tabs.push(tab);
 		this.update_button_list();
 	}
 	update_button_list() {
-		const tabs = document.getElementById("tab-buttons");
-		util.removeAllChildren(tabs);
+		util.removeAllChildren(this._button_div);
 		this._tabs.forEach(tab => {
-		const button = document.createElement("button");
+			const button = document.createElement("button");
 			if ("get_button_text" in tab) {
 				button.textContent = tab.get_button_text();
 			} else {
 				button.textContent = tab.page_name;
 			}
-			button.tab_class = tab;
 			const tabbed_element = this;
 			button.onclick = function(){
-				tabbed_element.switch_to(this.tab_class);
+				tabbed_element.switch_to_string(tab.page_name);
 			};
-			tabs.appendChild(button);
+			this._button_div.appendChild(button);
 		});
 	}
-	async switch_to(tab) {
+	async switch_to_string(tab) {
 		try {
-			const new_tab = await tab.show();
-			util.removeAllChildren(document.getElementById("main-tab"));
-			this._active_tab = tab;
-			document.getElementById("main-tab").appendChild(new_tab);
-			this.update_history();
+			this._tabs.forEach (potentialTab => {
+				if (potentialTab.page_name == tab) {
+					const tabbed = this;
+					potentialTab.show().then(function(page) {
+						if (tabbed.page != undefined) {
+							tabbed._my_div.removeChild(tabbed.page);
+						}
+						tabbed.page = page;
+						tabbed._my_div.appendChild(page);
+						tabbed.parent.update_history("page="+potentialTab.page_name);
+					});
+					return;
+				}
+			});
 		} catch (error) {
 			error_logger.error(error);
 		}
 	}
-	async switch_to_string(tab) {
-		this._tabs.forEach (potentialTab => {
-			if (potentialTab.page_name == tab) {
-				this.switch_to(potentialTab);
-			}
-		});
-	}
-	update_history() {
-		let url='index.html?';
-		if (this._active_tab && this._active_tab.page_name != undefined) {
-			url=url+"page="+this._active_tab.page_name;
-		}
-		if (this._last_url != url) {
-			this.last_url = url;
-			history.pushState(null, '', url);
-		}
+}
+
+class ui {
+	constructor () {
+		this._last_url="";
+		this._tabbed = new tabbed_ui(this,document.getElementById("main-tab"));
+		this._tabbed.add_tab(new home_tab(this));
+		this._tabbed.add_tab(new data_card_tab(this));
+		this._tabbed.add_tab(new debug_tab(this));
+		this._tabbed.add_tab(new error_log_tab(this));
+		this._tabbed.add_tab(new sat_tab(this));
+		this._tabbed.add_tab(new callback_tab(this));
+		this._tabbed.add_tab(new script_tab(this));
+		this._tabbed.add_tab(new in_dev_tab(this));
+		this._tabbed.add_tab(new mirror_tool_tab(this));
+		this._tabbed.add_tab(new prebuilt_tab(this));
 	}
 	async load_page(page) {
 		const args=page.substring(1).split('=');
 		// this is super lazy and probably needs a better fix later
-		this.switch_to_string("home");
+		this._tabbed.switch_to_string("home");
 		if (args.length == 2) {
 			if (args[0] == "page") {
-				this.switch_to_string(args[1]);
+				this._tabbed.switch_to_string(args[1]);
 			}
+		}
+	}
+	update_history(sub_url) {
+		const url = 'index.html?'+sub_url;
+		if (this._last_url != url) {
+			this._last_url = url;
+			document.title = url;
+			history.pushState(null, '', url);
 		}
 	}
 }
@@ -1055,6 +1063,5 @@ const gm_tool=new gm_tool_class();
 window.onload = async function () {
 	await gm_tool.init();
 	const gm_ui = new ui();
-	gm_ui.init();
 	gm_ui.load_page(window.location.search);
 };
