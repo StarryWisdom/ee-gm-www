@@ -89,10 +89,15 @@ add_function("end_rift",function (args)
 	local faction = "Kraylor"
 	local missile_type = "HVLI"
 	local size = "Small"
+	local lifetime_scale = 0.5
+	local start_angle = math.random(360)
 	for i = 0,count do
-		local spawn_x = x + math.sin(i*(math.pi*2/count))*dist_from_origin
-		local spawn_y = y - math.cos(i*(math.pi*2/count))*dist_from_origin
+		-- super pretty if you forget to add the start angle here but not later
+		local spawn_x = x + math.sin(i*(math.pi*2/count)+(start_angle/360*2*math.pi))*dist_from_origin
+		local spawn_y = y - math.cos(i*(math.pi*2/count)+(start_angle/360*2*math.pi))*dist_from_origin
 		local missile = 0
+		--[[
+		due to not being able to set target angle non hvli dont really work at the moment
 		if missile_type == "Nuke" then
 			missile = Nuke()
 		elseif missile_type == "EMP" then
@@ -105,8 +110,16 @@ add_function("end_rift",function (args)
 			-- script error
 			print("script error")
 		end
-		missile:setPosition(spawn_x,spawn_y):setHeading(i*(360/count)):setFaction(faction):setMissileSize(size) -- targeting?
+		--]]
+		local m = HVLI():setPosition(spawn_x,spawn_y):setHeading(i*(360/count)+start_angle):setFaction(faction):setMissileSize("Small")
+		m:setLifetime(m:getLifetime()*lifetime_scale)-- targeting?
+		m = HVLI():setPosition(spawn_x,spawn_y):setHeading(i*(360/count)+start_angle):setFaction(faction):setMissileSize("Medium")
+		m:setLifetime(m:getLifetime()*lifetime_scale)
+		m = HVLI():setPosition(spawn_x,spawn_y):setHeading(i*(360/count)+start_angle):setFaction(faction):setMissileSize("Large")
+		m:setLifetime(m:getLifetime()*lifetime_scale)
 
+		--[[
+		mostly working, but useless without a target angle
 		local possible_targets = missile:getObjectsInRange(5000)
 		local current_best
 		local current_best_value = 999999
@@ -136,7 +149,7 @@ add_function("end_rift",function (args)
 		if current_best then
 			missile:setTarget(current_best)
 			print(current_best:getCallSign())
-		end
+		end --]]
 	end
 end)
 
