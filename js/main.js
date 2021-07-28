@@ -1083,6 +1083,9 @@ class ui {
 			history.pushState(null, '', url);
 		}
 	}
+	update_button_list() {
+		this._tabbed.update_button_list();
+	}
 }
 
 const error_logger = new error_logger_class();
