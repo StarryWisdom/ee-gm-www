@@ -891,9 +891,9 @@ class callback_tab {
 	}
 }
 
-class in_dev_tab {
+class update_debug_in_dev {
 	constructor () {
-		this.page_name = "in-dev";
+		this.page_name = "update-dev";
 		this._upload = new lua_wrapper("sandbox/update_system_debug");
 	}
 	async show() {
@@ -1028,7 +1028,7 @@ class ui {
 		this._tabbed.add_tab(new sat_tab(this));
 		this._tabbed.add_tab(new callback_tab(this));
 		this._tabbed.add_tab(new script_tab(this));
-		this._tabbed.add_tab(new in_dev_tab(this));
+		this._tabbed.add_tab(new update_debug_in_dev(this));
 		this._tabbed.add_tab(new mirror_tool_tab(this));
 		this._tabbed.add_tab(new prebuilt_tab(this));
 	}
