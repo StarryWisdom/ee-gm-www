@@ -677,9 +677,8 @@ class data_card_tab {
 }
 
 class error_log_tab {
-	constructor(parent)  {
+	constructor()  {
 		this.page_name = "error_log";
-		error_logger.on_error_call(function () {parent.update_button_list();});
 	}
 	get_button_text () {
 		return error_logger.get_button_text();
@@ -1085,7 +1084,9 @@ class ui {
 		this._tabbed.add_tab(new callback_tab(this));
 		this._tabbed.add_tab(new dev_tab(this));
 		this._tabbed.add_tab(new obsolete_soon_tab(this));
-		this._tabbed.add_tab(new error_log_tab(this));
+		this._has_error_tab = false;
+		const tmp = this;
+		error_logger.on_error_call(function () {tmp.error_callback();});
 	}
 	async load_page(page) {
 		let keys = {};
@@ -1109,6 +1110,13 @@ class ui {
 	}
 	update_button_list() {
 		this._tabbed.update_button_list();
+	}
+	error_callback() {
+		if (!this._has_error_tab) {
+			this._tabbed.add_tab(new error_log_tab(this));
+			this._has_error_tab = true;
+		}
+		this.update_button_list();
 	}
 }
 
