@@ -908,6 +908,31 @@ class update_debug_in_dev {
 	}
 }
 
+class dev_tab {
+	constructor(parent) {
+		this.page_name = "development"
+		this.parent = parent;
+		if (parent.update_history == undefined) {
+			throw new Error("Parent for dev_tab is missing required class members.");
+		}
+	}
+	async show (sub_page) {
+		const page = document.createElement("div");
+		this._tabbed = new tabbed_ui(this,"subpage",page);
+		this._tabbed.add_tab(new update_debug_in_dev(this));
+		this._tabbed.add_tab(new mirror_tool_tab(this));
+		if (sub_page && sub_page["subpage"]) {
+			const subpage = sub_page.subpage;
+			delete sub_page.subpage;
+			this._tabbed.switch_to_string(subpage,sub_page);
+		}
+		return page;
+	}
+	update_history(sub_url) {
+		this.parent.update_history("page="+this.page_name+"&"+sub_url);
+	}
+}
+
 class mirror_tool_tab {
 	constructor() {
 		this._mirror_tool = new lua_wrapper("in-progress/mirror-tool");
@@ -968,14 +993,21 @@ class prebuilt_tab {
 }
 
 class tabbed_ui {
-	constructor(parent,my_div) {
+	constructor(parent,url_name,my_div) {
 		this.parent = parent;
 		this._my_div = my_div;
 		this._button_div = document.createElement("div"); // this orignally was style="float: left, clear:none" , this may be uneeded however
 		my_div.appendChild(this._button_div);
 		this._tabs = [];
+		if (parent.update_history == undefined) {
+			throw new Error("Parent for tabbed ui is missing required class members.");
+		}
+		this._url_name = url_name;
 	}
 	add_tab(tab) {
+		if (tab.page_name == undefined) {
+			throw new Error("Tab for tabbed ui is missing required class member.");
+		}
 		this._tabs.push(tab);
 		this.update_button_list();
 	}
@@ -995,18 +1027,18 @@ class tabbed_ui {
 			this._button_div.appendChild(button);
 		});
 	}
-	async switch_to_string(tab) {
+	async switch_to_string(tab,show_params) {
 		try {
 			this._tabs.forEach (potentialTab => {
 				if (potentialTab.page_name == tab) {
 					const tabbed = this;
-					potentialTab.show().then(function(page) {
+					potentialTab.show(show_params).then(function(page) {
 						if (tabbed.page != undefined) {
 							tabbed._my_div.removeChild(tabbed.page);
 						}
 						tabbed.page = page;
 						tabbed._my_div.appendChild(page);
-						tabbed.parent.update_history("page="+potentialTab.page_name);
+						tabbed.parent.update_history(tabbed._url_name+"="+potentialTab.page_name);
 					});
 					return;
 				}
@@ -1020,7 +1052,7 @@ class tabbed_ui {
 class ui {
 	constructor () {
 		this._last_url="";
-		this._tabbed = new tabbed_ui(this,document.getElementById("main-tab"));
+		this._tabbed = new tabbed_ui(this,"page",document.getElementById("main-tab"));
 		this._tabbed.add_tab(new home_tab(this));
 		this._tabbed.add_tab(new data_card_tab(this));
 		this._tabbed.add_tab(new debug_tab(this));
@@ -1028,18 +1060,19 @@ class ui {
 		this._tabbed.add_tab(new sat_tab(this));
 		this._tabbed.add_tab(new callback_tab(this));
 		this._tabbed.add_tab(new script_tab(this));
-		this._tabbed.add_tab(new update_debug_in_dev(this));
-		this._tabbed.add_tab(new mirror_tool_tab(this));
 		this._tabbed.add_tab(new prebuilt_tab(this));
+		this._tabbed.add_tab(new dev_tab(this));
 	}
 	async load_page(page) {
-		const args=page.substring(1).split('=');
-		// this is super lazy and probably needs a better fix later
-		this._tabbed.switch_to_string("home");
-		if (args.length == 2) {
-			if (args[0] == "page") {
-				this._tabbed.switch_to_string(args[1]);
-			}
+		let keys = {};
+		const search = new URLSearchParams(page);
+		for (const k of search) {
+			keys[k[0]] = search.get(k[0]);
+		}
+		if (keys["page"]) {
+			const page = keys["page"]
+			delete keys.page;
+			this._tabbed.switch_to_string(page,keys);
 		}
 	}
 	update_history(sub_url) {
