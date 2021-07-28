@@ -4,15 +4,17 @@ _ENV = getScriptStorage()._gm_cuf_env
 local get_function = getScriptStorage()._cuf_gm.get_function
 local add_function = get_function("add_function")
 
-add_function("describe_function",function (name,description,args,fn)
+add_function("describe_function",function (name,args,description,args_table,fn)
 	-- this is about 90% verifying that the data is good
 	-- and 10% repacking the arguments to be used later in a more convient format
 	assert(type(name)=="string")
 	assert(type(description)=="table")
 	assert(type(args)=="table")
+	assert(type(args_table)=="table")
 	assert(type(fn)=="function")
 	local description = {this = description}
-	for arg_name,arg_description in pairs(args) do
+	for arg_name,arg_description in pairs(args_table) do
+		assert(arg_name ~= "description")
 		local required = false
 		local num
 		for k,v in pairs(arg_description) do
@@ -41,6 +43,13 @@ add_function("describe_function",function (name,description,args,fn)
 		assert(required,"describe_function requires the \"required\" tag")
 		assert(num,"describe_function requires the \"number\" tag")
 	end
+	description.arguments = args
+	for _,arg in pairs(args) do
+		if arg ~= "arguments" then
+			assert(args_table[arg] ~= nil)
+			-- todo need to check required is present for the element in the table
+		end
+	end
 	add_function(name,fn, description)
 end)
 local describe_function = get_function("describe_function")
@@ -50,7 +59,12 @@ add_function("get_descriptions", function ()
 	local ret = {}
 	-- strip out the function itself
 	for name,fn in pairs(getScriptStorage()._cuf_gm.functions) do
-		ret[name]=fn.args
+		local copy = {}
+		for key,value in pairs(fn.args) do
+			copy[key] = value
+		end
+		copy.arguments = nil
+		ret[name] = copy
 	end
 	return ret
 end)
@@ -67,7 +81,11 @@ end)
 
 -- todo we need a safe wrapper around function calling here
 -- and better documentation for functions
-add_function("gm_click_wrapper",function (args)
+describe_function("gm_click_wrapper",
+	{"arguments"},
+	{"todo"},
+	{},
+	function (args)
 	-- todo type assert
 	onGMClick(function (x,y)
 		-- we dont want to change the parameters table as we may be called multiple times
@@ -81,7 +99,11 @@ add_function("gm_click_wrapper",function (args)
 	end)
 end)
 
-add_function("end_rift",function (args)
+describe_function("end_rift",
+	{"arguments"},
+	{"todo"},
+	{},
+	function (args)
 	local count = 15
 	local dist_from_origin = 500
 	local x = args.location.x
@@ -154,16 +176,16 @@ add_function("end_rift",function (args)
 end)
 
 describe_function("subspace_rift",
+	{"max_time","arguments"},
 	{"creates a tuneable rift effect, along with callback at end", "onclick"},
 	{
 		max_time = { "required" , number = {min = 0}} -- max?
 	},
-	function (args)
+	function (max_time,args)
 	-- todo type assert
 	local x = args.location.x
 	local y = args.location.y
 	local max_radius = args.max_radius or 500
-	local max_time = args.max_time or 1
 	local on_end = args.on_end or {call = "end_rift"}
 	-- we need graphical type at some point
 	-- we also need to have a function for "run this each update"
