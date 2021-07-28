@@ -736,9 +736,16 @@ class home_tab {
 			"but yet here we are, and I am going to use this as a todo list<br>" +
 			"some sort of confirmation that the sandbox is loaded before running code in a random script would be nice<br>"+
 			"It is likely this page is going to go horiffically wrong if a scenario is switched while this page is loaded, this needs thought as to how to manage it<br>"+
-			"this really needs a way to save / load the cache, along with thought about how to fill the cache<br>"+
+			"Likewise there probably should be checks that www_gm_tools.lua loads correctly<br>"+
+			"Also some sort of check for non sandbox scripts needs adding, even if it is just ensuring it dies fast<br>"+
+			"this really needs a way to save / load the cache, along with thought about how to fill the cache<br>"
+			"splitting of caches between script and non script code should be considered at some point<br>"+
 			"there is no check to see if the resouces directory is available from the web tool, this should be checked on this page<br>"+
-			"some sort of consideration as to how to split the cache into scenario specific caches should happen before too long<br>";
+			"some sort of consideration as to how to split the cache into scenario specific caches should happen before too long<br>"+
+			"something needs to be done with script restarts, this probably needs engine changes<br>"+
+			"related to that - looking into script changing without having to reload the page would be good<br>"+
+			"in my old notes I have something saying spaces dont work for page names - url related? - I need to look into it<br>"+
+			"In general some sort of release build for nebula servers is needed<br>";
 		page.innerHTML = inner;
 		return page;
 	}
