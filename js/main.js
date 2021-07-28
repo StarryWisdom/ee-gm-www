@@ -933,6 +933,32 @@ class dev_tab {
 	}
 }
 
+class obsolete_soon_tab {
+	constructor(parent) {
+		this.page_name = "obsolete"
+		this.parent = parent;
+		if (parent.update_history == undefined) {
+			throw new Error("Parent for dev_tab is missing required class members.");
+		}
+	}
+	async show (sub_page) {
+		const page = document.createElement("div");
+		this._tabbed = new tabbed_ui(this,"subpage",page);
+		this._tabbed.add_tab(new script_tab(this));
+		this._tabbed.add_tab(new sat_tab(this));
+		this._tabbed.add_tab(new prebuilt_tab(this));
+		if (sub_page && sub_page["subpage"]) {
+			const subpage = sub_page.subpage;
+			delete sub_page.subpage;
+			this._tabbed.switch_to_string(subpage,sub_page);
+		}
+		return page;
+	}
+	update_history(sub_url) {
+		this.parent.update_history("page="+this.page_name+"&"+sub_url);
+	}
+}
+
 class mirror_tool_tab {
 	constructor() {
 		this._mirror_tool = new lua_wrapper("in-progress/mirror-tool");
@@ -1057,11 +1083,9 @@ class ui {
 		this._tabbed.add_tab(new data_card_tab(this));
 		this._tabbed.add_tab(new debug_tab(this));
 		this._tabbed.add_tab(new error_log_tab(this));
-		this._tabbed.add_tab(new sat_tab(this));
 		this._tabbed.add_tab(new callback_tab(this));
-		this._tabbed.add_tab(new script_tab(this));
-		this._tabbed.add_tab(new prebuilt_tab(this));
 		this._tabbed.add_tab(new dev_tab(this));
+		this._tabbed.add_tab(new obsolete_soon_tab(this));
 	}
 	async load_page(page) {
 		let keys = {};
