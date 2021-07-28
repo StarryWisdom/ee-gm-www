@@ -921,6 +921,8 @@ class dev_tab {
 		this._tabbed = new tabbed_ui(this,"subpage",page);
 		this._tabbed.add_tab(new update_debug_in_dev(this));
 		this._tabbed.add_tab(new mirror_tool_tab(this));
+		this._tabbed.add_tab(new data_card_tab(this));
+		this._tabbed.add_tab(new debug_tab(this));
 		if (sub_page && sub_page["subpage"]) {
 			const subpage = sub_page.subpage;
 			delete sub_page.subpage;
@@ -1080,12 +1082,10 @@ class ui {
 		this._last_url="";
 		this._tabbed = new tabbed_ui(this,"page",document.getElementById("main-tab"));
 		this._tabbed.add_tab(new home_tab(this));
-		this._tabbed.add_tab(new data_card_tab(this));
-		this._tabbed.add_tab(new debug_tab(this));
-		this._tabbed.add_tab(new error_log_tab(this));
 		this._tabbed.add_tab(new callback_tab(this));
 		this._tabbed.add_tab(new dev_tab(this));
 		this._tabbed.add_tab(new obsolete_soon_tab(this));
+		this._tabbed.add_tab(new error_log_tab(this));
 	}
 	async load_page(page) {
 		let keys = {};
