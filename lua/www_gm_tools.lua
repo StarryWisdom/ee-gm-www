@@ -4,7 +4,7 @@ _ENV = getScriptStorage()._gm_cuf_env
 local get_function = getScriptStorage()._cuf_gm.get_function
 local add_function = get_function("add_function")
 
-add_function("describe_function",function (name,args,function_description,args_table,fn)
+add_function("describe_function",function (name,function_description,args,args_table,fn)
 	-- this is about 90% verifying that the data is good
 	-- and 10% repacking the arguments to be used later in a more convient format
 	assert(type(name)=="string")
@@ -82,8 +82,8 @@ end)
 -- todo we need a safe wrapper around function calling here
 -- and better documentation for functions
 describe_function("gm_click_wrapper",
-	{"arguments"},
 	{"todo"},
+	{"arguments"},
 	{},
 	function (args)
 	-- todo type assert
@@ -100,8 +100,8 @@ describe_function("gm_click_wrapper",
 end)
 
 describe_function("end_rift",
-	{"arguments"},
 	{"todo"},
+	{"arguments"},
 	{},
 	function (args)
 	local count = 15
@@ -176,8 +176,8 @@ describe_function("end_rift",
 end)
 
 describe_function("subspace_rift",
-	{"max_time","arguments"},
 	{"creates a tuneable rift effect, along with callback at end", "onclick"},
+	{"max_time","arguments"},
 	{
 		max_time = { "required" , number = {min = 0}} -- max?
 	},
