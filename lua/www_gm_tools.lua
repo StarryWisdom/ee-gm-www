@@ -26,7 +26,7 @@ add_function("describe_function",function (name,function_description,args_table)
 				required = true
 				goto continue
 			elseif k == "number" then
-				num = {}
+				num = {type = "number"}
 				for k, v in pairs(v) do
 					if k == "min" then
 						num.min = v
@@ -39,7 +39,7 @@ add_function("describe_function",function (name,function_description,args_table)
 				num_types = num_types + 1
 				goto continue
 			elseif v == "string" then
-				str = {}
+				description[arg_name] = {type = "string"}
 				num_types = num_types + 1
 				goto continue
 			elseif k == "name" then
