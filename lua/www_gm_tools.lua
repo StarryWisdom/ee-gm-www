@@ -19,6 +19,8 @@ add_function("describe_function",function (name,function_description,args_table)
 		assert(arg_name ~= "description") -- description is reused elsewhere and is a problem to be an arg name
 		local required = false
 		local num
+		local str
+		local num_types = 0
 		for k,v in pairs(arg_description) do
 			if v == "required" then
 				required = true
@@ -34,6 +36,11 @@ add_function("describe_function",function (name,function_description,args_table)
 					::continue_number::
 				end
 				description[arg_name] = num
+				num_types = num_types + 1
+				goto continue
+			elseif v == "string" then
+				str = {}
+				num_types = num_types + 1
 				goto continue
 			elseif k == "name" then
 				goto continue
@@ -42,7 +49,7 @@ add_function("describe_function",function (name,function_description,args_table)
 			::continue::
 		end
 		assert(required,"describe_function requires the \"required\" tag")
-		--assert(num,"describe_function requires the \"number\" tag")
+		assert(num_types==1,"describe_function requires the a type for each argument")
 	end
 	-- this is only being created as its a pain to change and fix indirect_call
 	-- this should be merged into arg_table (probably)
@@ -1283,7 +1290,7 @@ end
 describe_function("set_timer_purpose",
 	{"todo"},
 	{
-		{ name = "reason", "required"}
+		{ name = "reason", "required", "string"}
 --		max_time = { "required" , number = {min = 0}} -- max?
 	})
 function set_timer_purpose_deploying()
