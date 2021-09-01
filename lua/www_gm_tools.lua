@@ -4,12 +4,13 @@ _ENV = getScriptStorage()._gm_cuf_env
 local get_function = getScriptStorage()._cuf_gm.get_function
 local add_function = get_function("add_function")
 
-add_function("describe_function",function (name,function_description,args_table,fn)
+add_function("describe_function",function (name,function_description,args_table)
 	-- this is about 90% verifying that the data is good
 	-- and 10% repacking the arguments to be used later in a more convient format
 	assert(type(name)=="string")
 	assert(type(function_description)=="table")
 	assert(type(args_table)=="table")
+	local fn = getScriptStorage()._gm_cuf_env[name]
 	assert(type(fn)=="function")
 	local description = {this = function_description}
 	for _,arg_description in pairs(args_table) do
@@ -90,10 +91,7 @@ end)
 
 -- todo we need a safe wrapper around function calling here
 -- and better documentation for functions
-describe_function("gm_click_wrapper",
-	{"todo"},
-	{},
-	function (args)
+function gm_click_wrapper(args)
 	-- todo type assert
 	onGMClick(function (x,y)
 		-- we dont want to change the parameters table as we may be called multiple times
@@ -105,12 +103,12 @@ describe_function("gm_click_wrapper",
 		parameters.location= {x = x, y = y}
 		indirect_call(parameters)
 	end)
-end)
-
-describe_function("end_rift",
+end
+describe_function("gm_click_wrapper",
 	{"todo"},
-	{},
-	function (args)
+{})
+
+function end_rift(args)
 	local count = 15
 	local dist_from_origin = 500
 	local x = args.location.x
@@ -180,14 +178,12 @@ describe_function("end_rift",
 			print(current_best:getCallSign())
 		end --]]
 	end
-end)
+end
+describe_function("end_rift",
+	{"todo"},
+	{})
 
-describe_function("subspace_rift",
-	{"creates a tuneable rift effect, along with callback at end", "onclick"},
-	{
-		{ name = "max_time", "required" , number = {min = 0}} -- max?
-	},
-	function (max_time,args)
+function subspace_rift(max_time,args)
 	-- todo type assert
 	local x = args.location.x
 	local y = args.location.y
@@ -254,7 +250,12 @@ describe_function("subspace_rift",
 		name = "why do I fill this"
 	}
 	update_system:addUpdate(rift,"subspace_rift",update_data)
-end)
+end
+describe_function("subspace_rift",
+	{"creates a tuneable rift effect, along with callback at end", "onclick"},
+	{
+		{ name = "max_time", "required" , number = {min = 0}} -- max?
+	})
 
 add_function("rift_example",function (args) -- in time this should be removed
 	local x = args.a
@@ -1273,3 +1274,27 @@ add_function("old_test_comms",function(args)
 		end
 	end
 end)
+function set_timer_purpose(args)
+	assert(type(reason)=="string")
+	print(getScriptStorage()._gm_cuf_env.timer_purpose)
+	--assert(type(args.reason=="string")
+	timer_purpose = reason
+end
+describe_function("set_timer_purpose",
+	{"todo"},
+	{
+		{ name = "reason", "required"}
+--		max_time = { "required" , number = {min = 0}} -- max?
+	})
+function set_timer_purpose_deploying()
+	timer_purpose = "deploying"
+end
+describe_function("set_timer_purpose_deploying",
+	{"todo"},
+	{})
+function set_timer_purpose_charging()
+	timer_purpose = "charging"
+end
+describe_function("set_timer_purpose_charging",
+	{"todo"},
+	{})
