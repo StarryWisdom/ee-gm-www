@@ -4,12 +4,12 @@ _ENV = getScriptStorage()._gm_cuf_env
 local get_function = getScriptStorage()._cuf_gm.get_function
 local add_function = get_function("add_function")
 
-add_function("describe_function",function (name,function_description,args,args_table,fn)
+add_function("describe_function",function (name,function_description,arguments,args_table,fn)
 	-- this is about 90% verifying that the data is good
 	-- and 10% repacking the arguments to be used later in a more convient format
 	assert(type(name)=="string")
 	assert(type(function_description)=="table")
-	assert(type(args)=="table")
+	assert(type(arguments)=="table")
 	assert(type(args_table)=="table")
 	assert(type(fn)=="function")
 	local description = {this = function_description}
@@ -44,8 +44,8 @@ add_function("describe_function",function (name,function_description,args,args_t
 		assert(required,"describe_function requires the \"required\" tag")
 		--assert(num,"describe_function requires the \"number\" tag")
 	end
-	description.arguments = args
-	for _,arg in pairs(args) do
+	description.arguments = arguments
+	for _,arg in pairs(arguments) do
 		if arg ~= "arguments" then
 			local found = false
 			for _,v in ipairs(args_table) do
