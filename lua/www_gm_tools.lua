@@ -13,8 +13,10 @@ add_function("describe_function",function (name,function_description,args,args_t
 	assert(type(args_table)=="table")
 	assert(type(fn)=="function")
 	local description = {this = function_description}
-	for arg_name,arg_description in pairs(args_table) do
-		assert(arg_name ~= "description")
+	for _,arg_description in pairs(args_table) do
+		assert(type(arg_description["name"])=="string")
+		local arg_name = arg_description["name"]
+		assert(arg_name ~= "description") -- description is reused elsewhere and is a problem to be an arg name
 		local required = false
 		local num
 		for k,v in pairs(arg_description) do
@@ -36,17 +38,25 @@ add_function("describe_function",function (name,function_description,args,args_t
 				end
 				description[arg_name] = num
 				goto continue
+			elseif k == "name" then
+				goto continue
 			end
 			assert(false,"unknown tag describing a variable in describe_function")
 			::continue::
 		end
 		assert(required,"describe_function requires the \"required\" tag")
-		assert(num,"describe_function requires the \"number\" tag")
+		--assert(num,"describe_function requires the \"number\" tag")
 	end
 	description.arguments = args
 	for _,arg in pairs(args) do
 		if arg ~= "arguments" then
-			assert(args_table[arg] ~= nil)
+			local found = false
+			for _,v in ipairs(args_table) do
+				if (arg == v["name"]) then
+					found = true
+				end
+			end
+			assert(found == true)
 			-- todo need to check required is present for the element in the table
 		end
 	end
@@ -179,7 +189,7 @@ describe_function("subspace_rift",
 	{"creates a tuneable rift effect, along with callback at end", "onclick"},
 	{"max_time","arguments"},
 	{
-		max_time = { "required" , number = {min = 0}} -- max?
+		{ name = "max_time", "required" , number = {min = 0}} -- max?
 	},
 	function (max_time,args)
 	-- todo type assert
