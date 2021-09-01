@@ -14,6 +14,13 @@ if (getScriptStorage()._cuf_gm == nil) then
 			return getScriptStorage()._cuf_gm.functions[name].fn
 		end
 	}
+	-- args should be considered a contract between
+	-- 1) add_function
+	-- 2) indirect call
+	-- 3) describe_function
+	-- 4) the web tool
+	-- if edited each of those locations need to be checked
+	-- it is probably a bad idea to read it outside of these
 	local add_function = function (name, fun, args)
 		assert(type(name)=="string")
 		assert(type(fun)=="function")
@@ -32,9 +39,7 @@ if (getScriptStorage()._cuf_gm == nil) then
 		assert(getScriptStorage()._cuf_gm.uploads.slots[args.slot].parts[args.part] == nil)
 		assert(type(args.str)=="string")
 		getScriptStorage()._cuf_gm.uploads.slots[args.slot].parts[args.part] = args.str
-	end,
-	{arguments = {"arguments"}}
-	)
+	end)
 	add_function("upload_end", function (args)
 		assert(type(args)=="table")
 		assert(type(args.slot)=="number")
@@ -53,9 +58,7 @@ if (getScriptStorage()._cuf_gm == nil) then
 			print(err)
 			error(err)
 		end
-	end,
-	{arguments = {"arguments"}}
-	)
+	end)
 	add_function("upload_start", function (args)
 		assert(type(args)=="table")
 		assert(type(args.parts)=="number")
@@ -63,9 +66,7 @@ if (getScriptStorage()._cuf_gm == nil) then
 		getScriptStorage()._cuf_gm.uploads.slots[slot_id] = {total_parts = args.parts, parts = {}}
 		getScriptStorage()._cuf_gm.uploads.slot_id = slot_id + 1
 		return slot_id
-	end,
-	{arguments = {"arguments"}}
-	)
+	end)
 	-- the indirect call is at least somewhat useful in chainging functions
 	-- it allows tables of parmeters to be completed and not to care about the order with which they are built
 	-- this is mostly a consideration for onGMClick and location
@@ -79,17 +80,12 @@ if (getScriptStorage()._cuf_gm == nil) then
 		assert(type(getScriptStorage()._cuf_gm.functions[args.call].args) == "table")
 		local tbl = {}
 		for _,arg in ipairs(getScriptStorage()._cuf_gm.functions[args.call].args.arguments) do
-			if arg == "arguments" then
-				table.insert(tbl,args)
-			else
-				-- todo check arguments are in the format described by describe_function
-				table.insert(tbl,args[arg])
-			end
+			-- todo check arguments are in the format described by describe_function
+			table.insert(tbl,args[arg])
 		end
+		table.insert(tbl,args)
 		return getScriptStorage()._cuf_gm.functions[args.call].fn(table.unpack(tbl))
-	end,
-	{arguments = {"arguments"}}
-	)
+	end)
 	getScriptStorage()._cuf_gm.indirect_call = getScriptStorage()._cuf_gm.get_function("indirect_call")
 	getScriptStorage()._cuf_gm.upload_start = getScriptStorage()._cuf_gm.get_function("upload_start")
 	getScriptStorage()._cuf_gm.upload_segment = getScriptStorage()._cuf_gm.get_function("upload_segment")

@@ -4,12 +4,11 @@ _ENV = getScriptStorage()._gm_cuf_env
 local get_function = getScriptStorage()._cuf_gm.get_function
 local add_function = get_function("add_function")
 
-add_function("describe_function",function (name,function_description,arguments,args_table,fn)
+add_function("describe_function",function (name,function_description,args_table,fn)
 	-- this is about 90% verifying that the data is good
 	-- and 10% repacking the arguments to be used later in a more convient format
 	assert(type(name)=="string")
 	assert(type(function_description)=="table")
-	assert(type(arguments)=="table")
 	assert(type(args_table)=="table")
 	assert(type(fn)=="function")
 	local description = {this = function_description}
@@ -44,18 +43,22 @@ add_function("describe_function",function (name,function_description,arguments,a
 		assert(required,"describe_function requires the \"required\" tag")
 		--assert(num,"describe_function requires the \"number\" tag")
 	end
-	description.arguments = arguments
-	for _,arg in pairs(arguments) do
-		if arg ~= "arguments" then
-			local found = false
-			for _,v in ipairs(args_table) do
-				if (arg == v["name"]) then
-					found = true
-				end
+	-- this is only being created as its a pain to change and fix indirect_call
+	-- this should be merged into arg_table (probably)
+	description.arguments = {}
+	for _,arg in pairs(args_table) do
+		table.insert(description.arguments,arg.name)
+	end
+	for _,arg in pairs(description.arguments) do
+		print(_,arg)
+		local found = false
+		for _,v in ipairs(args_table) do
+			if (arg == v["name"]) then
+				found = true
 			end
-			assert(found == true)
-			-- todo need to check required is present for the element in the table
 		end
+		assert(found == true)
+		-- todo need to check required is present for the element in the table
 	end
 	add_function(name,fn, description)
 end)
@@ -90,7 +93,6 @@ end)
 -- and better documentation for functions
 describe_function("gm_click_wrapper",
 	{"todo"},
-	{"arguments"},
 	{},
 	function (args)
 	-- todo type assert
@@ -108,7 +110,6 @@ end)
 
 describe_function("end_rift",
 	{"todo"},
-	{"arguments"},
 	{},
 	function (args)
 	local count = 15
@@ -184,7 +185,6 @@ end)
 
 describe_function("subspace_rift",
 	{"creates a tuneable rift effect, along with callback at end", "onclick"},
-	{"max_time","arguments"},
 	{
 		{ name = "max_time", "required" , number = {min = 0}} -- max?
 	},
