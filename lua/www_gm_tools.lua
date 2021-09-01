@@ -20,13 +20,10 @@ add_function("describe_function",function (name,function_description,args,args_t
 		local required = false
 		local num
 		for k,v in pairs(arg_description) do
-			-- first we are doing the numeric part of the array, as such we are checking the value part
 			if v == "required" then
 				required = true
 				goto continue
-			end
-			-- now onto named parts like the type
-			if k == "number" then
+			elseif k == "number" then
 				num = {}
 				for k, v in pairs(v) do
 					if k == "min" then
