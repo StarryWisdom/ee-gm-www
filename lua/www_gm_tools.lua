@@ -50,7 +50,6 @@ add_function("describe_function",function (name,function_description,args_table,
 		table.insert(description.arguments,arg.name)
 	end
 	for _,arg in pairs(description.arguments) do
-		print(_,arg)
 		local found = false
 		for _,v in ipairs(args_table) do
 			if (arg == v["name"]) then
