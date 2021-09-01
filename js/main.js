@@ -513,10 +513,10 @@ class gm_tool_class {
 				}
 				gm_tool.call_www_function("gm_click_wrapper",{args : call});
 			};
-			div.appendChild(run);
 		} else {
 			// todo
 		}
+		div.appendChild(run);
 
 		return div;
 	}
