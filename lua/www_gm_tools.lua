@@ -266,14 +266,9 @@ function rift_example(location,args) -- in time this should be removed
 	local onEnd = args.e
 -- we are going to require a central artifact
 -- this requirement probably should be removed at some point
-	local rift = {}
--- merge with sandbox
-	local valid = true
-	rift.isValid = function ()
-		return valid
-	end
+	local rift = getScriptStorage()._gm_cuf_env.newPhonySpaceObject()
 	rift.destroy = function ()
-		valid = false
+		rift.valid = false
 		-- I really need to check if these are valid before calling destroy
 		rift.center:destroy()
 		for j=#rift.all_elements,1,-1 do
