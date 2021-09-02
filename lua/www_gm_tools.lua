@@ -1,8 +1,46 @@
 -- all of the scripting functions common between all scripts
 _ENV = getScriptStorage()._cuf_gm._ENV
 
-local get_function = getScriptStorage()._cuf_gm.get_function
-local add_function = get_function("add_function")
+-- loaded first, must all fit in the EE upload limit
+local function get_function(name)
+	assert(type(name)=="string")
+	return getScriptStorage()._cuf_gm.functions[name].fn
+end
+-- args should be considered a contract between
+-- 1) add_function
+-- 2) indirect call
+-- 3) describe_function
+-- 4) the web tool
+-- if edited each of those locations need to be checked
+-- it is probably a bad idea to read it outside of these
+local function add_function(name, fun, args)
+	assert(type(name)=="string")
+	assert(type(fun)=="function")
+	local args = args or {arguments = {}}
+	getScriptStorage()._cuf_gm.functions[name] = {fn = fun, args = args}
+end
+
+-- the indirect call is at least somewhat useful in chainging functions
+-- it allows tables of parmeters to be completed and not to care about the order with which they are built
+-- this is mostly a consideration for onGMClick and location
+-- I think its possible this will be made obsolete in time though
+add_function("indirect_call",function (args)
+	assert(type(args)=="table")
+	assert(type(args.call)=="string")
+	assert(getScriptStorage()._cuf_gm.functions[args.call] ~= nil, "attempted to call an undefined function")
+	assert(type(getScriptStorage()._cuf_gm.functions[args.call].fn) == "function")
+	assert(type(getScriptStorage()._cuf_gm.functions[args.call].args.arguments) == "table")
+	assert(type(getScriptStorage()._cuf_gm.functions[args.call].args) == "table")
+	local tbl = {}
+	for _,arg in ipairs(getScriptStorage()._cuf_gm.functions[args.call].args.arguments) do
+		-- todo check arguments are in the format described by describe_function
+		table.insert(tbl,args[arg])
+	end
+	table.insert(tbl,args)
+	return getScriptStorage()._cuf_gm.functions[args.call].fn(table.unpack(tbl))
+end)
+getScriptStorage()._cuf_gm.indirect_call = get_function("indirect_call")
+local indirect_call = get_function("indirect_call")
 
 add_function("describe_function",function (name,function_description,args_table)
 	-- this is about 90% verifying that the data is good
@@ -70,7 +108,6 @@ add_function("describe_function",function (name,function_description,args_table)
 	add_function(name,fn, description)
 end)
 local describe_function = get_function("describe_function")
-local indirect_call = get_function("indirect_call")
 
 add_function("get_descriptions", function ()
 	local ret = {}

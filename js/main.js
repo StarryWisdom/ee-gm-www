@@ -376,8 +376,6 @@ class gm_tool_class {
 		this.get_cpuship_data = new get_cpuship_soft_templates(this._ee_cache);
 		// this probably wants splitting into boostrap code (less than 1 EE upload segment) including upload_to_script_storage
 		// and everything else (with it being conditionally executed if not already loaded)
-		this._bootstrap = new lua_wrapper("bootstrap");
-		await this._bootstrap.run();
 		this._www_gm_tools = new lua_wrapper("www_gm_tools");
 		await this._www_gm_tools.run();
 		this._function_descriptions = await this.call_www_function("get_descriptions");
