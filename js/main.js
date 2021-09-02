@@ -505,26 +505,30 @@ class gm_tool_class {
 
 		const run = document.createElement("button");
 		run.textContent = "go";
-		if (onclick) {
-			run.onclick = function () {
-				const call = {call : function_name};
-				for (const p in params) {
-					if (params.hasOwnProperty(p)) {
-						if (params[p].type == "number") {
-							// todo check min / max / integer
-							// todo error check
-							call[p] = parseFloat(params[p].input.value);
-						} else if (params[p].type == "string") {
-							call[p] = params[p].input.value;
-						}
+		const build_call = function () {
+			const call = {};
+			for (const p in params) {
+				if (params.hasOwnProperty(p)) {
+					if (params[p].type == "number") {
+						// todo check min / max / integer
+						// todo error check
+						call[p] = parseFloat(params[p].input.value);
+					} else if (params[p].type == "string") {
+						call[p] = params[p].input.value;
 					}
 				}
-				// onclick wrapper is kind of wrong - we need to deal with non onclick code
-				gm_tool.call_www_function("gm_click_wrapper",{args : call});
-			};
-		} else {
-			// todo
+			}
+			return call;
 		}
+		run.onclick = function () {
+			if (onclick) {
+				const call = build_call();
+				call.call = function_name;
+				gm_tool.call_www_function("gm_click_wrapper",{args : call});
+			} else {
+				gm_tool.call_www_function(function_name,build_call());
+			}
+		};
 		div.appendChild(run);
 
 		return div;
