@@ -484,12 +484,16 @@ class gm_tool_class {
 
 				// we need to check what type of input
 				const input = document.createElement("input");
-				params[arg]={type : "number", input : input};
-				input.setAttribute("type","number");
+				if (args[arg].type == "number") {
+					// todo default value
+					params[arg]={type : "number", input : input};
+					input.setAttribute("type","number");
+				} else if(args[arg].type == "string") {
+					// todo default value
+					params[arg]={type : "string", input : input};
+				}
+				// todo description of the arg
 				div.appendChild(input);
-				// todo set default value
-				// todo check min / max
-				// todo strings
 				// todo title text
 
 				const inner_div = document.createElement("div");
@@ -506,11 +510,16 @@ class gm_tool_class {
 				const call = {call : function_name};
 				for (const p in params) {
 					if (params.hasOwnProperty(p)) {
-						// needs error check
-						// likewise needs check for min / max
-						call[p] = parseFloat(params[p].input.value);
+						if (params[p].type == "number") {
+							// todo check min / max / integer
+							// todo error check
+							call[p] = parseFloat(params[p].input.value);
+						} else if (params[p].type == "string") {
+							call[p] = params[p].input.value;
+						}
 					}
 				}
+				// onclick wrapper is kind of wrong - we need to deal with non onclick code
 				gm_tool.call_www_function("gm_click_wrapper",{args : call});
 			};
 		} else {

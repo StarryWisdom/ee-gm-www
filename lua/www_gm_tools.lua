@@ -1281,27 +1281,12 @@ add_function("old_test_comms",function(args)
 		end
 	end
 end)
-function set_timer_purpose(args)
+function set_timer_purpose(reason)
 	assert(type(reason)=="string")
-	print(getScriptStorage()._gm_cuf_env.timer_purpose)
-	--assert(type(args.reason=="string")
 	timer_purpose = reason
 end
 describe_function("set_timer_purpose",
 	{"todo"},
 	{
 		{ name = "reason", "required", "string"}
---		max_time = { "required" , number = {min = 0}} -- max?
 	})
-function set_timer_purpose_deploying()
-	timer_purpose = "deploying"
-end
-describe_function("set_timer_purpose_deploying",
-	{"todo"},
-	{})
-function set_timer_purpose_charging()
-	timer_purpose = "charging"
-end
-describe_function("set_timer_purpose_charging",
-	{"todo"},
-	{})
