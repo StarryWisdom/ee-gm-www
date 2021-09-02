@@ -48,12 +48,6 @@ add_function("upload_end", function (args)
 		error(err)
 	end
 end)
-add_function("upload_start", function (parts)
-	local slot_id = getScriptStorage()._cuf_gm.uploads.slot_id
-	getScriptStorage()._cuf_gm.uploads.slots[slot_id] = {total_parts = parts, parts = {}}
-	getScriptStorage()._cuf_gm.uploads.slot_id = slot_id + 1
-	return slot_id
-end)
 -- the indirect call is at least somewhat useful in chainging functions
 -- it allows tables of parmeters to be completed and not to care about the order with which they are built
 -- this is mostly a consideration for onGMClick and location
@@ -74,6 +68,5 @@ add_function("indirect_call",function (args)
 	return getScriptStorage()._cuf_gm.functions[args.call].fn(table.unpack(tbl))
 end)
 getScriptStorage()._cuf_gm.indirect_call = getScriptStorage()._cuf_gm.get_function("indirect_call")
-getScriptStorage()._cuf_gm.upload_start = getScriptStorage()._cuf_gm.get_function("upload_start")
 getScriptStorage()._cuf_gm.upload_segment = getScriptStorage()._cuf_gm.get_function("upload_segment")
 getScriptStorage()._cuf_gm.upload_end = getScriptStorage()._cuf_gm.get_function("upload_end")

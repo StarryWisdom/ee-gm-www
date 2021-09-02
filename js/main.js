@@ -441,7 +441,7 @@ class gm_tool_class {
 		for (;i*max_length<=str.length;i++) {
 			parts[i+1]=str.slice(i*max_length,(i+1)*max_length);
 		}
-		const id = await this.direct_www_call("upload_start",i);
+		const id = await this.direct_www_call("webUploadStart",i);
 		for (let l = 1; l<=i ;l++) {
 			parts[l] = this.call_www_function("upload_segment",{slot : id , part : l, str : parts[l]});
 		}
