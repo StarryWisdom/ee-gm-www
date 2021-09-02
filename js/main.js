@@ -472,39 +472,6 @@ class gm_tool_class {
 		div.appendChild(title);
 		div.appendChild(document.createElement("br"));
 
-		const params = {};
-		for (const arg in args) {
-			if (args.hasOwnProperty(arg)) {
-				if (arg == "this") {
-					continue;
-				}
-				const name = document.createElement("a");
-				name.textContent = arg;
-				div.appendChild(name);
-
-				// we need to check what type of input
-				const input = document.createElement("input");
-				if (args[arg].type == "number") {
-					// todo default value
-					params[arg]={type : "number", input : input};
-					input.setAttribute("type","number");
-				} else if(args[arg].type == "string") {
-					// todo default value
-					params[arg]={type : "string", input : input};
-				}
-				// todo description of the arg
-				div.appendChild(input);
-				// todo title text
-
-				const inner_div = document.createElement("div");
-				div.appendChild(inner_div);
-
-				div.appendChild(document.createElement("br"));
-			}
-		}
-
-		const run = document.createElement("button");
-		run.textContent = "go";
 		const build_call = function () {
 			const call = {};
 			for (const p in params) {
@@ -520,16 +487,59 @@ class gm_tool_class {
 			}
 			return call;
 		}
-		run.onclick = function () {
-			if (onclick) {
-				const call = build_call();
-				call.call = function_name;
-				gm_tool.call_www_function("gm_click_wrapper",{args : call});
-			} else {
-				gm_tool.call_www_function(function_name,build_call());
+
+		const params = {};
+		for (const arg in args) {
+			if (args.hasOwnProperty(arg)) {
+				if (arg == "this") {
+					continue;
+				}
+				const name = document.createElement("a");
+				name.textContent = arg;
+				div.appendChild(name);
+
+				if (args[arg].type == "number") {
+					// todo default value
+					const input = document.createElement("input");
+					params[arg]={type : "number", input : input};
+					input.setAttribute("type","number");
+					div.appendChild(input);
+				} else if(args[arg].type == "string") {
+					// todo default value
+					const input = document.createElement("input");
+					params[arg]={type : "string", input : input};
+					div.appendChild(input);
+				} else if (args[arg].type == "position") {
+					const run_via_click = document.createElement("button");
+					run_via_click.textContent = "run via gmClick";
+					run_via_click.onclick = function () {
+						const call = build_call();
+						call.call = function_name;
+						gm_tool.call_www_function("gm_click_wrapper",{args : call});
+					};
+					div.appendChild(run_via_click);
+				} else {
+					error_logger.error("unknown type");
+				}
+				// todo description of the arg
+				// todo title text
+
+				const inner_div = document.createElement("div");
+				div.appendChild(inner_div);
+
+				div.appendChild(document.createElement("br"));
 			}
-		};
-		div.appendChild(run);
+		}
+
+		// todo consider how to manage multiple positions
+		if (!onclick) {
+			const run = document.createElement("button");
+			run.textContent = "go";
+			run.onclick = function () {
+				gm_tool.call_www_function(function_name,build_call());
+			};
+			div.appendChild(run);
+		}
 
 		return div;
 	}

@@ -42,6 +42,10 @@ add_function("describe_function",function (name,function_description,args_table)
 				description[arg_name] = {type = "string"}
 				num_types = num_types + 1
 				goto continue
+			elseif v == "position" then
+				description[arg_name] = {type = "position"}
+				num_types = num_types + 1
+				goto continue
 			elseif k == "name" then
 				goto continue
 			end
@@ -190,10 +194,10 @@ describe_function("end_rift",
 	{"todo"},
 	{})
 
-function subspace_rift(max_time,args)
+function subspace_rift(max_time,location,args)
 	-- todo type assert
-	local x = args.location.x
-	local y = args.location.y
+	local x = location.x
+	local y = location.y
 	local max_radius = args.max_radius or 500
 	local on_end = args.on_end or {call = "end_rift"}
 	-- we need graphical type at some point
@@ -261,7 +265,8 @@ end
 describe_function("subspace_rift",
 	{"creates a tuneable rift effect, along with callback at end", "onclick"},
 	{
-		{ name = "max_time", "required" , number = {min = 0}} -- max?
+		{ name = "max_time", "required", number = {min = 0}}, -- max?
+		{ name = "location", "required", "position"}
 	})
 
 add_function("rift_example",function (args) -- in time this should be removed
