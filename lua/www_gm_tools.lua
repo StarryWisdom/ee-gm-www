@@ -1209,77 +1209,47 @@ add_function("call_list",function (args)
 	end
 end)
 add_function("old_test_end",function ()
-	for i=0,32 do
-		if (getPlayerShip(i) ~= nil) then
-			local p=getPlayerShip(i)
-			p:removeCustom("tmp_s")
-			p:removeCustom("tmp_o")
-			p:removeCustom("tmp_i")
-		end
-	end
+	_ENV = getScriptStorage()._gm_cuf_env
+	fleet_custom:removeCustom("tmp")
 end)
 add_function("old_test_start",function(args)
-	local max_time = args.max_time
-	local max_range = args.max_range
-	local energy_cost = args.energy_cost
-	local no_eng_msg = args.no_eng_msg
-	local name = args.name
-	getScriptStorage().tmp_fn={}
-	for i=0,32 do
-		local max_time = max_time -- we need to mirror the _ENV variables for when that is gc'ed
-		local energy_cost = energy_cost
-		local max_range = max_range
-		local no_eng_msg = no_eng_msg
-		getScriptStorage().tmp_fn[i] = getScriptStorage()._gm_cuf_env.wrapWithErrorHandling(function ()
-			_ENV=getScriptStorage()._gm_cuf_env;
-			local p = getPlayerShip(i)
-			if p ~= nil then
-				if p:getEnergyLevel() < energy_cost then
-					p:addCustomMessage("Science","no_ene_s",no_eng_msg)
-					p:addCustomMessage("Operations","no_ene_o",no_eng_msg)
-					p:addCustomMessage("Single","no_ene_i",no_eng_msg)
-				else
-					local jammer = WarpJammer():setPosition(p:getPosition())
-					local update_data = {
-						update = function (self, obj, delta)
-							self.t = self.t + delta
-							if self.t > self.max_time then
-								local a = Artifact():setPosition(obj:getPosition()):setDescription(obj:getDescription("simplescan"))
-								obj:destroy()
-							end
-							obj:setRange(math.sin((self.t/self.max_time)*math.pi)*self.max_range)
-						end,
-						edit = {},
-						t = 0,
-						max_time = max_time,
-						max_range = max_range,
-						name = "dynamic warp jammer"
-					}
-					update_system:addUpdate(jammer,"dynamic jammer",update_data)
-					p:setEnergyLevel(p:getEnergyLevel()-energy_cost)
-					addGMMessage("sat button clicked on " .. p:getCallSign() .. "set result in artifact single scan")
-				end
-			end
-		end)
-	end
+	_ENV = getScriptStorage()._gm_cuf_env
 
-	for i=0,32 do
-		if (getPlayerShip(i) ~= nil) then
-			getPlayerShip(i):addCustomButton("Science","tmp_s",name,getScriptStorage().tmp_fn[i])
-			getPlayerShip(i):addCustomButton("Operations","tmp_o",name,getScriptStorage().tmp_fn[i])
-			getPlayerShip(i):addCustomButton("Single","tmp_i",name,getScriptStorage().tmp_fn[i])
+	local max_time = args.max_time
+	local energy_cost = args.max_range
+	local max_range = args.max_range
+	local no_eng_msg = args.no_eng_msg
+	fleet_custom:addCustomButton("Science","tmp",args.name,wrapWithErrorHandling(function (p)
+		if p ~= nil then
+			if p:getEnergyLevel() < args.energy_cost then
+				p:wrappedAddCustomMessage("Science","no_ene",no_eng_msg)
+			else
+				local jammer = WarpJammer():setPosition(p:getPosition())
+				local update_data = {
+					update = function (self, obj, delta)
+						self.t = self.t + delta
+						if self.t > self.max_time then
+							local a = Artifact():setPosition(obj:getPosition()):setDescription(obj:getDescription("simplescan"))
+							obj:destroy()
+						end
+						obj:setRange(math.sin((self.t/self.max_time)*math.pi)*self.max_range)
+					end,
+					edit = {},
+					t = 0,
+					max_time = max_time,
+					max_range = max_range,
+					name = "dynamic warp jammer"
+				}
+				update_system:addUpdate(jammer,"dynamic jammer",update_data)
+				p:setEnergyLevel(p:getEnergyLevel()-energy_cost)
+				addGMMessage("sat button clicked on " .. p:getCallSign() .. "set result in artifact single scan")
+			end
 		end
-	end
+	end))
 end)
 add_function("old_test_comms",function(args)
 	local msg = args.msg
-	for i=0,32 do
-		if (getPlayerShip(i) ~= nil) then
-			getPlayerShip(i):addCustomMessage("Science","injected_msg_s",msg)
-			getPlayerShip(i):addCustomMessage("Operations","injected_msg_o",msg)
-			getPlayerShip(i):addCustomMessage("Single","injected_msg_i",msg)
-		end
-	end
+	fleet_custom:addCustomMessage("Science","injected_msg",msg)
 end)
 function set_timer_purpose(reason)
 	assert(type(reason)=="string")
