@@ -29,25 +29,7 @@ add_function("upload_segment", function (args)
 	assert(type(args.str)=="string")
 	getScriptStorage()._cuf_gm.uploads.slots[args.slot].parts[args.part] = args.str
 end)
-add_function("upload_end", function (args)
-	assert(type(args)=="table")
-	assert(type(args.slot)=="number")
-	assert(getScriptStorage()._cuf_gm.uploads.slots[args.slot] ~= nil)
-	local end_str = ""
-	for i = 1, getScriptStorage()._cuf_gm.uploads.slots[args.slot].total_parts do
-		assert(type(getScriptStorage()._cuf_gm.uploads.slots[args.slot].parts[i])=="string")
-		end_str = end_str .. getScriptStorage()._cuf_gm.uploads.slots[args.slot].parts[i]
-	end
-	getScriptStorage()._cuf_gm.uploads.slots[args.slot].str = end_str
-	getScriptStorage()._cuf_gm.uploads.slots[args.slot].parts = nil
-	local fn, err = load(end_str)
-	if fn then
-		return fn()
-	else
-		print(err)
-		error(err)
-	end
-end)
+
 -- the indirect call is at least somewhat useful in chainging functions
 -- it allows tables of parmeters to be completed and not to care about the order with which they are built
 -- this is mostly a consideration for onGMClick and location
@@ -69,4 +51,3 @@ add_function("indirect_call",function (args)
 end)
 getScriptStorage()._cuf_gm.indirect_call = getScriptStorage()._cuf_gm.get_function("indirect_call")
 getScriptStorage()._cuf_gm.upload_segment = getScriptStorage()._cuf_gm.get_function("upload_segment")
-getScriptStorage()._cuf_gm.upload_end = getScriptStorage()._cuf_gm.get_function("upload_end")
