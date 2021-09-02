@@ -20,15 +20,7 @@ add_function("add_function",add_function)
 -- currently describe_function isnt finalised enough to live here
 -- until then we are going to build the args table by hand here
 -- which is ugly tbh
-add_function("upload_segment", function (args)
-	assert(type(args)=="table")
-	assert(type(args.slot)=="number")
-	assert(getScriptStorage()._cuf_gm.uploads.slots[args.slot] ~= nil)
-	assert(type(args.part)=="number")
-	assert(getScriptStorage()._cuf_gm.uploads.slots[args.slot].parts[args.part] == nil)
-	assert(type(args.str)=="string")
-	getScriptStorage()._cuf_gm.uploads.slots[args.slot].parts[args.part] = args.str
-end)
+
 
 -- the indirect call is at least somewhat useful in chainging functions
 -- it allows tables of parmeters to be completed and not to care about the order with which they are built
@@ -50,4 +42,3 @@ add_function("indirect_call",function (args)
 	return getScriptStorage()._cuf_gm.functions[args.call].fn(table.unpack(tbl))
 end)
 getScriptStorage()._cuf_gm.indirect_call = getScriptStorage()._cuf_gm.get_function("indirect_call")
-getScriptStorage()._cuf_gm.upload_segment = getScriptStorage()._cuf_gm.get_function("upload_segment")

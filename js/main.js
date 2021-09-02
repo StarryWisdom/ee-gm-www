@@ -423,8 +423,15 @@ class gm_tool_class {
 			return arg;
 		}
 	}
-	async direct_www_call(name,args) {
-		let code = "return getScriptStorage()._cuf_gm."+name+"("+this._call_convert_to_string(args)+")";
+	async direct_www_call(name) {
+		let code = "return getScriptStorage()._cuf_gm."+name+"(";
+		for (let i=1; i< arguments.length; i++) {
+			code += this._call_convert_to_string(arguments[i]);
+			if (i+1!=arguments.length) {
+				code += ",";
+			}
+		}
+		code += ")";
 		return this.exec_lua(code,"");
 	}
 	async call_www_function(name,args = {}) {
@@ -443,7 +450,7 @@ class gm_tool_class {
 		}
 		const id = await this.direct_www_call("webUploadStart",i);
 		for (let l = 1; l<=i ;l++) {
-			parts[l] = this.call_www_function("upload_segment",{slot : id , part : l, str : parts[l]});
+			parts[l] = this.direct_www_call("webUploadSegment",id,l,parts[l]);
 		}
 		await Promise.all(parts);
 		// TODO we should clear old strings
