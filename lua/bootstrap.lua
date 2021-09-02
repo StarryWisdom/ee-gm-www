@@ -4,7 +4,6 @@ if (getScriptStorage()._cuf_gm == nil) then
 		uploads = {
 			slots = {},
 			slot_id = 0,
-			script_functions = {},
 		},
 		functions = {
 			-- an array of elements with a fn and args element
