@@ -58,11 +58,9 @@ if (getScriptStorage()._cuf_gm == nil) then
 			error(err)
 		end
 	end)
-	add_function("upload_start", function (args)
-		assert(type(args)=="table")
-		assert(type(args.parts)=="number")
+	add_function("upload_start", function (parts)
 		local slot_id = getScriptStorage()._cuf_gm.uploads.slot_id
-		getScriptStorage()._cuf_gm.uploads.slots[slot_id] = {total_parts = args.parts, parts = {}}
+		getScriptStorage()._cuf_gm.uploads.slots[slot_id] = {total_parts = parts, parts = {}}
 		getScriptStorage()._cuf_gm.uploads.slot_id = slot_id + 1
 		return slot_id
 	end)
@@ -89,4 +87,8 @@ if (getScriptStorage()._cuf_gm == nil) then
 	getScriptStorage()._cuf_gm.upload_start = getScriptStorage()._cuf_gm.get_function("upload_start")
 	getScriptStorage()._cuf_gm.upload_segment = getScriptStorage()._cuf_gm.get_function("upload_segment")
 	getScriptStorage()._cuf_gm.upload_end = getScriptStorage()._cuf_gm.get_function("upload_end")
+	getScriptStorage()._cuf_gm.direct_call = function (name, ...)
+		-- todo nice error messages on error
+		return getScriptStorage()._cuf_gm.get_function(name)(...)
+	end
 end

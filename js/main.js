@@ -423,6 +423,10 @@ class gm_tool_class {
 			return arg;
 		}
 	}
+	async direct_www_call(name,args) {
+		let code = "return getScriptStorage()._cuf_gm.direct_call(\""+name+"\","+this._call_convert_to_string(args)+")";
+		return this.exec_lua(code,"");
+	}
 	async call_www_function(name,args = {}) {
 		let code = "return getScriptStorage()._cuf_gm.indirect_call(";
 		args.call=name;
@@ -437,7 +441,7 @@ class gm_tool_class {
 		for (;i*max_length<=str.length;i++) {
 			parts[i+1]=str.slice(i*max_length,(i+1)*max_length);
 		}
-		const id = await this.call_www_function("upload_start",{parts : i});
+		const id = await this.direct_www_call("upload_start",i);
 		for (let l = 1; l<=i ;l++) {
 			parts[l] = this.call_www_function("upload_segment",{slot : id , part : l, str : parts[l]});
 		}
