@@ -22,10 +22,7 @@ add_function("describe_function",function (name,function_description,args_table)
 		local str
 		local num_types = 0
 		for k,v in pairs(arg_description) do
-			if v == "required" then
-				required = true
-				goto continue
-			elseif k == "number" then
+			if k == "number" then
 				num = {type = "number"}
 				for k, v in pairs(v) do
 					if k == "min" then
@@ -52,7 +49,6 @@ add_function("describe_function",function (name,function_description,args_table)
 			assert(false,"unknown tag describing a variable in describe_function")
 			::continue::
 		end
-		assert(required,"describe_function requires the \"required\" tag")
 		assert(num_types==1,"describe_function requires the a type for each argument")
 	end
 	-- this is only being created as its a pain to change and fix indirect_call
@@ -258,8 +254,8 @@ end
 describe_function("subspace_rift",
 	{"creates a tuneable rift effect, along with callback at end", "onclick"},
 	{
-		{ name = "max_time", "required", number = {min = 0}}, -- max?
-		{ name = "location", "required", "position"}
+		{ name = "max_time", number = {min = 0}}, -- max?
+		{ name = "location", "position"}
 	})
 
 add_function("rift_example",function (args) -- in time this should be removed
@@ -1256,5 +1252,5 @@ end
 describe_function("set_timer_purpose",
 	{"todo"},
 	{
-		{ name = "reason", "required", "string"}
+		{ name = "reason", "string"}
 	})
