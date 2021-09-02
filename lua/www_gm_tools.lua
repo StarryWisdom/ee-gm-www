@@ -195,9 +195,6 @@ describe_function("end_rift",
 	{})
 
 function subspace_rift(max_time,location,args)
-	-- todo type assert
-	local x = location.x
-	local y = location.y
 	local max_radius = args.max_radius or 500
 	local on_end = args.on_end or {call = "end_rift"}
 	-- we need graphical type at some point
@@ -219,7 +216,7 @@ function subspace_rift(max_time,location,args)
 			rift.all_elements[j]:destroy()
 		end
 	end
-	rift.center = Artifact():setPosition(x,y):setCallSign("Subspace rift")
+	rift.center = Artifact():setPosition(location.x,location.y):setCallSign("Subspace rift")
 	rift.all_elements = {}
 	rift.start_time = getScenarioTime()
 	local number_in_ring = 20
@@ -251,7 +248,7 @@ function subspace_rift(max_time,location,args)
 			local rift_element=obj.all_elements[j]
 			if rift_element:isValid() then
 				local orbit_pos=(getScenarioTime()/rift_element.orbit_speed)+rift_element.angle_offset
-				rift_element:setPosition(x+(math.cos(orbit_pos)*current_radius),y+(math.sin(orbit_pos)*current_radius))
+				rift_element:setPosition(location.x+(math.cos(orbit_pos)*current_radius),location.y+(math.sin(orbit_pos)*current_radius))
 			else
 				table.remove(obj.all_elements,j)
 			end
