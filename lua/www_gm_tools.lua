@@ -202,14 +202,10 @@ function subspace_rift(max_time,location,args)
 	-- consideration needs to be given as to how to have a rift that never ends
 -- we are going to require a central artifact
 -- this requirement probably should be removed at some point
-	local rift = {}
+	local rift = getScriptStorage()._gm_cuf_env.newPhonySpaceObject()
 -- merge with sandbox
-	local valid = true
-	rift.isValid = function ()
-		return valid
-	end
 	rift.destroy = function ()
-		valid = false
+		rift.valid = false
 		-- I really need to check if these are valid before calling destroy
 		rift.center:destroy()
 		for j=#rift.all_elements,1,-1 do
