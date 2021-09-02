@@ -424,7 +424,7 @@ class gm_tool_class {
 		}
 	}
 	async direct_www_call(name,args) {
-		let code = "return getScriptStorage()._cuf_gm.direct_call(\""+name+"\","+this._call_convert_to_string(args)+")";
+		let code = "return getScriptStorage()._cuf_gm."+name+"("+this._call_convert_to_string(args)+")";
 		return this.exec_lua(code,"");
 	}
 	async call_www_function(name,args = {}) {
