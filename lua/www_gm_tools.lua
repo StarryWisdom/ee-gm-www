@@ -258,9 +258,9 @@ describe_function("subspace_rift",
 		{ name = "location", "position"}
 	})
 
-add_function("rift_example",function (args) -- in time this should be removed
-	local x = args.a
-	local y = args.b
+function rift_example(location,args) -- in time this should be removed
+	local x = location.x
+	local y = location.y
 	local max_radius = args.c
 	local max_time = args.d
 	local onEnd = args.e
@@ -342,8 +342,12 @@ add_function("rift_example",function (args) -- in time this should be removed
 		name = "why do I fill this"
 	}
 	update_system:addUpdate(rift,"subspace_rift",update_data)
-end)
-
+end
+describe_function("rift_example",
+	{"todo"},
+	{
+		{ name = "location", "position"}
+	})
 -- eff it short term one off code it is
 add_function("base0",function ()
     Mine():setPosition(50548, 361587)
