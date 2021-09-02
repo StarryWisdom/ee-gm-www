@@ -1,4 +1,4 @@
-_ENV = getScriptStorage()._gm_cuf_env
+_ENV = getScriptStorage()._cuf_gm._ENV
 local ret = {}
 for k,v in pairs(ship_template) do
 	local get_ship_data = function (create,tbl)

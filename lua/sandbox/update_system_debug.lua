@@ -1,4 +1,4 @@
-_ENV = getScriptStorage()._gm_cuf_env
+_ENV = getScriptStorage()._cuf_gm._ENV
 local ret = {}
 -- note we shouldnt be plucking _update_objects out of the update_system
 for index = #update_system._update_objects,1,-1 do

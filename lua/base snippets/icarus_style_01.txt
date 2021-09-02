@@ -1,4 +1,4 @@
-_ENV = getScriptStorage()._gm_cuf_env
+_ENV = getScriptStorage()._cuf_gm._ENV
 CpuShip():setFaction("Kraylor"):setTemplate("Defense platform"):setPosition(-31444, 60595):orderRoaming()
 ship_template["Missile Pod D1"].create('Kraylor',"Missile Pod D1"):setPosition(-31484, 65957)
 ship_template["Missile Pod D2"].create('Kraylor',"Missile Pod D2"):setPosition(-31754, 67864)

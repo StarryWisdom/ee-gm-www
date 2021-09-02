@@ -1,4 +1,4 @@
-_ENV = getScriptStorage()._gm_cuf_env
+_ENV = getScriptStorage()._cuf_gm._ENV
 ship_template["Missile Pod D2"].create('Kraylor',"Missile Pod D2"):setPosition(-40536, 77144)
 ship_template["Missile Pod D2"].create('Kraylor',"Missile Pod D2"):setPosition(-40538, 83005)
 ship_template["Missile Pod T2"].create('Kraylor',"Missile Pod T2"):setPosition(-42026, 77350)

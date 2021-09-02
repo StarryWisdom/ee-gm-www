@@ -1,5 +1,5 @@
 -- all of the scripting functions common between all scripts
-_ENV = getScriptStorage()._gm_cuf_env
+_ENV = getScriptStorage()._cuf_gm._ENV
 
 local get_function = getScriptStorage()._cuf_gm.get_function
 local add_function = get_function("add_function")
@@ -10,7 +10,7 @@ add_function("describe_function",function (name,function_description,args_table)
 	assert(type(name)=="string")
 	assert(type(function_description)=="table")
 	assert(type(args_table)=="table")
-	local fn = getScriptStorage()._gm_cuf_env[name]
+	local fn = getScriptStorage()._cuf_gm._ENV[name]
 	assert(type(fn)=="function")
 	local description = {this = function_description}
 	for _,arg_description in pairs(args_table) do
@@ -198,7 +198,7 @@ function subspace_rift(max_time,location,args)
 	-- consideration needs to be given as to how to have a rift that never ends
 -- we are going to require a central artifact
 -- this requirement probably should be removed at some point
-	local rift = getScriptStorage()._gm_cuf_env.newPhonySpaceObject()
+	local rift = getScriptStorage()._cuf_gm._ENV.newPhonySpaceObject()
 -- merge with sandbox
 	rift.destroy = function ()
 		rift.valid = false
@@ -266,7 +266,7 @@ function rift_example(location,args) -- in time this should be removed
 	local onEnd = args.e
 -- we are going to require a central artifact
 -- this requirement probably should be removed at some point
-	local rift = getScriptStorage()._gm_cuf_env.newPhonySpaceObject()
+	local rift = getScriptStorage()._cuf_gm._ENV.newPhonySpaceObject()
 	rift.destroy = function ()
 		rift.valid = false
 		-- I really need to check if these are valid before calling destroy
@@ -1202,11 +1202,11 @@ add_function("call_list",function (args)
 	end
 end)
 add_function("old_test_end",function ()
-	_ENV = getScriptStorage()._gm_cuf_env
+	_ENV = getScriptStorage()._cuf_gm._ENV
 	fleet_custom:removeCustom("tmp")
 end)
 add_function("old_test_start",function(args)
-	_ENV = getScriptStorage()._gm_cuf_env
+	_ENV = getScriptStorage()._cuf_gm._ENV
 
 	local max_time = args.max_time
 	local energy_cost = args.max_range
