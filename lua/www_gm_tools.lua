@@ -1291,7 +1291,7 @@ function jammer_pulse(max_time,max_range,location,onEndCallback)
 		update = function (self, obj, delta)
 			self.t = self.t + delta
 			if self.t > self.max_time then
-				onEndCallback(obj)
+				indirect_call(onEndCallback)
 				obj:destroy()
 			end
 			obj:setRange(math.sin((self.t/self.max_time)*math.pi)*self.max_range)
@@ -1309,7 +1309,7 @@ describe_function("jammer_pulse",
 		{name = "max_time", number = {default = 60}},
 		{name = "max_range", number = {default = 5000}},
 		{name = "location", "position"},
-		{name = "onEndCallback", indirect_function = {default = {call = "null_function"}}}
+		{name = "onEndCallback", indirect_function = {default = {call = "null_function"}}} -- change to function
 	})
 
 add_function("old_test_start",function(args)
