@@ -175,10 +175,8 @@ describe_function("gm_click_wrapper",
 	{"todo"},
 	{})
 
-function sat_tmp(dest,endCallback)
-	local start = {x = 216461, y = -376269}
+function sat_tmp(start,dest,speed,endCallback)
 	local art = Artifact():setPosition(start.x,start.y)
-	local speed = 2000 --?
 	local time = distance(start.x,start.y,dest.x,dest.y)/speed
 	dx,dy = vectorFromAngle(angleFromVectorNorth(start.x,start.y,dest.x,dest.y)+90,1)
 	local atEnd = function ()
@@ -192,7 +190,9 @@ end
 describe_function("sat_tmp",
 	{"todo"},
 	{
+		{name = "start", "position"},
 		{name = "location", "position"}, -- todo fix naming location rather than user defined
+		{name = "speed", number = {default = 4000}},
 		{name = "endCallback", indirect_function = {default = {call = "subspace_rift", max_time = 5, max_radius = 500, on_end = {call = "end_rift"}}}}
 	})
 
