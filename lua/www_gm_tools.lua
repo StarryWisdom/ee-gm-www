@@ -34,6 +34,7 @@ add_function("indirect_call",function (args)
 	local tbl = {}
 	for _,arg in ipairs(getScriptStorage()._cuf_gm.functions[args.call].args.arguments) do
 		-- todo check arguments are in the format described by describe_function
+		assert(args[arg])
 		table.insert(tbl,args[arg])
 	end
 	table.insert(tbl,args)
@@ -82,6 +83,24 @@ add_function("describe_function",function (name,function_description,args_table)
 				goto continue
 			elseif v == "position" then
 				description[arg_name] = {type = "position"}
+				num_types = num_types + 1
+				goto continue
+			elseif v == "function" then
+				description[arg_name] = {type = "function"}
+				num_types = num_types + 1
+				goto continue
+			elseif k == "indirect_function" then
+				indirect_function =  {type = "indirect_function"}
+				for k,v in pairs(v) do
+					if k == "default" then
+						indirect_function.default = v
+						goto continue_indirect_function
+					end
+					print(k,v)
+					assert(false,"unknown tag for indirect_function in describe_function")
+					::continue_indirect_function::
+				end
+				description[arg_name] = indirect_function
 				num_types = num_types + 1
 				goto continue
 			elseif k == "name" then
@@ -149,15 +168,13 @@ function gm_click_wrapper(args)
 		end
 		parameters.location= {x = x, y = y}
 		indirect_call(parameters)
---		print(callback)
---		callback(x,y)
 	end)
 end
 describe_function("gm_click_wrapper",
 	{"todo"},
 	{})
 
-function sat_tmp(dest)
+function sat_tmp(dest,endCallback)
 	local start = {x = 216461, y = -376269}
 	local art = Artifact():setPosition(start.x,start.y)
 	local speed = 2000 --?
@@ -165,7 +182,8 @@ function sat_tmp(dest)
 	dx,dy = vectorFromAngle(angleFromVectorNorth(start.x,start.y,dest.x,dest.y)+90,1)
 	local atEnd = function ()
 		art:destroy()
-		subspace_rift(5,dest,500,{})
+		endCallback.location = dest
+		indirect_call(endCallback)
 	end
 	update_system:addPeriodicCallback(art,atEnd,time)
 	update_system:addLinear(art,dx,dy,speed) -- order matters - need to fix in sandbox
@@ -174,6 +192,7 @@ describe_function("sat_tmp",
 	{"todo"},
 	{
 		{name = "location", "position"}, -- todo fix naming location rather than user defined
+		{name = "endCallback", indirect_function = {default = {call = "subspace_rift", max_time = 5, max_radius = 500, on_end = {call = "end_rift"}}}}
 	})
 
 function end_rift(args)
@@ -251,8 +270,7 @@ describe_function("end_rift",
 	{"todo"},
 	{})
 
-function subspace_rift(max_time,location,max_radius,args)
-	local on_end = args.on_end or {call = "end_rift"}
+function subspace_rift(max_time,location,max_radius,on_end)
 	-- we need graphical type at some point
 	-- we also need to have a function for "run this each update"
 	-- consideration needs to be given as to how to have a rift that never ends
@@ -313,9 +331,10 @@ end
 describe_function("subspace_rift",
 	{"creates a tuneable rift effect, along with callback at end", "onclick"},
 	{
-		{ name = "max_time", number = {min = 0, default = 5}}, -- max?
-		{ name = "location", "position"},
-		{ name = "max_radius", number = {min = 0, default = 500}} -- max?
+		{name = "max_time", number = {min = 0, default = 5}}, -- max?
+		{name = "location", "position"},
+		{name = "max_radius", number = {min = 0, default = 500}}, -- max?
+		{name = "on_end", indirect_function = {default = {call = "end_rift"}}}
 	})
 
 function rift_example(location,args) -- in time this should be removed

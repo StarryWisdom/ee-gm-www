@@ -494,8 +494,11 @@ class gm_tool_class {
 						call[p] = params[p].input.value;
 					} else if (type == "position") {
 						// this needs to be better handled
+					} else if (type == "function") {
+						call[p] = params[p].input;
+						// todo this isnt correct
 					} else {
-						error_logger.error("unknown type requested to be displayed")
+						error_logger.error("unknown type requested to be sent to EE")
 					}
 				}
 			}
@@ -536,8 +539,12 @@ class gm_tool_class {
 						gm_tool.call_www_function("gm_click_wrapper",{args : call});
 					};
 					div.appendChild(run_via_click);
+				} else if (type == "function" || type == "indirect_function") {
+					console.log(args[arg].default);
+					params[arg]={type : "function", input : args[arg].default};
+					// todo proper selector
 				} else {
-					error_logger.error("unknown type");
+					error_logger.error("unknown type requested to be displayed");
 				}
 				// todo description of the arg
 				// todo title text
