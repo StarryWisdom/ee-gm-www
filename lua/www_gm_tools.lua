@@ -43,6 +43,7 @@ end)
 getScriptStorage()._cuf_gm.indirect_call = get_function("indirect_call")
 local indirect_call = get_function("indirect_call")
 
+-- name = forced first one?
 add_function("describe_function",function (name,function_description,args_table)
 	-- this is about 90% verifying that the data is good
 	-- and 10% repacking the arguments to be used later in a more convient format
@@ -1283,6 +1284,34 @@ add_function("old_test_end",function ()
 	_ENV = getScriptStorage()._cuf_gm._ENV
 	fleet_custom:removeCustom("tmp")
 end)
+add_function("null_function",function() end)
+function jammer_pulse(max_time,max_range,location,onEndCallback)
+	local jammer = WarpJammer():setPosition(location.x,location.y)
+	local update_data = {
+		update = function (self, obj, delta)
+			self.t = self.t + delta
+			if self.t > self.max_time then
+				onEndCallback(obj)
+				obj:destroy()
+			end
+			obj:setRange(math.sin((self.t/self.max_time)*math.pi)*self.max_range)
+		end,
+		edit = {},
+		t = 0,
+		max_time = max_time,
+		max_range = max_range,
+	}
+	update_system:addUpdate(jammer,"dynamic jammer",update_data)
+end
+describe_function("jammer_pulse",
+	{"todo"},
+	{
+		{name = "max_time", number = {default = 60}},
+		{name = "max_range", number = {default = 5000}},
+		{name = "location", "position"},
+		{name = "onEndCallback", indirect_function = {default = {call = "null_function"}}}
+	})
+
 add_function("old_test_start",function(args)
 	_ENV = getScriptStorage()._cuf_gm._ENV
 
@@ -1297,6 +1326,7 @@ add_function("old_test_start",function(args)
 			else
 				local jammer = WarpJammer():setPosition(p:getPosition())
 				local update_data = {
+					-- todo this should be using jammer_pulse
 					update = function (self, obj, delta)
 						self.t = self.t + delta
 						if self.t > self.max_time then
