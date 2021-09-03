@@ -493,6 +493,9 @@ class gm_tool_class {
 					} else if (type == "string") {
 						call[p] = params[p].input.value;
 					} else if (type == "position") {
+						if (params[p].fetched_value) {
+							call[p] = params[p].fetched_value
+						}
 						// this needs to be better handled
 					} else if (type == "function") {
 						call[p] = params[p].input;
@@ -539,6 +542,19 @@ class gm_tool_class {
 						gm_tool.call_www_function("gm_click_wrapper",{args : call});
 					};
 					div.appendChild(run_via_click);
+
+					const got = document.createElement("div");
+					const get_value = document.createElement("button");
+					get_value.textContent = "last fetched click";
+					get_value.onclick = async function () {
+						const loc = await gm_tool.call_www_function("get_gm_click2");
+						if (loc) {
+							console.log(loc);
+							got.innerHTML = "done";
+						}
+					}
+					div.appendChild(get_value);
+					div.appendChild(got);
 				} else if (type == "function" || type == "indirect_function") {
 					console.log(args[arg].default);
 					params[arg]={type : "function", input : args[arg].default};
