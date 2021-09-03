@@ -230,8 +230,7 @@ describe_function("end_rift",
 	{"todo"},
 	{})
 
-function subspace_rift(max_time,location,args)
-	local max_radius = args.max_radius or 500
+function subspace_rift(max_time,location,max_radius,args)
 	local on_end = args.on_end or {call = "end_rift"}
 	-- we need graphical type at some point
 	-- we also need to have a function for "run this each update"
@@ -294,7 +293,8 @@ describe_function("subspace_rift",
 	{"creates a tuneable rift effect, along with callback at end", "onclick"},
 	{
 		{ name = "max_time", number = {min = 0, default = 5}}, -- max?
-		{ name = "location", "position"}
+		{ name = "location", "position"},
+		{ name = "max_radius", number = {min = 0, default = 500}} -- max?
 	})
 
 function rift_example(location,args) -- in time this should be removed
