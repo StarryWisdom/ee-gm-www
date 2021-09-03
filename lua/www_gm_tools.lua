@@ -284,7 +284,6 @@ function subspace_rift(max_time,location,args)
 		end
 	end,
 		edit = {},
-		name = "why do I fill this"
 	}
 	update_system:addUpdate(rift,"subspace_rift",update_data)
 end
@@ -371,7 +370,6 @@ function rift_example(location,args) -- in time this should be removed
 		end
 	end,
 		edit = {},
-		name = "why do I fill this"
 	}
 	update_system:addUpdate(rift,"subspace_rift",update_data)
 end
@@ -1268,7 +1266,6 @@ add_function("old_test_start",function(args)
 					t = 0,
 					max_time = max_time,
 					max_range = max_range,
-					name = "dynamic warp jammer"
 				}
 				update_system:addUpdate(jammer,"dynamic jammer",update_data)
 				p:setEnergyLevel(p:getEnergyLevel()-energy_cost)
