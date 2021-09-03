@@ -149,11 +149,32 @@ function gm_click_wrapper(args)
 		end
 		parameters.location= {x = x, y = y}
 		indirect_call(parameters)
+--		print(callback)
+--		callback(x,y)
 	end)
 end
 describe_function("gm_click_wrapper",
 	{"todo"},
-{})
+	{})
+
+function sat_tmp(dest)
+	local start = {x = 216461, y = -376269}
+	local art = Artifact():setPosition(start.x,start.y)
+	local speed = 2000 --?
+	local time = distance(start.x,start.y,dest.x,dest.y)/speed
+	dx,dy = vectorFromAngle(angleFromVectorNorth(start.x,start.y,dest.x,dest.y)+90,1)
+	local atEnd = function ()
+		art:destroy()
+		subspace_rift(5,dest,500,{})
+	end
+	update_system:addPeriodicCallback(art,atEnd,time)
+	update_system:addLinear(art,dx,dy,speed) -- order matters - need to fix in sandbox
+end
+describe_function("sat_tmp",
+	{"todo"},
+	{
+		{name = "location", "position"}, -- todo fix naming location rather than user defined
+	})
 
 function end_rift(args)
 	local count = 15
