@@ -512,18 +512,22 @@ class gm_tool_class {
 				name.textContent = arg;
 				div.appendChild(name);
 
-				if (args[arg].type == "number") {
+				const type = args[arg].type;
+				if (type == "number") {
 					// todo default value
 					const input = document.createElement("input");
 					params[arg]={type : "number", input : input};
 					input.setAttribute("type","number");
+					if (args[arg].default) {
+						input.value = args[arg].default;
+					}
 					div.appendChild(input);
-				} else if(args[arg].type == "string") {
+				} else if(type == "string") {
 					// todo default value
 					const input = document.createElement("input");
 					params[arg]={type : "string", input : input};
 					div.appendChild(input);
-				} else if (args[arg].type == "position") {
+				} else if (type == "position") {
 					const run_via_click = document.createElement("button");
 					run_via_click.textContent = "run via gmClick";
 					run_via_click.onclick = function () {

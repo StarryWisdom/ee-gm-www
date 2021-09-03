@@ -66,6 +66,9 @@ add_function("describe_function",function (name,function_description,args_table)
 					if k == "min" then
 						num.min = v
 						goto continue_number
+					elseif k == "default" then
+						num.default = v
+						goto continue_number
 					end
 					assert(false,"unknown tag for number in describe_function")
 					::continue_number::
@@ -290,7 +293,7 @@ end
 describe_function("subspace_rift",
 	{"creates a tuneable rift effect, along with callback at end", "onclick"},
 	{
-		{ name = "max_time", number = {min = 0}}, -- max?
+		{ name = "max_time", number = {min = 0, default = 5}}, -- max?
 		{ name = "location", "position"}
 	})
 
