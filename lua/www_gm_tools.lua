@@ -268,7 +268,7 @@ function subspace_rift(max_time,location,max_radius,args)
 		local current_radius = (getScenarioTime()-obj.start_time)*(max_radius/max_time)
 		if current_radius > max_radius then
 			if on_end ~= nil then
-				on_end.location = args.location
+				on_end.location = location
 				indirect_call(on_end)
 			end
 			rift:destroy()
