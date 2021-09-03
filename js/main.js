@@ -485,12 +485,17 @@ class gm_tool_class {
 			const call = {};
 			for (const p in params) {
 				if (params.hasOwnProperty(p)) {
-					if (params[p].type == "number") {
+					const type = params[p].type;
+					if (type == "number") {
 						// todo check min / max / integer
 						// todo error check
 						call[p] = parseFloat(params[p].input.value);
-					} else if (params[p].type == "string") {
+					} else if (type == "string") {
 						call[p] = params[p].input.value;
+					} else if (type == "position") {
+						// this needs to be better handled
+					} else {
+						error_logger.error("unknown type requested to be displayed")
 					}
 				}
 			}
