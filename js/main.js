@@ -535,26 +535,29 @@ class gm_tool_class {
 					div.appendChild(input);
 				} else if (type == "position") {
 					const run_via_click = document.createElement("button");
-					run_via_click.textContent = "run via gmClick";
-					run_via_click.onclick = function () {
-						const call = build_call();
-						call.call = function_name;
-						gm_tool.call_www_function("gm_click_wrapper",{args : call});
-					};
-					div.appendChild(run_via_click);
-
-					const got = document.createElement("div");
-					const get_value = document.createElement("button");
-					get_value.textContent = "last fetched click";
-					get_value.onclick = async function () {
-						const loc = await gm_tool.call_www_function("get_gm_click2");
-						if (loc) {
-							console.log(loc);
-							got.innerHTML = "done";
+					if (arg == "location") { // wrong but prevents error in saturdays game
+						run_via_click.textContent = "run via gmClick";
+						run_via_click.onclick = function () {
+							const call = build_call();
+							call.call = function_name;
+							gm_tool.call_www_function("gm_click_wrapper",{args : call});
+						};
+						div.appendChild(run_via_click);
+					} else {
+						const got = document.createElement("div");
+						const get_value = document.createElement("button");
+						get_value.textContent = "last fetched click";
+						get_value.onclick = async function () {
+							const loc = await gm_tool.call_www_function("get_gm_click2");
+							if (loc) {
+								console.log(loc);
+								params[arg] = {type : "position", fetched_value : loc};
+								got.innerHTML = "done";
+							}
 						}
+						div.appendChild(get_value);
+						div.appendChild(got);
 					}
-					div.appendChild(get_value);
-					div.appendChild(got);
 				} else if (type == "function" || type == "indirect_function") {
 					console.log(args[arg].default);
 					params[arg]={type : "function", input : args[arg].default};
