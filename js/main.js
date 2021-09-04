@@ -526,7 +526,7 @@ class gm_tool_class {
 					div.params[arg]={type : "number", input : input};
 					input.setAttribute("type","number");
 					input.setDefault = function (value) {
-						input.value = args[arg].default;
+						input.value = value;
 					}
 					if (args[arg].default) {
 						input.setDefault(args[arg].default);
