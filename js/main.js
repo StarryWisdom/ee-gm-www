@@ -989,6 +989,7 @@ class callback_tab {
 		for (const fun in gm_tool._function_descriptions) {
 			if (gm_tool._function_descriptions.hasOwnProperty(fun)) {
 				page.appendChild(gm_tool.make_edit_div_for_function(fun));
+				page.appendChild(document.createElement("hr"));
 			}
 		}
 		return page;
