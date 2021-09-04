@@ -879,8 +879,10 @@ class script_tab {
 			str = str.replace(/:setHullMax/g,':rm');
 			str = str.replace(/:setHull/g,':rm');
 			str = str.replace(/:setImpulseMaxSpeed/g,':rm');
+			str = str.replace(/:setImpulseMaxReverseSpeed/g,':rm');
 			str = str.replace(/:setWeaponTubeDirection/g,':rm');
 			str = str.replace(/:setJumpDrive/g,':rm');
+			str = str.replace(/:orderRoaming/g,':rm');
 			str = str.replace(/:rm\([^)]*\)/g,'');
 			str = str.replace(/^[ \t]*/gm,'');
 			// now we sort
