@@ -181,7 +181,7 @@ describe_function("gm_click_wrapper",
 	{"todo"},
 	{})
 
-function sat_tmp(start,dest,speed,endCallback)
+function sat_tmp1(start,dest,speed,endCallback)
 	local art = Artifact():setPosition(start.x,start.y)
 	local time = distance(start.x,start.y,dest.x,dest.y)/speed
 	dx,dy = vectorFromAngle(angleFromVectorNorth(start.x,start.y,dest.x,dest.y)+90,1)
@@ -193,7 +193,8 @@ function sat_tmp(start,dest,speed,endCallback)
 	update_system:addPeriodicCallback(art,atEnd,time)
 	update_system:addLinear(art,dx,dy,speed) -- order matters - need to fix in sandbox
 end
-describe_function("sat_tmp",
+sat_tmp1 = sat_tmp
+describe_function("sat_tmp1",
 	{"todo"},
 	{
 		{name = "start", "position"},
@@ -202,6 +203,34 @@ describe_function("sat_tmp",
 		{name = "endCallback", indirect_function = {default = {call = "subspace_rift", max_time = 5, max_radius = 500, on_end = {call = "end_rift"}}}}
 	})
 
+sat_tmp2 = sat_tmp
+describe_function("sat_tmp2",
+	{"todo"},
+	{
+		{name = "start", "position"},
+		{name = "location", "position"}, -- todo fix naming location rather than user defined
+		{name = "speed", number = {default = 4000}},
+		{name = "endCallback", indirect_function = {default = {call = "subspace_rift", max_time = 5, max_radius = 500, on_end = {call =  "jammer_pulse", max_time = 60, max_range = 5000, onEndCallback = {call = "null_function"}}}}}
+	})
+sat_tmp3 = sat_tmp
+describe_function("sat_tmp3",
+	{"todo"},
+	{
+		{name = "start", "position"},
+		{name = "location", "position"}, -- todo fix naming location rather than user defined
+		{name = "speed", number = {default = 4000}},
+		{name = "endCallback", indirect_function = {default = {call = "subspace_rift", max_time = 5, max_radius = 500, on_end = {call = "spawn_kraylor_ship", template = "Adder MK4"}}}}
+	})
+
+function spawn_kraylor_ship(location,template)
+	ship_template[template].create('Kraylor',template):setPosition(location.x,location.y)
+end
+describe_function("spawn_kraylor_ship",
+	{"todo"},
+	{
+		{name = "location", "position"},
+		{name = "template", "npc_ship"}
+	})
 function end_rift(args)
 	local count = 15
 	local dist_from_origin = 500
@@ -1364,5 +1393,6 @@ end
 describe_function("set_timer_purpose",
 	{"todo"},
 	{
-		{ name = "reason", "string"}
+		{ name = "reason", "string"},
+		{ name = "location", "position"}
 	})
