@@ -34,7 +34,7 @@ add_function("indirect_call",function (args)
 	local tbl = {}
 	for _,arg in ipairs(getScriptStorage()._cuf_gm.functions[args.call].args.arguments) do
 		-- todo check arguments are in the format described by describe_function
-		assert(args[arg])
+		assert(args[arg],arg)
 		table.insert(tbl,args[arg])
 	end
 	table.insert(tbl,args)
