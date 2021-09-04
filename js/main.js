@@ -481,25 +481,26 @@ class gm_tool_class {
 		div.appendChild(title);
 		div.appendChild(document.createElement("br"));
 
-		const build_call = function () {
+		div.function_name = function_name;
+		div.build_call = function () {
 			const call = {};
-			for (const p in params) {
-				if (params.hasOwnProperty(p)) {
-					const type = params[p].type;
+			for (const p in div.params) {
+				if (div.params.hasOwnProperty(p)) {
+					const type = div.params[p].type;
 					if (type == "number") {
 						// todo check min / max / integer
 						// todo error check
-						call[p] = parseFloat(params[p].input.value);
+						call[p] = parseFloat(div.params[p].input.value);
 					} else if (type == "string") {
-						call[p] = params[p].input.value;
+						call[p] = div.params[p].input.value;
 					} else if (type == "position") {
-						if (params[p].fetched_value) {
-							call[p] = params[p].fetched_value
+						if (div.params[p].fetched_value) {
+							call[p] = div.params[p].fetched_value
 						}
 						// this needs to be better handled
 					} else if (type == "function") {
-						call[p] = params[p].input;
-						// todo this isnt correct
+						call[p] = div.params[p].input.build_call();
+						call[p].call = div.params[p].input.function_name;
 					} else {
 						error_logger.error("unknown type requested to be sent to EE")
 					}
@@ -508,7 +509,7 @@ class gm_tool_class {
 			return call;
 		}
 
-		const params = {};
+		div.params = {};
 		for (const arg in args) {
 			if (args.hasOwnProperty(arg)) {
 				if (arg == "this") {
@@ -522,23 +523,26 @@ class gm_tool_class {
 				if (type == "number") {
 					// todo default value
 					const input = document.createElement("input");
-					params[arg]={type : "number", input : input};
+					div.params[arg]={type : "number", input : input};
 					input.setAttribute("type","number");
-					if (args[arg].default) {
+					input.setDefault = function (value) {
 						input.value = args[arg].default;
+					}
+					if (args[arg].default) {
+						input.setDefault(args[arg].default);
 					}
 					div.appendChild(input);
 				} else if(type == "string") {
 					// todo default value
 					const input = document.createElement("input");
-					params[arg]={type : "string", input : input};
+					div.params[arg]={type : "string", input : input};
 					div.appendChild(input);
 				} else if (type == "position") {
 					const run_via_click = document.createElement("button");
 					if (arg == "location") { // wrong but prevents error in saturdays game
 						run_via_click.textContent = "run via gmClick";
 						run_via_click.onclick = function () {
-							const call = build_call();
+							const call = div.build_call();
 							call.call = function_name;
 							gm_tool.call_www_function("gm_click_wrapper",{args : call});
 						};
@@ -551,7 +555,7 @@ class gm_tool_class {
 							const loc = await gm_tool.call_www_function("get_gm_click2");
 							if (loc) {
 								console.log(loc);
-								params[arg] = {type : "position", fetched_value : loc};
+								div.params[arg] = {type : "position", fetched_value : loc};
 								got.innerHTML = "done";
 							}
 						}
@@ -559,9 +563,27 @@ class gm_tool_class {
 						div.appendChild(got);
 					}
 				} else if (type == "function" || type == "indirect_function") {
-					console.log(args[arg].default);
-					params[arg]={type : "function", input : args[arg].default};
-					// todo proper selector
+					const input=document.createElement("div");
+					input.setDefault=function (values) {
+						if (input.firstChild) {
+							input.removeChild(input.firstChild);
+						}
+						input.appendChild(gm_tool.make_edit_div_for_function(values.call));
+						// this is hacky and needs work
+						input.build_call = input.firstChild.build_call;
+						input.function_name = input.firstChild.function_name;
+						for (const arg in values) {
+							if (values.hasOwnProperty(arg)) {
+								if (arg!="call") {
+									input.firstChild.params[arg].input.setDefault(values[arg]);
+								}
+							}
+						}
+					}
+					console.log(arg);
+					input.setDefault(args[arg].default); // we REQUIRE a default, the lua doesnt, this is wrong
+					div.params[arg]={type : "function", input : input};
+					div.appendChild(input);
 				} else {
 					error_logger.error("unknown type requested to be displayed");
 				}
@@ -580,7 +602,7 @@ class gm_tool_class {
 			const run = document.createElement("button");
 			run.textContent = "go";
 			run.onclick = function () {
-				gm_tool.call_www_function(function_name,build_call());
+				gm_tool.call_www_function(function_name,div.build_call());
 			};
 			div.appendChild(run);
 		}
