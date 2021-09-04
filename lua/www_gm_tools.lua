@@ -43,6 +43,8 @@ end)
 getScriptStorage()._cuf_gm.indirect_call = get_function("indirect_call")
 local indirect_call = get_function("indirect_call")
 
+-- todo overlay defaults, and suppression list  for parameters
+-- make default mandatory?
 -- name = forced first one?
 add_function("describe_function",function (name,function_description,args_table)
 	-- this is about 90% verifying that the data is good
