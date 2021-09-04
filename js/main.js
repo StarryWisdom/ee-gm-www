@@ -556,7 +556,6 @@ class gm_tool_class {
 					});
 					div.params[arg]={type : "string", input : input};
 					input.setDefault = function (value) {
-						console.log(value);
 						input.value = value;
 					}
 					if (args[arg].default) {
@@ -606,7 +605,6 @@ class gm_tool_class {
 							}
 						}
 					}
-					console.log(arg);
 					await input.setDefault(args[arg].default); // we REQUIRE a default, the lua doesnt, this is wrong
 					div.params[arg]={type : "function", input : input};
 					div.appendChild(input);
