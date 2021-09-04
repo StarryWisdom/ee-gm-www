@@ -78,7 +78,7 @@ add_function("describe_function",function (name,function_description,args_table)
 				description[arg_name] = num
 				num_types = num_types + 1
 				goto continue
-			elseif v == "string" then
+			elseif v == "string" or k == "string" then
 				description[arg_name] = {type = "string"}
 				num_types = num_types + 1
 				goto continue
@@ -88,6 +88,10 @@ add_function("describe_function",function (name,function_description,args_table)
 				goto continue
 			elseif v == "function" then
 				description[arg_name] = {type = "function"}
+				num_types = num_types + 1
+				goto continue
+			elseif v == "npc_ship" then
+				description[arg_name] = {type = "npc_ship"}
 				num_types = num_types + 1
 				goto continue
 			elseif k == "indirect_function" then
