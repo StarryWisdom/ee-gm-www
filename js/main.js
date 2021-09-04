@@ -536,6 +536,13 @@ class gm_tool_class {
 					// todo default value
 					const input = document.createElement("input");
 					div.params[arg]={type : "string", input : input};
+					input.setDefault = function (value) {
+						console.log(value);
+						input.value = value;
+					}
+					if (args[arg].default) {
+						input.setDefault(args[arg].default);
+					}
 					div.appendChild(input);
 				} else if (type == "position") {
 					const run_via_click = document.createElement("button");
