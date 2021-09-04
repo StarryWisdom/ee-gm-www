@@ -464,7 +464,7 @@ class gm_tool_class {
 		}
 		return this._ee_cache._cache[cache_name];
 	}
-	make_edit_div_for_function(function_name) {
+	async make_edit_div_for_function(function_name) {
 		const div = document.createElement("div");
 		// this needs improvement
 		const args = this._function_descriptions[function_name];
@@ -492,6 +492,8 @@ class gm_tool_class {
 						// todo error check
 						call[p] = parseFloat(div.params[p].input.value);
 					} else if (type == "string") {
+						call[p] = div.params[p].input.value;
+					} else if (type == "npc_ship") {
 						call[p] = div.params[p].input.value;
 					} else if (type == "position") {
 						if (div.params[p].fetched_value) {
@@ -533,8 +535,25 @@ class gm_tool_class {
 					}
 					div.appendChild(input);
 				} else if(type == "string") {
-					// todo default value
 					const input = document.createElement("input");
+					div.params[arg]={type : "string", input : input};
+					input.setDefault = function (value) {
+						console.log(value);
+						input.value = value;
+					}
+					if (args[arg].default) {
+						input.setDefault(args[arg].default);
+					}
+					div.appendChild(input);
+				} else if (type == "npc_ship") {
+					const input = document.createElement("select");
+					(await (this.get_cpuship_data.get())).forEach(k => {
+							const name = k.gm_name;
+							const opt = document.createElement("option");
+							opt.value = name;
+							opt.innerHTML = name;
+							input.appendChild(opt);
+					});
 					div.params[arg]={type : "string", input : input};
 					input.setDefault = function (value) {
 						console.log(value);
@@ -571,24 +590,24 @@ class gm_tool_class {
 					}
 				} else if (type == "function" || type == "indirect_function") {
 					const input=document.createElement("div");
-					input.setDefault=function (values) {
+					input.setDefault=async function (values) {
 						if (input.firstChild) {
 							input.removeChild(input.firstChild);
 						}
-						input.appendChild(gm_tool.make_edit_div_for_function(values.call));
+						input.appendChild(await (gm_tool.make_edit_div_for_function(values.call)));
 						// this is hacky and needs work
 						input.build_call = input.firstChild.build_call;
 						input.function_name = input.firstChild.function_name;
 						for (const arg in values) {
 							if (values.hasOwnProperty(arg)) {
 								if (arg!="call") {
-									input.firstChild.params[arg].input.setDefault(values[arg]);
+									await input.firstChild.params[arg].input.setDefault(values[arg]);
 								}
 							}
 						}
 					}
 					console.log(arg);
-					input.setDefault(args[arg].default); // we REQUIRE a default, the lua doesnt, this is wrong
+					await input.setDefault(args[arg].default); // we REQUIRE a default, the lua doesnt, this is wrong
 					div.params[arg]={type : "function", input : input};
 					div.appendChild(input);
 				} else {
@@ -988,7 +1007,7 @@ class callback_tab {
 		// this is kind of digging into gm_tool more than it should
 		for (const fun in gm_tool._function_descriptions) {
 			if (gm_tool._function_descriptions.hasOwnProperty(fun)) {
-				page.appendChild(gm_tool.make_edit_div_for_function(fun));
+				page.appendChild(await gm_tool.make_edit_div_for_function(fun));
 				page.appendChild(document.createElement("hr"));
 			}
 		}
