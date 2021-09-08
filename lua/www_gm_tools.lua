@@ -181,7 +181,7 @@ describe_function("gm_click_wrapper",
 	{"todo"},
 	{})
 
-function sat_tmp1(start,dest,speed,endCallback)
+function sat_tmp(start,dest,speed,endCallback)
 	local art = Artifact():setPosition(start.x,start.y)
 	local time = distance(start.x,start.y,dest.x,dest.y)/speed
 	dx,dy = vectorFromAngle(angleFromVectorNorth(start.x,start.y,dest.x,dest.y)+90,1)
@@ -190,8 +190,8 @@ function sat_tmp1(start,dest,speed,endCallback)
 		endCallback.location = dest
 		indirect_call(endCallback)
 	end
+	update_system:addLinear(art,dx,dy,speed)
 	update_system:addPeriodicCallback(art,atEnd,time)
-	update_system:addLinear(art,dx,dy,speed) -- order matters - need to fix in sandbox
 end
 sat_tmp1 = sat_tmp
 describe_function("sat_tmp1",
