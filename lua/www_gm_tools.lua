@@ -53,7 +53,7 @@ add_function("describe_function",function (name,function_description,args_table)
 	assert(type(function_description)=="table")
 	assert(type(args_table)=="table")
 	local fn = getScriptStorage()._cuf_gm._ENV[name]
-	assert(type(fn)=="function")
+	assert(type(fn)=="function",name)
 	local description = {this = function_description}
 	for _,arg_description in pairs(args_table) do
 		assert(type(arg_description["name"])=="string")
