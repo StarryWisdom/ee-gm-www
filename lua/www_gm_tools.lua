@@ -56,67 +56,41 @@ add_function("describe_function",function (name,function_description,args_table)
 	assert(type(fn)=="function",name)
 	local description = {this = function_description}
 	for _,arg_description in pairs(args_table) do
-		assert(type(arg_description["name"])=="string")
-		local arg_name = arg_description["name"]
+		local arg_name = arg_description[1]
+		assert(type(arg_name)=="string")
 		assert(arg_name ~= "description") -- description is reused elsewhere and is a problem to be an arg name
-		local required = false
-		local num
-		local str
-		local num_types = 0
+		local arg_type = arg_description[2]
+		assert(type(arg_type)=="string")
+		description[arg_name] = {type = arg_type}
+		if arg_type == "number" or arg_type == "string" or arg_type == "position" or arg_type == "function" or arg_type == "npc_ship" or arg_type == "indirect_function" then
+			description[arg_name] = {type = arg_type}
+		else
+			assert(false,"describe_function requires the a type for each argument")
+		end
 		for k,v in pairs(arg_description) do
-			if k == "number" then
-				num = {type = "number"}
+			if k == 1 or k == 2 then
+			elseif arg_type == "number" then
 				for k, v in pairs(v) do
 					if k == "min" then
-						num.min = v
-						goto continue_number
+						description[arg_name].min = v
 					elseif k == "default" then
-						num.default = v
-						goto continue_number
+						description[arg_name].default = v
+					else
+						assert(false,"unknown tag for number in describe_function")
 					end
-					assert(false,"unknown tag for number in describe_function")
-					::continue_number::
 				end
-				description[arg_name] = num
-				num_types = num_types + 1
-				goto continue
-			elseif v == "string" or k == "string" then
-				description[arg_name] = {type = "string"}
-				num_types = num_types + 1
-				goto continue
-			elseif v == "position" then
-				description[arg_name] = {type = "position"}
-				num_types = num_types + 1
-				goto continue
-			elseif v == "function" then
-				description[arg_name] = {type = "function"}
-				num_types = num_types + 1
-				goto continue
-			elseif v == "npc_ship" then
-				description[arg_name] = {type = "npc_ship"}
-				num_types = num_types + 1
-				goto continue
-			elseif k == "indirect_function" then
-				indirect_function =  {type = "indirect_function"}
+			elseif arg_type == "indirect_function" then
 				for k,v in pairs(v) do
 					if k == "default" then
-						indirect_function.default = v
-						goto continue_indirect_function
+						description[arg_name].default = v
+					else
+						assert(false,"unknown tag for indirect_function in describe_function")
 					end
-					print(k,v)
-					assert(false,"unknown tag for indirect_function in describe_function")
-					::continue_indirect_function::
 				end
-				description[arg_name] = indirect_function
-				num_types = num_types + 1
-				goto continue
-			elseif k == "name" then
-				goto continue
+			else
+				assert(false,"unknown tag describing a variable in describe_function")
 			end
-			assert(false,"unknown tag describing a variable in describe_function")
-			::continue::
 		end
-		assert(num_types==1,"describe_function requires the a type for each argument")
 	end
 	-- this is only being created as its a pain to change and fix indirect_call
 	-- this should be merged into arg_table (probably)
@@ -197,29 +171,29 @@ sat_tmp1 = sat_tmp
 describe_function("sat_tmp1",
 	{"todo"},
 	{
-		{name = "start", "position"},
-		{name = "location", "position"}, -- todo fix naming location rather than user defined
-		{name = "speed", number = {default = 4000}},
-		{name = "endCallback", indirect_function = {default = {call = "subspace_rift", max_time = 5, max_radius = 500, on_end = {call = "end_rift"}}}}
+		{"start", "position"},
+		{"location", "position"}, -- todo fix naming location rather than user defined
+		{"speed", "number", {default = 4000}},
+		{"endCallback", "indirect_function", {default = {call = "subspace_rift", max_time = 5, max_radius = 500, on_end = {call = "end_rift"}}}}
 	})
 
 sat_tmp2 = sat_tmp
 describe_function("sat_tmp2",
 	{"todo"},
 	{
-		{name = "start", "position"},
-		{name = "location", "position"}, -- todo fix naming location rather than user defined
-		{name = "speed", number = {default = 4000}},
-		{name = "endCallback", indirect_function = {default = {call = "subspace_rift", max_time = 5, max_radius = 500, on_end = {call =  "jammer_pulse", max_time = 60, max_range = 5000, onEndCallback = {call = "null_function"}}}}}
+		{"start", "position"},
+		{"location", "position"}, -- todo fix naming location rather than user defined
+		{"speed", "number", {default = 4000}},
+		{"endCallback", "indirect_function", {default = {call = "subspace_rift", max_time = 5, max_radius = 500, on_end = {call =  "jammer_pulse", max_time = 60, max_range = 5000, onEndCallback = {call = "null_function"}}}}}
 	})
 sat_tmp3 = sat_tmp
 describe_function("sat_tmp3",
 	{"todo"},
 	{
-		{name = "start", "position"},
-		{name = "location", "position"}, -- todo fix naming location rather than user defined
-		{name = "speed", number = {default = 4000}},
-		{name = "endCallback", indirect_function = {default = {call = "subspace_rift", max_time = 5, max_radius = 500, on_end = {call = "spawn_kraylor_ship", template = "Adder MK4"}}}}
+		{"start", "position"},
+		{"location", "position"}, -- todo fix naming location rather than user defined
+		{"speed", "number", {default = 4000}},
+		{"endCallback", "indirect_function", {default = {call = "subspace_rift", max_time = 5, max_radius = 500, on_end = {call = "spawn_kraylor_ship", template = "Adder MK4"}}}}
 	})
 
 function spawn_kraylor_ship(location,template)
@@ -228,8 +202,8 @@ end
 describe_function("spawn_kraylor_ship",
 	{"todo"},
 	{
-		{name = "location", "position"},
-		{name = "template", "npc_ship"}
+		{"location", "position"},
+		{"template", "npc_ship"}
 	})
 function end_rift(args)
 	local count = 15
@@ -367,10 +341,10 @@ end
 describe_function("subspace_rift",
 	{"creates a tuneable rift effect, along with callback at end", "onclick"},
 	{
-		{name = "max_time", number = {min = 0, default = 5}}, -- max?
-		{name = "location", "position"},
-		{name = "max_radius", number = {min = 0, default = 500}}, -- max?
-		{name = "on_end", indirect_function = {default = {call = "end_rift"}}}
+		{"max_time", "number", {min = 0, default = 5}}, -- max?
+		{"location", "position"},
+		{"max_radius", "number", {min = 0, default = 500}}, -- max?
+		{"on_end", "indirect_function", {default = {call = "end_rift"}}}
 	})
 
 function rift_example(location,args) -- in time this should be removed
@@ -455,7 +429,7 @@ end
 describe_function("rift_example",
 	{"todo"},
 	{
-		{ name = "location", "position"}
+		{"location", "position"}
 	})
 -- eff it short term one off code it is
 add_function("base0",function ()
@@ -1341,10 +1315,10 @@ end
 describe_function("jammer_pulse",
 	{"todo"},
 	{
-		{name = "max_time", number = {default = 60}},
-		{name = "max_range", number = {default = 5000}},
-		{name = "location", "position"},
-		{name = "onEndCallback", indirect_function = {default = {call = "null_function"}}} -- change to function
+		{"max_time", "number", {default = 60}},
+		{"max_range", "number", {default = 5000}},
+		{"location", "position"},
+		{"onEndCallback", "indirect_function", {default = {call = "null_function"}}} -- change to function
 	})
 
 add_function("old_test_start",function(args)
@@ -1393,6 +1367,6 @@ end
 describe_function("set_timer_purpose",
 	{"todo"},
 	{
-		{ name = "reason", "string"},
-		{ name = "location", "position"}
+		{"reason", "string"},
+		{"location", "position"}
 	})
