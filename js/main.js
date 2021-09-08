@@ -452,7 +452,7 @@ class gm_tool_class {
 		}
 		await Promise.all(parts);
 		// TODO we should clear old strings
-		return this.direct_www_call("webUploadEndAndRun",id);
+		return this.direct_www_call("webUploadEndAndRunAndFree",id);
 	}
 	async get_whole_cache() {
 		return this._ee_cache.get_whole_cache();
