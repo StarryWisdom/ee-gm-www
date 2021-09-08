@@ -67,28 +67,12 @@ add_function("describe_function",function (name,function_description,args_table)
 		else
 			assert(false,"describe_function requires the a type for each argument")
 		end
-		for k,v in pairs(arg_description) do
-			if k == 1 or k == 2 then
-			elseif arg_type == "number" then
-				for k, v in pairs(v) do
-					if k == "min" then
-						description[arg_name].min = v
-					elseif k == "default" then
-						description[arg_name].default = v
-					else
-						assert(false,"unknown tag for number in describe_function")
-					end
-				end
-			elseif arg_type == "indirect_function" then
-				for k,v in pairs(v) do
-					if k == "default" then
-						description[arg_name].default = v
-					else
-						assert(false,"unknown tag for indirect_function in describe_function")
-					end
-				end
-			else
-				assert(false,"unknown tag describing a variable in describe_function")
+		if arg_description.default ~= nil then
+			description[arg_name].default = arg_description.default
+		end
+		if arg_type == "number" then
+			if arg_description.min ~= nil then
+				description[arg_name].min = arg_description.min
 			end
 		end
 	end
@@ -173,8 +157,8 @@ describe_function("sat_tmp1",
 	{
 		{"start", "position"},
 		{"location", "position"}, -- todo fix naming location rather than user defined
-		{"speed", "number", {default = 4000}},
-		{"endCallback", "indirect_function", {default = {call = "subspace_rift", max_time = 5, max_radius = 500, on_end = {call = "end_rift"}}}}
+		{"speed", "number", default = 4000},
+		{"endCallback", "indirect_function", default = {call = "subspace_rift", max_time = 5, max_radius = 500, on_end = {call = "end_rift"}}}
 	})
 
 sat_tmp2 = sat_tmp
@@ -183,8 +167,8 @@ describe_function("sat_tmp2",
 	{
 		{"start", "position"},
 		{"location", "position"}, -- todo fix naming location rather than user defined
-		{"speed", "number", {default = 4000}},
-		{"endCallback", "indirect_function", {default = {call = "subspace_rift", max_time = 5, max_radius = 500, on_end = {call =  "jammer_pulse", max_time = 60, max_range = 5000, onEndCallback = {call = "null_function"}}}}}
+		{"speed", "number", default = 4000},
+		{"endCallback", "indirect_function", default = {call = "subspace_rift", max_time = 5, max_radius = 500, on_end = {call =  "jammer_pulse", max_time = 60, max_range = 5000, onEndCallback = {call = "null_function"}}}}
 	})
 sat_tmp3 = sat_tmp
 describe_function("sat_tmp3",
@@ -192,8 +176,8 @@ describe_function("sat_tmp3",
 	{
 		{"start", "position"},
 		{"location", "position"}, -- todo fix naming location rather than user defined
-		{"speed", "number", {default = 4000}},
-		{"endCallback", "indirect_function", {default = {call = "subspace_rift", max_time = 5, max_radius = 500, on_end = {call = "spawn_kraylor_ship", template = "Adder MK4"}}}}
+		{"speed", "number", default = 4000},
+		{"endCallback", "indirect_function", default = {call = "subspace_rift", max_time = 5, max_radius = 500, on_end = {call = "spawn_kraylor_ship", template = "Adder MK4"}}}
 	})
 
 function spawn_kraylor_ship(location,template)
@@ -341,10 +325,10 @@ end
 describe_function("subspace_rift",
 	{"creates a tuneable rift effect, along with callback at end", "onclick"},
 	{
-		{"max_time", "number", {min = 0, default = 5}}, -- max?
+		{"max_time", "number", min = 0, default = 5}, -- max?
 		{"location", "position"},
-		{"max_radius", "number", {min = 0, default = 500}}, -- max?
-		{"on_end", "indirect_function", {default = {call = "end_rift"}}}
+		{"max_radius", "number", min = 0, default = 500}, -- max?
+		{"on_end", "indirect_function", default = {call = "end_rift"}}
 	})
 
 function rift_example(location,args) -- in time this should be removed
@@ -1315,10 +1299,10 @@ end
 describe_function("jammer_pulse",
 	{"todo"},
 	{
-		{"max_time", "number", {default = 60}},
-		{"max_range", "number", {default = 5000}},
+		{"max_time", "number", default = 60},
+		{"max_range", "number", default = 5000},
 		{"location", "position"},
-		{"onEndCallback", "indirect_function", {default = {call = "null_function"}}} -- change to function
+		{"onEndCallback", "indirect_function", default = {call = "null_function"}} -- change to function
 	})
 
 add_function("old_test_start",function(args)
