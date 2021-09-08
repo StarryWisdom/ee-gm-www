@@ -70,10 +70,9 @@ add_function("describe_function",function (name,function_description,args_table)
 		if arg_description.default ~= nil then
 			description[arg_name].default = arg_description.default
 		end
-		if arg_type == "number" then
-			if arg_description.min ~= nil then
-				description[arg_name].min = arg_description.min
-			end
+		if arg_description.min ~= nil then
+			assert(arg_type == "number")
+			description[arg_name].min = arg_description.min
 		end
 	end
 	-- this is only being created as its a pain to change and fix indirect_call
