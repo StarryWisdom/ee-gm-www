@@ -364,11 +364,12 @@ class gm_tool_class {
 		const resolve = async function() {
 			return ee_server.convert_lua_json_to_array(await(gm_tool.call_www_function("getCpushipSoftTemplates")));
 		}
-		this._ee_cache.set("npc_ships",resolve());
+		this._soft_cpuship_templates = await resolve();
+
 		this._function_descriptions = await this.call_www_function("get_descriptions");
 	}
-	async get_cpuship_data() {
-		return this._ee_cache.get("npc_ships");
+	get_cpuship_data() {
+		return this._soft_cpuship_templates;
 	}
 	get_prebuilt() {
 		// this wants to change to support local storage at some point soon
@@ -454,7 +455,7 @@ class gm_tool_class {
 		}
 		return this._ee_cache._cache[cache_name];
 	}
-	async make_edit_div_for_function(function_name) {
+	make_edit_div_for_function(function_name) {
 		const function_div = document.createElement("div");
 		// this needs improvement
 		const args = this._function_descriptions[function_name];
@@ -526,7 +527,7 @@ class gm_tool_class {
 					div.appendChild(input);
 				} else if (type == "npc_ship") {
 					const input = document.createElement("select");
-					(await (this.get_cpuship_data())).forEach(k => {
+					this.get_cpuship_data().forEach(k => {
 							const name = k.gm_name;
 							const opt = document.createElement("option");
 							opt.value = name;
@@ -569,15 +570,15 @@ class gm_tool_class {
 					};
 					div.appendChild(run_via_click);
 				} else if (type == "function" || type == "indirect_function") {
-					param.setValue=async function (values) {
+					param.setValue = function (values) {
 						if (div.firstChild) {
 							div.removeChild(div.firstChild);
 						}
-						div.appendChild(await (gm_tool.make_edit_div_for_function(values.call)));
+						div.appendChild(gm_tool.make_edit_div_for_function(values.call));
 						for (const arg in values) {
 							if (values.hasOwnProperty(arg)) {
 								if (arg!="call") {
-									await div.firstChild.params[arg].setValue(values[arg]);
+									div.firstChild.params[arg].setValue(values[arg]);
 								}
 							}
 						}
@@ -599,7 +600,7 @@ class gm_tool_class {
 				// todo description of the arg
 				// todo title text
 				if (args[arg].default) {
-					await function_div.params[arg].setValue(args[arg].default);
+					function_div.params[arg].setValue(args[arg].default);
 				}
 			}
 		}
@@ -992,9 +993,7 @@ class callback_tab {
 			if (gm_tool._function_descriptions.hasOwnProperty(fun_name)) {
 				const inner_div = document.createElement("div");
 				page.appendChild(inner_div);
-				gm_tool.make_edit_div_for_function(fun_name).then(div => {
-					inner_div.appendChild(div);
-				});
+				inner_div.appendChild(gm_tool.make_edit_div_for_function(fun_name));
 				page.appendChild(document.createElement("hr"));
 			}
 		});
