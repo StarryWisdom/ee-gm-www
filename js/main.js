@@ -472,13 +472,14 @@ class gm_tool_class {
 		div.appendChild(document.createElement("br"));
 
 		div.function_name = function_name;
-		div.build_call = function () {
+		div.build_call = function (function_name) {
 			const call = {};
 			for (const p in div.params) {
 				if (div.params.hasOwnProperty(p)) {
 					call[p] = div.params[p].getValue();
 				}
 			}
+			call.call = function_name;
 			return call;
 		}
 
@@ -541,8 +542,7 @@ class gm_tool_class {
 						};
 						run_via_click.textContent = "run via gmClick";
 						run_via_click.onclick = function () {
-							const call = div.build_call();
-							call.call = function_name;
+							const call = div.build_call(function_name);
 							delete call[arg];
 							gm_tool.call_www_function("gm_click_wrapper",{args : call});
 						};
@@ -592,9 +592,7 @@ class gm_tool_class {
 					}
 					param.getValue = function ()
 					{
-						const ret = input.build_call();
-						ret.call = input.function_name;
-						return ret;
+						return input.build_call(input.function_name);
 					}
 					div.appendChild(input);
 				} else {
