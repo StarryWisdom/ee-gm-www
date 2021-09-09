@@ -1,11 +1,5 @@
--- all of the scripting functions common between all scripts
 _ENV = getScriptStorage()._cuf_gm._ENV
 
--- loaded first, must all fit in the EE upload limit
-local function get_function(name)
-	assert(type(name)=="string")
-	return getScriptStorage()._cuf_gm.functions[name].fn
-end
 -- args should be considered a contract between
 -- 1) add_function
 -- 2) indirect call
@@ -24,7 +18,7 @@ end
 -- it allows tables of parmeters to be completed and not to care about the order with which they are built
 -- this is mostly a consideration for onGMClick and location
 -- I think its possible this will be made obsolete in time though
-add_function("indirect_call",function (args)
+function indirect_call(args)
 	assert(type(args)=="table")
 	assert(type(args.call)=="string")
 	assert(getScriptStorage()._cuf_gm.functions[args.call] ~= nil, "attempted to call an undefined function")
@@ -39,9 +33,9 @@ add_function("indirect_call",function (args)
 	end
 	table.insert(tbl,args)
 	return getScriptStorage()._cuf_gm.functions[args.call].fn(table.unpack(tbl))
-end)
-getScriptStorage()._cuf_gm.indirect_call = get_function("indirect_call")
-local indirect_call = get_function("indirect_call")
+end
+add_function("indirect_call",indirect_call)
+getScriptStorage()._cuf_gm.indirect_call = indirect_call
 
 -- more fully describeAndExportFunctionForWeb, but there are going to be an absurd number
 -- of these, I have no objection if a find and replace is desired
