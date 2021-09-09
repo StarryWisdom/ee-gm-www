@@ -255,19 +255,7 @@ class lua_wrapper {
 		if (settings === undefined) {
 			settings = {};
 		}
-		let code = "";
-		for (const v in settings) {
-			if (settings.hasOwnProperty(v)) {
-				code += v + "=";
-				if (typeof(settings[v]) === "string") {
-					code += '"' + settings[v].replace(/\\/g,'\\\\').replace(/"/g,'\\"').replace(/\r/g,'').replace(/\n/g,'\\n') + '"';
-				} else {
-					code += settings[v];
-				}
-				code += "\n";
-			}
-		}
-		code += await this._lua;
+		const code = await this._lua;
 		return gm_tool.exec_lua(code,this._filename);
 	}
 }
