@@ -1000,8 +1000,9 @@ class update_debug_in_dev {
 		const page = document.createElement("div");
 		const button = document.createElement("button");
 		button.textContent = "run";
+		const update = this;
 		button.onclick = async function() {
-			console.log(await this._upload.run());
+			console.log(await gm_tool.call_www_function("getUpdateData"));
 		};
 		page.appendChild(button);
 		return page;
