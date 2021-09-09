@@ -362,7 +362,7 @@ class gm_tool_class {
 		await this._www_gm_tools.run();
 
 		const resolve = async function() {
-			return ee_server.convert_lua_json_to_array(await(gm_tool.call_www_function("get_cpuship_data")));
+			return ee_server.convert_lua_json_to_array(await(gm_tool.call_www_function("getCpushipSoftTemplates")));
 		}
 		this._ee_cache.set("npc_ships",resolve());
 		this._function_descriptions = await this.call_www_function("get_descriptions");
