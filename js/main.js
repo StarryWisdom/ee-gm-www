@@ -541,36 +541,33 @@ class gm_tool_class {
 					};
 					div.appendChild(input);
 				} else if (type == "position") {
-					const run_via_click = document.createElement("button");
-					if (arg == "location") { // wrong but prevents error in saturdays game
-						param.getValue = function () {
-						};
-						run_via_click.textContent = "run via gmClick";
-						run_via_click.onclick = function () {
-							const call = function_div.build_call(function_name);
-							delete call[arg];
-							gm_tool.call_www_function("gm_click_wrapper",{args : call});
-						};
-						div.appendChild(run_via_click);
-					} else {
-						const got = document.createElement("div");
-						const get_value = document.createElement("button");
-						get_value.textContent = "last fetched click";
-						get_value.onclick = async function () {
-							const loc = await gm_tool.call_www_function("get_gm_click2");
-							if (loc) {
-								console.log(loc);
-								function_div.params[arg] = {
-									getValue : function () {
-										return loc;
-									}
-								};
-								got.innerHTML = "done";
-							}
+					const get_value = document.createElement("button");
+					const got = document.createTextNode("");
+					get_value.textContent = "last fetched click";
+					get_value.onclick = async function () {
+						const loc = await gm_tool.call_www_function("get_gm_click2");
+						if (loc) {
+							function_div.params[arg] = {
+								getValue : function () {
+									return loc;
+								}
+							};
+							got.data = loc.x + "," + loc.y;
 						}
-						div.appendChild(get_value);
-						div.appendChild(got);
 					}
+					div.appendChild(get_value);
+					div.appendChild(got);
+
+					const run_via_click = document.createElement("button");
+					param.getValue = function () { // todo handle error
+					};
+					run_via_click.textContent = "run via gmClick";
+					run_via_click.onclick = function () {
+						const call = function_div.build_call(function_name);
+						delete call[arg];
+						gm_tool.call_www_function("gm_click_wrapper",{args : call});
+					};
+					div.appendChild(run_via_click);
 				} else if (type == "function" || type == "indirect_function") {
 					param.setValue=async function (values) {
 						if (div.firstChild) {
