@@ -311,8 +311,7 @@ class gm_tool_class {
 		this.get_extra_template_data = new get_extra_template_data(this._ee_cache);
 		this.get_player_soft_template = new get_player_soft_template(this._ee_cache);
 
-		this._www_gm_tools = new lua_wrapper("www_gm_tools");
-		await this._www_gm_tools.run();
+		await this.exec_lua(await gm_tool.cache_get_lua("www_gm_tools"),"www_gm_tools")
 
 		this._model_data = await this._model_data_resolve();
 		this._soft_cpuship_templates = await this._cpuship_data_resolve();
