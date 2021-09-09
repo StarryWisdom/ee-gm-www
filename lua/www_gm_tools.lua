@@ -34,7 +34,7 @@ function indirect_call(args)
 	table.insert(tbl,args)
 	return getScriptStorage()._cuf_gm.functions[args.call].fn(table.unpack(tbl))
 end
-add_function("indirect_call",indirect_call)
+describeFunction("indirect_call")
 getScriptStorage()._cuf_gm.indirect_call = indirect_call
 
 -- more fully describeAndExportFunctionForWeb, but there are going to be an absurd number
@@ -307,12 +307,12 @@ _ENV = getScriptStorage()._cuf_gm._ENV
 function getModelData()
 	return models
 end
-add_function("getModelData", getModelData)
+describeFunction("getModelData")
 
 function getExtraTemplateData()
 	return templates
 end
-add_function("getExtraTemplateData",getExtraTemplateData)
+describeFunction("getExtraTemplateData")
 
 PesudoMultiplayerID = 0
 
@@ -354,7 +354,7 @@ function getUpdateData()
 	end
 	return ret
 end
-add_function("getUpdateData",getUpdateData)
+describeFunction("getUpdateData")
 
 add_function("get_descriptions", function ()
 	local ret = {}
