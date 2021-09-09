@@ -455,7 +455,7 @@ class gm_tool_class {
 		return this._ee_cache._cache[cache_name];
 	}
 	async make_edit_div_for_function(function_name) {
-		const div = document.createElement("div");
+		const function_div = document.createElement("div");
 		// this needs improvement
 		const args = this._function_descriptions[function_name];
 		let desc = "";
@@ -468,15 +468,15 @@ class gm_tool_class {
 		const title = document.createElement("a");
 		title.textContent = function_name + " settings";
 		title.title = desc;
-		div.appendChild(title);
-		div.appendChild(document.createElement("br"));
+		function_div.appendChild(title);
+		function_div.appendChild(document.createElement("br"));
 
-		div.function_name = function_name;
-		div.build_call = function (function_name) {
+		function_div.function_name = function_name;
+		function_div.build_call = function (function_name) {
 			const call = {};
-			for (const p in div.params) {
-				if (div.params.hasOwnProperty(p)) {
-					call[p] = div.params[p].getValue();
+			for (const p in function_div.params) {
+				if (function_div.params.hasOwnProperty(p)) {
+					call[p] = function_div.params[p].getValue();
 				}
 			}
 			call.call = function_name;
@@ -484,20 +484,22 @@ class gm_tool_class {
 		}
 
 		// a table of each argument, element is an object with the following properties
-		// a getValue function, which will return the current value
-		// a setValue function, which will set the element to a value
-		div.params = {};
+		// each element needs a getValue, setValue, removeThis function
+		function_div.params = {};
 		for (const arg in args) {
 			if (args.hasOwnProperty(arg)) {
 				if (arg == "this") {
 					continue;
 				}
+				const div = document.createElement("div");
+				function_div.appendChild(div);
+
 				const name = document.createElement("a");
 				name.textContent = arg;
 				div.appendChild(name);
 
 				const param = {};
-				div.params[arg] = param;
+				function_div.params[arg] = param;
 
 				const type = args[arg].type;
 				if (type == "number") {
@@ -542,7 +544,7 @@ class gm_tool_class {
 						};
 						run_via_click.textContent = "run via gmClick";
 						run_via_click.onclick = function () {
-							const call = div.build_call(function_name);
+							const call = function_div.build_call(function_name);
 							delete call[arg];
 							gm_tool.call_www_function("gm_click_wrapper",{args : call});
 						};
@@ -555,7 +557,7 @@ class gm_tool_class {
 							const loc = await gm_tool.call_www_function("get_gm_click2");
 							if (loc) {
 								console.log(loc);
-								div.params[arg] = {
+								function_div.params[arg] = {
 									getValue : function () {
 										return loc;
 									}
@@ -567,19 +569,18 @@ class gm_tool_class {
 						div.appendChild(got);
 					}
 				} else if (type == "function" || type == "indirect_function") {
-					const input=document.createElement("div");
 					param.setValue=async function (values) {
-						if (input.firstChild) {
-							input.removeChild(input.firstChild);
+						if (div.firstChild) {
+							div.removeChild(div.firstChild);
 						}
-						input.appendChild(await (gm_tool.make_edit_div_for_function(values.call)));
+						div.appendChild(await (gm_tool.make_edit_div_for_function(values.call)));
 						// this is hacky and needs work
-						input.build_call = input.firstChild.build_call;
-						input.function_name = input.firstChild.function_name;
+						div.build_call = div.firstChild.build_call;
+						div.function_name = div.firstChild.function_name;
 						for (const arg in values) {
 							if (values.hasOwnProperty(arg)) {
 								if (arg!="call") {
-									await input.firstChild.params[arg].setValue(values[arg]);
+									await div.firstChild.params[arg].setValue(values[arg]);
 								}
 							}
 						}
@@ -587,23 +588,21 @@ class gm_tool_class {
 					if (args[arg].ui_suppress != undefined) {
 						ee_server.convert_lua_json_to_array(args[arg].ui_suppress).forEach(arg => {
 							console.log(arg);
-							console.log(div.params);
+							console.log(function_div.params);
 						});
 					}
 					param.getValue = function ()
 					{
-						return input.build_call(input.function_name);
+						return div.build_call(div.function_name);
 					}
-					div.appendChild(input);
 				} else {
 					error_logger.error("unknown type requested to be displayed");
 				}
 				// todo description of the arg
 				// todo title text
 				if (args[arg].default) {
-					await div.params[arg].setValue(args[arg].default);
+					await function_div.params[arg].setValue(args[arg].default);
 				}
-				div.appendChild(document.createElement("br"));
 			}
 		}
 
@@ -612,12 +611,12 @@ class gm_tool_class {
 			const run = document.createElement("button");
 			run.textContent = "go";
 			run.onclick = function () {
-				gm_tool.call_www_function(function_name,div.build_call());
+				gm_tool.call_www_function(function_name,function_div.build_call());
 			};
-			div.appendChild(run);
+			function_div.appendChild(run);
 		}
 
-		return div;
+		return function_div;
 	}
 	async exec_lua(code,filename) {
 		if (code.length <= ee_server.max_exec_length) {
