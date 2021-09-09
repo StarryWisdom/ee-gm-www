@@ -289,6 +289,15 @@ add_function("get_descriptions", function ()
 	return ret
 end)
 
+add_function("mirror_in_dev", function ()
+	getScriptStorage().fun = function ()
+		print("1")
+		initialGMFunctions()
+	end
+	addGMFunction("-return",getScriptStorage().fun)
+end)
+
+
 add_function("get_gm_click1",function ()
 	onGMClick(function (x,y)
 		getScriptStorage().last_gm_click = {x=x,y=y}

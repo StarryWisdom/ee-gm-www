@@ -1069,14 +1069,12 @@ class obsolete_soon_tab {
 
 class mirror_tool_tab {
 	constructor() {
-		this._mirror_tool = new lua_wrapper("in-progress/mirror-tool");
 		this.page_name = "mirror";
 	}
 	async show() {
 		const page = document.createElement("div");
 		const button = document.createElement("button");
 		button.textContent = "enable";
-		const _mirror_tool = this._mirror_tool;
 
 		const input = document.createElement("textarea");
 		input.style = "width : 100%";
@@ -1086,7 +1084,7 @@ class mirror_tool_tab {
 
 
 		button.onclick = function () {
-			_mirror_tool.run();
+			gm_tool.call_www_function("mirror_in_dev")
 		};
 		page.appendChild(button);
 		return page;
