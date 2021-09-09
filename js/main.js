@@ -993,12 +993,18 @@ class callback_tab {
 	async show() {
 		const page = document.createElement("div");
 		// this is kind of digging into gm_tool more than it should
-		for (const fun in gm_tool._function_descriptions) {
-			if (gm_tool._function_descriptions.hasOwnProperty(fun)) {
-				page.appendChild(await gm_tool.make_edit_div_for_function(fun));
+		const keys = Object.keys(gm_tool._function_descriptions);
+		keys.sort();
+		keys.forEach(fun_name => {
+			if (gm_tool._function_descriptions.hasOwnProperty(fun_name)) {
+				const inner_div = document.createElement("div");
+				page.appendChild(inner_div);
+				gm_tool.make_edit_div_for_function(fun_name).then(div => {
+					inner_div.appendChild(div);
+				});
 				page.appendChild(document.createElement("hr"));
 			}
-		}
+		});
 		return page;
 	}
 }
