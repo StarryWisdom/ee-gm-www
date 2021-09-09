@@ -39,13 +39,28 @@ getScriptStorage()._cuf_gm.indirect_call = indirect_call
 
 -- more fully describeAndExportFunctionForWeb, but there are going to be an absurd number
 -- of these, I have no objection if a find and replace is desired
+-- description format is
+-- name of the function as a string (this is also looked in the global table, anonymous are presently not supported)
+-- function description, which is a table or a string or nil
+-- if function_description is a string then it is assumed as being function_description[1]
+-- function_description[1] is a description used for the web tool
+-- function_description[2+] is a list of tags to be used for sorting on the web UI
+-- args table of tables is an optional table describing each argument given to the function
+-- each inner table is defined like
+-- name of the argument
+-- type of the argument - see below for types
+-- the remainder of the table is a TODO being worked on
 function describeFunction(name,function_description,args_table)
 -- todo overlay defaults, and suppression list  for parameters
 -- make default mandatory?
 	-- this is about 90% verifying that the data is good
 	-- and 10% repacking the arguments to be used later in a more convient format
 	assert(type(name)=="string")
+	if type(function_description) ~= "table" then
+		function_description = {function_description or nil}
+	end
 	assert(type(function_description)=="table")
+	args_table = args_table or {}
 	assert(type(args_table)=="table")
 	local fn = getScriptStorage()._cuf_gm._ENV[name]
 	assert(type(fn)=="function",name)
@@ -57,7 +72,7 @@ function describeFunction(name,function_description,args_table)
 		local arg_type = arg_description[2]
 		assert(type(arg_type)=="string")
 		description[arg_name] = {type = arg_type}
-		if arg_type == "number" or arg_type == "string" or arg_type == "position" or arg_type == "function" or arg_type == "npc_ship" or arg_type == "indirect_function" then
+		if arg_type == "number" or arg_type == "string" or arg_type == "position" or arg_type == "npc_ship" or arg_type == "indirect_function" then
 			description[arg_name] = {type = arg_type}
 		else
 			assert(false,"describeFunction requires the a type for each argument")
@@ -69,17 +84,21 @@ function describeFunction(name,function_description,args_table)
 			assert(arg_type == "number")
 			description[arg_name].min = arg_description.min
 		end
+		if arg_description.ui_suppress ~= nil then
+			assert(arg_type == "indirect_function")
+			description[arg_name].ui_suppress = arg_description.ui_suppress
+		end
 	end
 	-- this is only being created as its a pain to change and fix indirect_call
 	-- this should be merged into arg_table (probably)
 	description.arguments = {}
 	for _,arg in pairs(args_table) do
-		table.insert(description.arguments,arg.name)
+		table.insert(description.arguments,arg[1])
 	end
 	for _,arg in pairs(description.arguments) do
 		local found = false
 		for _,v in ipairs(args_table) do
-			if (arg == v["name"]) then
+			if (arg == v[1]) then
 				found = true
 			end
 		end
@@ -132,9 +151,7 @@ function getCpushipSoftTemplates()
 	return ret
 end
 describeFunction("getCpushipSoftTemplates",
-	{"get information of cpuships soft templates (note it temporarily creates all ship types)"},
-	{}
-	)
+	{"get information of cpuships soft templates (note it temporarily creates all ship types)"})
 
 add_function("get_descriptions", function ()
 	local ret = {}
@@ -169,15 +186,15 @@ function gm_click_wrapper(args)
 		-- and if the internal value isn't copyied it would result in wrong locations
 		local parameters = {}
 		for k,v in pairs(args.args) do
+			print(k,v)
 			parameters[k] = v
 		end
 		parameters.location= {x = x, y = y}
+		print(parameters.location.x,y)
 		indirect_call(parameters)
 	end)
 end
-describeFunction("gm_click_wrapper",
-	{"todo"},
-	{})
+describeFunction("gm_click_wrapper")
 
 function sat_tmp(start,dest,speed,endCallback)
 	local art = Artifact():setPosition(start.x,start.y)
@@ -193,7 +210,7 @@ function sat_tmp(start,dest,speed,endCallback)
 end
 sat_tmp1 = sat_tmp
 describeFunction("sat_tmp1",
-	{"todo"},
+	nil,
 	{
 		{"start", "position"},
 		{"location", "position"}, -- todo fix naming location rather than user defined
@@ -203,7 +220,7 @@ describeFunction("sat_tmp1",
 
 sat_tmp2 = sat_tmp
 describeFunction("sat_tmp2",
-	{"todo"},
+	nil,
 	{
 		{"start", "position"},
 		{"location", "position"}, -- todo fix naming location rather than user defined
@@ -212,7 +229,7 @@ describeFunction("sat_tmp2",
 	})
 sat_tmp3 = sat_tmp
 describeFunction("sat_tmp3",
-	{"todo"},
+	nil,
 	{
 		{"start", "position"},
 		{"location", "position"}, -- todo fix naming location rather than user defined
@@ -224,7 +241,7 @@ function spawn_kraylor_ship(location,template)
 	ship_template[template].create('Kraylor',template):setPosition(location.x,location.y)
 end
 describeFunction("spawn_kraylor_ship",
-	{"todo"},
+	nil,
 	{
 		{"location", "position"},
 		{"template", "npc_ship"}
@@ -300,9 +317,7 @@ function end_rift(args)
 		end --]]
 	end
 end
-describeFunction("end_rift",
-	{"todo"},
-	{})
+describeFunction("end_rift")
 
 function subspace_rift(max_time,location,max_radius,on_end)
 	-- we need graphical type at some point
@@ -368,7 +383,7 @@ describeFunction("subspace_rift",
 		{"max_time", "number", min = 0, default = 5}, -- max?
 		{"location", "position"},
 		{"max_radius", "number", min = 0, default = 500}, -- max?
-		{"on_end", "indirect_function", default = {call = "end_rift"}}
+		{"on_end", "indirect_function", ui_suppress = {"location"}, default = {call = "end_rift"}}
 	})
 
 function rift_example(location,args) -- in time this should be removed
@@ -451,7 +466,7 @@ function rift_example(location,args) -- in time this should be removed
 	update_system:addUpdate(rift,"subspace_rift",update_data)
 end
 describeFunction("rift_example",
-	{"todo"},
+	nil,
 	{
 		{"location", "position"}
 	})
@@ -1337,7 +1352,7 @@ function jammer_pulse(max_time,max_range,location,onEndCallback)
 	update_system:addUpdate(jammer,"dynamic jammer",update_data)
 end
 describeFunction("jammer_pulse",
-	{"todo"},
+	nil,
 	{
 		{"max_time", "number", default = 60},
 		{"max_range", "number", default = 5000},
@@ -1389,7 +1404,7 @@ function set_timer_purpose(reason)
 	timer_purpose = reason
 end
 describeFunction("set_timer_purpose",
-	{"todo"},
+	nil,
 	{
 		{"reason", "string"},
 		{"location", "position"}
