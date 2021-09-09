@@ -245,15 +245,6 @@ class get_extra_template_data{
 	}
 }
 
-class lua_wrapper {
-	constructor(filename) {
-		this._filename = filename;
-	}
-	async run () {
-		return gm_tool.exec_lua(await gm_tool.cache_get_lua(this._filename),this._filename);
-	}
-}
-
 // at the moment this is rather jumbled between getting the soft template and the actual template
 // at some point this will probably be cleared up, but at the moment it is something to keep in mind
 class get_player_soft_template {
