@@ -9,7 +9,7 @@ end
 -- args should be considered a contract between
 -- 1) add_function
 -- 2) indirect call
--- 3) describe_function
+-- 3) describeFunction
 -- 4) the web tool
 -- if edited each of those locations need to be checked
 -- it is probably a bad idea to read it outside of these
@@ -75,7 +75,7 @@ add_function("indirect_call",function (args)
 	assert(type(getScriptStorage()._cuf_gm.functions[args.call].args) == "table")
 	local tbl = {}
 	for _,arg in ipairs(getScriptStorage()._cuf_gm.functions[args.call].args.arguments) do
-		-- todo check arguments are in the format described by describe_function
+		-- todo check arguments are in the format described by describeFunction
 		assert(args[arg],arg)
 		table.insert(tbl,args[arg])
 	end
@@ -85,10 +85,11 @@ end)
 getScriptStorage()._cuf_gm.indirect_call = get_function("indirect_call")
 local indirect_call = get_function("indirect_call")
 
+-- more fully describeAndExportFunctionForWeb, but there are going to be an absurd number
+-- of these, I have no objection if a find and replace is desired
+function describeFunction(name,function_description,args_table)
 -- todo overlay defaults, and suppression list  for parameters
 -- make default mandatory?
--- name = forced first one?
-add_function("describe_function",function (name,function_description,args_table)
 	-- this is about 90% verifying that the data is good
 	-- and 10% repacking the arguments to be used later in a more convient format
 	assert(type(name)=="string")
@@ -107,7 +108,7 @@ add_function("describe_function",function (name,function_description,args_table)
 		if arg_type == "number" or arg_type == "string" or arg_type == "position" or arg_type == "function" or arg_type == "npc_ship" or arg_type == "indirect_function" then
 			description[arg_name] = {type = arg_type}
 		else
-			assert(false,"describe_function requires the a type for each argument")
+			assert(false,"describeFunction requires the a type for each argument")
 		end
 		if arg_description.default ~= nil then
 			description[arg_name].default = arg_description.default
@@ -134,8 +135,7 @@ add_function("describe_function",function (name,function_description,args_table)
 		-- todo need to check required is present for the element in the table
 	end
 	add_function(name,fn, description)
-end)
-local describe_function = get_function("describe_function")
+end
 
 add_function("get_descriptions", function ()
 	local ret = {}
@@ -176,7 +176,7 @@ function gm_click_wrapper(args)
 		indirect_call(parameters)
 	end)
 end
-describe_function("gm_click_wrapper",
+describeFunction("gm_click_wrapper",
 	{"todo"},
 	{})
 
@@ -193,7 +193,7 @@ function sat_tmp(start,dest,speed,endCallback)
 	update_system:addPeriodicCallback(art,atEnd,time)
 end
 sat_tmp1 = sat_tmp
-describe_function("sat_tmp1",
+describeFunction("sat_tmp1",
 	{"todo"},
 	{
 		{"start", "position"},
@@ -203,7 +203,7 @@ describe_function("sat_tmp1",
 	})
 
 sat_tmp2 = sat_tmp
-describe_function("sat_tmp2",
+describeFunction("sat_tmp2",
 	{"todo"},
 	{
 		{"start", "position"},
@@ -212,7 +212,7 @@ describe_function("sat_tmp2",
 		{"endCallback", "indirect_function", default = {call = "subspace_rift", max_time = 5, max_radius = 500, on_end = {call =  "jammer_pulse", max_time = 60, max_range = 5000, onEndCallback = {call = "null_function"}}}}
 	})
 sat_tmp3 = sat_tmp
-describe_function("sat_tmp3",
+describeFunction("sat_tmp3",
 	{"todo"},
 	{
 		{"start", "position"},
@@ -224,7 +224,7 @@ describe_function("sat_tmp3",
 function spawn_kraylor_ship(location,template)
 	ship_template[template].create('Kraylor',template):setPosition(location.x,location.y)
 end
-describe_function("spawn_kraylor_ship",
+describeFunction("spawn_kraylor_ship",
 	{"todo"},
 	{
 		{"location", "position"},
@@ -301,7 +301,7 @@ function end_rift(args)
 		end --]]
 	end
 end
-describe_function("end_rift",
+describeFunction("end_rift",
 	{"todo"},
 	{})
 
@@ -363,7 +363,7 @@ function subspace_rift(max_time,location,max_radius,on_end)
 	}
 	update_system:addUpdate(rift,"subspace_rift",update_data)
 end
-describe_function("subspace_rift",
+describeFunction("subspace_rift",
 	{"creates a tuneable rift effect, along with callback at end", "onclick"},
 	{
 		{"max_time", "number", min = 0, default = 5}, -- max?
@@ -451,7 +451,7 @@ function rift_example(location,args) -- in time this should be removed
 	}
 	update_system:addUpdate(rift,"subspace_rift",update_data)
 end
-describe_function("rift_example",
+describeFunction("rift_example",
 	{"todo"},
 	{
 		{"location", "position"}
@@ -1337,7 +1337,7 @@ function jammer_pulse(max_time,max_range,location,onEndCallback)
 	}
 	update_system:addUpdate(jammer,"dynamic jammer",update_data)
 end
-describe_function("jammer_pulse",
+describeFunction("jammer_pulse",
 	{"todo"},
 	{
 		{"max_time", "number", default = 60},
@@ -1389,7 +1389,7 @@ function set_timer_purpose(reason)
 	assert(type(reason)=="string")
 	timer_purpose = reason
 end
-describe_function("set_timer_purpose",
+describeFunction("set_timer_purpose",
 	{"todo"},
 	{
 		{"reason", "string"},
