@@ -300,22 +300,6 @@ class lua_wrapper {
 	}
 }
 
-class get_cpuship_soft_templates {
-	constructor(cache) {
-		this._cache = cache;
-		this._lua = new lua_wrapper("sandbox/get_cpuship_soft_tempate");
-		this._cache.set("npc_ships",this.resolve());
-	}
-	async resolve() {
-		const ret = ee_server.convert_lua_json_to_array(await this._lua.run());
-		console.log(ret);
-		return ret;
-	}
-	async get() {
-		return this._cache.get("npc_ships");
-	}
-}
-
 // at the moment this is rather jumbled between getting the soft template and the actual template
 // at some point this will probably be cleared up, but at the moment it is something to keep in mind
 class get_player_soft_template {
@@ -373,12 +357,18 @@ class gm_tool_class {
 		this.get_model_data = new get_model_data(this._ee_cache);
 		this.get_extra_template_data = new get_extra_template_data(this._ee_cache);
 		this.get_player_soft_template = new get_player_soft_template(this._ee_cache);
-		this.get_cpuship_data = new get_cpuship_soft_templates(this._ee_cache);
-		// this probably wants splitting into boostrap code (less than 1 EE upload segment) including upload_to_script_storage
-		// and everything else (with it being conditionally executed if not already loaded)
+
 		this._www_gm_tools = new lua_wrapper("www_gm_tools");
 		await this._www_gm_tools.run();
+
+		const resolve = async function() {
+			return ee_server.convert_lua_json_to_array(await(gm_tool.call_www_function("get_cpuship_data")));
+		}
+		this._ee_cache.set("npc_ships",resolve());
 		this._function_descriptions = await this.call_www_function("get_descriptions");
+	}
+	async get_cpuship_data() {
+		return this._ee_cache.get("npc_ships");
 	}
 	get_prebuilt() {
 		// this wants to change to support local storage at some point soon
@@ -547,7 +537,7 @@ class gm_tool_class {
 					div.appendChild(input);
 				} else if (type == "npc_ship") {
 					const input = document.createElement("select");
-					(await (this.get_cpuship_data.get())).forEach(k => {
+					(await (this.get_cpuship_data())).forEach(k => {
 							const name = k.gm_name;
 							const opt = document.createElement("option");
 							opt.value = name;
