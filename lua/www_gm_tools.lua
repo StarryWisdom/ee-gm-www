@@ -1,19 +1,5 @@
 _ENV = getScriptStorage()._cuf_gm._ENV
 
--- args should be considered a contract between
--- 1) add_function
--- 2) indirect call
--- 3) describeFunction
--- 4) the web tool
--- if edited each of those locations need to be checked
--- it is probably a bad idea to read it outside of these
-local function add_function(name, fun, args)
-	assert(type(name)=="string")
-	assert(type(fun)=="function")
-	local args = args or {arguments = {}}
-	getScriptStorage()._cuf_gm.functions[name] = {fn = fun, args = args}
-end
-
 -- the indirect call is at least somewhat useful in chainging functions
 -- it allows tables of parmeters to be completed and not to care about the order with which they are built
 -- this is mostly a consideration for onGMClick and location
@@ -105,7 +91,13 @@ function describeFunction(name,function_description,args_table)
 		assert(found == true)
 		-- todo need to check required is present for the element in the table
 	end
-	add_function(name,fn, description)
+	-- description should be considered a contract between
+	-- 1) indirect call
+	-- 2) describeFunction
+	-- 3) the web tool
+	-- if edited each of those locations need to be checked
+	-- it is probably a bad idea to read it outside of these
+	getScriptStorage()._cuf_gm.functions[name] = {fn = fn, args = description}
 end
 
 function getCpushipSoftTemplates()
@@ -356,7 +348,7 @@ function getUpdateData()
 end
 describeFunction("getUpdateData")
 
-add_function("get_descriptions", function ()
+function get_description()
 	local ret = {}
 	-- strip out the function itself
 	for name,fn in pairs(getScriptStorage()._cuf_gm.functions) do
@@ -368,15 +360,17 @@ add_function("get_descriptions", function ()
 		ret[name] = copy
 	end
 	return ret
-end)
+end
+describeFunction("get_description");
 
-add_function("mirror_in_dev", function ()
+function mirror_in_dev()
 	getScriptStorage().fun = function ()
 		print("1")
 		initialGMFunctions()
 	end
 	addGMFunction("-return",getScriptStorage().fun)
-end)
+end
+describeFunction("mirror_in_dev")
 
 function getShipShields(p)
 	local shields = {}
@@ -423,15 +417,17 @@ function get_playership_softtemplate(ship_template)
 end
 describeFunction("get_playership_softtemplate",nil,{{"ship_template","string"}})
 
-add_function("get_gm_click1",function ()
+function get_gm_click1()
 	onGMClick(function (x,y)
 		getScriptStorage().last_gm_click = {x=x,y=y}
 	end)
-end)
+end
+describeFunction("get_gm_click1")
 
-add_function("get_gm_click2",function ()
+function get_gm_click2()
 	return getScriptStorage().last_gm_click
-end)
+end
+describeFunction("get_gm_click2")
 
 -- todo we need a safe wrapper around function calling here
 -- and better documentation for functions
@@ -727,7 +723,7 @@ describeFunction("rift_example",
 		{"location", "position"}
 	})
 -- eff it short term one off code it is
-add_function("base0",function ()
+function base0()
     Mine():setPosition(50548, 361587)
     Mine():setPosition(47788, 369839)
     Mine():setPosition(48502, 368983)
@@ -911,8 +907,9 @@ add_function("base0",function ()
     Mine():setPosition(38373, 358605)
     Mine():setPosition(37597, 359328)
     Mine():setPosition(36794, 360071)
-end)
-add_function("base1",function ()
+end
+describeFunction("base0")
+function base1()
 	CpuShip():setFaction("Kraylor"):setTemplate("Defense platform"):setPosition(36259, 358047):orderRoaming()
 	ship_template["Missile Pod D1"].create('Kraylor',"Missile Pod D1"):setPosition(36543, 363428)
 	ship_template["Missile Pod D2"].create('Kraylor',"Missile Pod D2"):setPosition(36647, 365293)
@@ -966,8 +963,9 @@ add_function("base1",function ()
 	WarpJammer():setFaction("Kraylor"):setPosition(41023, 365191)
 	WarpJammer():setFaction("Kraylor"):setPosition(44382, 359059)
 	WarpJammer():setFaction("Kraylor"):setPosition(48041, 364988)
-end)
-add_function("base2",function ()
+end
+describeFunction("base1")
+function base2()
 	local unmirrored = function ()
 		WarpJammer():setFaction("Kraylor"):setPosition(44527, 363403)
 		SpaceStation():setTemplate("Small Station"):setFaction("Kraylor"):setCallSign("rift control"):setPosition(44527, 363403)
@@ -998,8 +996,9 @@ add_function("base2",function ()
 		mirrored(xy)
 	end
 	unmirrored()
-	end)
-	add_function("base3",function ()
+	end
+describeFunction("base2")
+function base3()
 	SpaceStation():setTemplate("Small Station"):setFaction("Kraylor"):setCallSign("rift control"):setPosition(43834, 365100)
 	ship_template["Missile Pod D1"].create('Kraylor',"Missile Pod D1"):setPosition(35614, 363881)
 	CpuShip():setFaction("Kraylor"):setTemplate("Defense platform"):setPosition(35981, 358514):orderRoaming()
@@ -1098,8 +1097,9 @@ add_function("base2",function ()
 	Mine():setPosition(57251, 361945)
 	WarpJammer():setFaction("Kraylor"):setPosition(43780, 355428)
 	WarpJammer():setFaction("Kraylor"):setPosition(43843, 362397)
-end)
-add_function("base4",function ()
+end
+describeFunction("base3")
+function base4()
 	ship_template["Missile Pod D1"].create('Kraylor',"Missile Pod D1"):setPosition(34891, 362666)
 	ship_template["Missile Pod D1"].create('Kraylor',"Missile Pod D1"):setPosition(34924, 361273)
 	ship_template["Missile Pod T1"].create('Kraylor',"Missile Pod T1"):setPosition(35714, 363203)
@@ -1297,8 +1297,9 @@ add_function("base4",function ()
 	WarpJammer():setFaction("Kraylor"):setPosition(51316, 369529)
 	WarpJammer():setFaction("Kraylor"):setPosition(51377, 354478)
 	WarpJammer():setFaction("Kraylor"):setPosition(53732, 361946)
-end)
-add_function("base5",function ()
+end
+describeFunction("base4")
+function base5()
 	SpaceStation():setTemplate("Medium Station"):setFaction("Kraylor"):setPosition(43865, 362200):setCallSign("rift control")
 	ship_template["Missile Pod D2"].create('Kraylor',"Missile Pod D2"):setPosition(24362, 365090)
 	ship_template["Missile Pod D2"].create('Kraylor',"Missile Pod D2"):setPosition(24514, 359113)
@@ -1577,18 +1578,26 @@ add_function("base5",function ()
 	WarpJammer():setFaction("Kraylor"):setPosition(52655, 371014)
 	WarpJammer():setFaction("Kraylor"):setPosition(52673, 353298)
 	WarpJammer():setFaction("Kraylor"):setPosition(61374, 362198)
-end)
-add_function("call_list",function (args)
+end
+describeFunction("base5")
+function call_list(args)
 	assert(type(args.call_list)=="table")
 	for i=1, #args.call_list do
 		indirect_call(args.call_list[i])
 	end
-end)
-add_function("old_test_end",function ()
+end
+describeFunction("call_list")
+
+function old_test_end()
 	_ENV = getScriptStorage()._cuf_gm._ENV
 	fleet_custom:removeCustom("tmp")
-end)
-add_function("null_function",function() end)
+end
+describeFunction("old_test_end")
+
+function null_function()
+end
+describeFunction("null_function")
+
 function jammer_pulse(max_time,max_range,location,onEndCallback)
 	local jammer = WarpJammer():setPosition(location.x,location.y)
 	local update_data = {
@@ -1616,7 +1625,7 @@ describeFunction("jammer_pulse",
 		{"onEndCallback", "indirect_function", default = {call = "null_function"}} -- change to function
 	})
 
-add_function("old_test_start",function(args)
+function old_test_start(args)
 	_ENV = getScriptStorage()._cuf_gm._ENV
 
 	local max_time = args.max_time
@@ -1650,11 +1659,15 @@ add_function("old_test_start",function(args)
 			end
 		end
 	end))
-end)
-add_function("old_test_comms",function(args)
+end
+describeFunction("old_test_start")
+
+function old_test_comms(args)
 	local msg = args.msg
 	fleet_custom:addCustomMessage("Science","injected_msg",msg)
-end)
+end
+describeFunction("old_test_comms")
+
 function set_timer_purpose(reason)
 	assert(type(reason)=="string")
 	timer_purpose = reason
