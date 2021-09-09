@@ -244,7 +244,6 @@ function getUpdateData()
 end
 add_function("getUpdateData",getUpdateData)
 
-
 add_function("get_descriptions", function ()
 	local ret = {}
 	-- strip out the function itself

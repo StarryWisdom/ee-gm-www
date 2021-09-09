@@ -844,24 +844,6 @@ class script_tab {
 	}
 	async show() {
 		const page = document.createElement("div");
-		const gmclick_button = document.createElement("button");
-		gmclick_button.textContent = "get gmclick";
-		gmclick_button.onclick = function () {
-			gm_tool.call_www_function("get_gm_click1");
-		};
-		const show_gmclick_button = document.createElement("button");
-		show_gmclick_button.textContent = "show gmclick";
-		const results = document.createElement("div");
-		show_gmclick_button.onclick = async function () {
-			const loc = await gm_tool.call_www_function("get_gm_click2");
-			if (loc) {
-				results.innerHTML = loc.x + "," + loc.y;
-			}
-		};
-		page.appendChild(gmclick_button);
-		page.appendChild(show_gmclick_button);
-		page.appendChild(results);
-		page.appendChild(document.createTextNode("note this should be automatically updated, but currently isnt"));
 		const input = document.createElement("textarea");
 		input.style = "width : 100%";
 		input.rows = "10";
