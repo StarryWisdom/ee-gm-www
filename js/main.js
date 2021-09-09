@@ -976,17 +976,41 @@ class callback_tab {
 class update_debug_in_dev {
 	constructor () {
 		this.page_name = "update-dev";
+		this._page;
 	}
 	async show() {
 		const page = document.createElement("div");
+		this._page = page;
 		const button = document.createElement("button");
 		button.textContent = "run";
 		const update = this;
 		button.onclick = async function() {
-			console.log(await gm_tool.call_www_function("getUpdateData"));
+			update.update_page(await gm_tool.call_www_function("getUpdateData"));
 		};
 		page.appendChild(button);
 		return page;
+	}
+	update_page(data) {
+		data = ee_server.convert_lua_json_to_array(data);
+		const page = this._page;
+		const button = page.firstChild;
+		util.removeAllChildren(page);
+		page.appendChild(button);
+
+		const table = document.createElement("table");
+		page.appendChild(table);
+
+		console.log(data);
+		data.forEach(update_obj => {
+			const tr = document.createElement("tr");
+			table.appendChild(tr)
+			let td = document.createElement("td");
+			tr.appendChild(td)
+			console.log(update_obj);
+			td.innerHTML = update_obj.description + "(" + update_obj.id + ")";
+			td = document.createElement("td");
+			tr.appendChild(td)
+		});
 	}
 }
 

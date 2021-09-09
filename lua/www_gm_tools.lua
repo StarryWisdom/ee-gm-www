@@ -233,12 +233,43 @@ function getModelData()
 end
 add_function("getModelData", getModelData)
 
+PesudoMultiplayerID = 0
+
+function getObjectPesudoMultiplayerID(obj)
+	if obj:isValid() then
+		if obj._pesudoMultiplayerID == nil then
+			obj._pesudoMultiplayerID = PesudoMultiplayerID
+			PesudoMultiplayerID = PesudoMultiplayerID +1
+			if obj.typeName == nil then
+				-- todo add to soft template list
+			end
+		end
+		return obj._pesudoMultiplayerID
+	end
+end
+
+function getObjectByPesudoMultiplayerID(ID)
+end
+
 function getUpdateData()
 	local ret = {}
 	-- note we shouldnt be plucking _update_objects out of the update_system
 	for index = #update_system._update_objects,1,-1 do
 		-- note this dies to circular loops inside of the update system
-		--table.insert(ret,update_system._update_objects[index])
+		local obj = update_system._update_objects[index]
+		local get_description = function(obj)
+			if obj.getCallSign and obj:getCallSign() ~= "" then
+				return obj:getCallSign()
+			elseif obj.typeName ~= nil then
+				return obj.typeName
+			else
+				return "custom"
+			end
+		end
+		table.insert(ret,{
+				id = getObjectPesudoMultiplayerID(obj),
+				description = get_description(obj)
+		})
 	end
 	return ret
 end
