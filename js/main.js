@@ -223,11 +223,10 @@ class get_extra_template_data{
 		this._cache = cache;
 		// this needlessly fills the cache with the lua
 		// this could be fixed, but is not currently important
-		this._lua_wrapper = new lua_wrapper("get_extra_template_data");
 		this._cache.set("template_data",this.resolve());
 	}
 	async resolve() {
-		const raw = await this._lua_wrapper.run();
+		const raw = await gm_tool.call_www_function("getExtraTemplateData");
 		const template_data = ee_server.convert_lua_json_to_array(raw);
 		const ret = {};
 		template_data.forEach(template => {

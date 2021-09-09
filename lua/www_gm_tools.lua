@@ -155,6 +155,8 @@ describeFunction("getCpushipSoftTemplates",
 
 
 models = {}
+templates = {}
+
 _ENV = _G
 ModelDataOrig = ModelData
 function ModelData ()
@@ -226,12 +228,91 @@ function ModelData ()
 end
 require("model_data.lua")
 ModelData = ModelDataOrig
+
+ShipTemplateOrig = ShipTemplate
+function returnSelf (self)
+	return self
+end
+function ShipTemplate ()
+	local data = {
+		Type = "ship"
+	}
+	local ret = {
+		setName = function (self,name)
+			data.Name=name
+			return self
+		end,
+		setModel = function (self,model)
+			data.Model = model
+			return self
+		end,
+		setRadarTrace = function (self,radarTrace)
+			data.RadarTrace = radarTrace
+			return self
+		end,
+		copy = function (self,name)
+			return ShipTemplate()
+				:setModel(data.Model)
+				:setName(name)
+				:setRadarTrace(data.RadarTrace)
+				:setType(data.Type)
+		end,
+		setType = function (self, type)
+			data.Type = type
+			return self
+		end,
+		setLocaleName = returnSelf,
+		setDescription = returnSelf,
+		setHull = returnSelf,
+		setShields = returnSelf,
+		setClass = returnSelf,
+		setSpeed = returnSelf,
+		setDefaultAI = returnSelf,
+		setBeam = returnSelf,
+		setLocaleName = returnSelf,
+		setImpulseSoundFile = returnSelf,
+		setCombatManeuver = returnSelf,
+		setEnergyStorage = returnSelf,
+		setRepairCrewCount = returnSelf,
+		addRoomSystem = returnSelf,
+		addDoor = returnSelf,
+		addDoor = returnSelf,
+		setTubes = returnSelf,
+		setTubeSize = returnSelf,
+		setWeaponStorage = returnSelf,
+		setTubeDirection = returnSelf,
+		setWeaponTubeExclusiveFor = returnSelf,
+		setBeamWeaponTurret = returnSelf,
+		addRoom = returnSelf,
+		setBeamWeapon = returnSelf,
+		setWarpSpeed = returnSelf,
+		weaponTubeDisallowMissle = returnSelf,
+		setJumpDrive = returnSelf,
+		weaponTubeAllowMissle= returnSelf,
+		setJumpDriveRange = returnSelf,
+		setDockClasses = returnSelf,
+		setCloaking = returnSelf,
+		setSharesEnergyWithDocked = returnSelf,
+		setRepairDocked = returnSelf,
+		setRestocksMissilesDocked = returnSelf,
+		setRestocksScanProbes = returnSelf,
+	}
+	table.insert(getScriptStorage()._cuf_gm._ENV.templates,data)
+	return ret
+end
+require("shipTemplates.lua")
+ShipTemplate = ShipTemplateOrig
 _ENV = getScriptStorage()._cuf_gm._ENV
 
 function getModelData()
 	return models
 end
 add_function("getModelData", getModelData)
+
+function getExtraTemplateData()
+	return templates
+end
+add_function("getExtraTemplateData",getExtraTemplateData)
 
 PesudoMultiplayerID = 0
 
