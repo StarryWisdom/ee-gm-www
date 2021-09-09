@@ -277,7 +277,6 @@ class lua_wrapper {
 class get_player_soft_template {
 	constructor(cache) {
 		this._cache = cache;
-		this._lua = new lua_wrapper("get_player_soft_template");
 	}
 	async _postprocess(raw) {
 		raw = await raw;
@@ -315,7 +314,7 @@ class get_player_soft_template {
 	async get (template_name) {
 		const cache_entry = "template-" + template_name;
 		if (!this._cache.has_key(cache_entry)) {
-			this._cache.set(cache_entry,this._postprocess(this._lua.run({ship_template : template_name})));
+			this._cache.set(cache_entry,this._postprocess(gm_tool.call_www_function("get_playership_softtemplate",{ship_template : template_name})));
 		}
 		return this._cache.get(cache_entry);
 	}
