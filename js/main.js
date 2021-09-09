@@ -577,9 +577,6 @@ class gm_tool_class {
 							div.removeChild(div.firstChild);
 						}
 						div.appendChild(await (gm_tool.make_edit_div_for_function(values.call)));
-						// this is hacky and needs work
-						div.build_call = div.firstChild.build_call;
-						div.function_name = div.firstChild.function_name;
 						for (const arg in values) {
 							if (values.hasOwnProperty(arg)) {
 								if (arg!="call") {
@@ -597,7 +594,7 @@ class gm_tool_class {
 					}
 					param.getValue = function ()
 					{
-						return div.build_call(div.function_name);
+						return div.firstChild.build_call(div.firstChild.function_name);
 					}
 				} else {
 					error_logger.error("unknown type requested to be displayed");
