@@ -215,34 +215,6 @@ class data_cache {
 	// TODO add set cache option
 }
 
-// get all of the model data
-// mainly used for infomation like beam port starts, scale of the model etc
-// the things we want out of it may be possible to expose via new EE scripting
-// in which case this may stop needing to exist
-class get_model_data {
-	constructor (cache) {
-		this._cache = cache;
-		// this needlessly fills the cache with the lua
-		// this could be fixed, but is not currently important
-		this._lua_wrapper = new lua_wrapper("get_model_data");
-		this._cache.set("model_data",this.resolve());
-	}
-	async resolve() {
-		const models = ee_server.convert_lua_json_to_array(await this._lua_wrapper.run());
-		const ret = {};
-		models.forEach(model => {
-			model.BeamPosition=ee_server.convert_lua_json_to_array(model.BeamPosition);
-			const name = model.Name;
-			delete model.Name;
-			ret[name] = model;
-		});
-		return ret;
-	}
-	async get() {
-		return this._cache.get("model_data");
-	}
-}
-
 // get template data that cant be fetched from a live object of that type
 // it may be possible with time and work for this to be removed
 // this would require EE scripting to be exapanded
@@ -313,7 +285,7 @@ class get_player_soft_template {
 		// TODO needs to handle ships with their typename changed
 		// this will break almost all of xanstas soft template ships
 		const template = (await gm_tool.get_extra_template_data.get())[raw.TypeName];
-		const model = (await gm_tool.get_model_data.get())[template.Model];
+		const model = gm_tool.get_model_data()[template.Model];
 
 		Object.entries(raw.Beams).forEach(([beam_num,beam]) => {
 			if (model.BeamPosition[beam_num-1]) {
@@ -354,22 +326,40 @@ class gm_tool_class {
 	async init() {
 		this._ee_cache = new data_cache();
 		// set up all of the classes for server requesting data
-		this.get_model_data = new get_model_data(this._ee_cache);
 		this.get_extra_template_data = new get_extra_template_data(this._ee_cache);
 		this.get_player_soft_template = new get_player_soft_template(this._ee_cache);
 
 		this._www_gm_tools = new lua_wrapper("www_gm_tools");
 		await this._www_gm_tools.run();
 
-		const resolve = async function() {
-			return ee_server.convert_lua_json_to_array(await(gm_tool.call_www_function("getCpushipSoftTemplates")));
-		}
-		this._soft_cpuship_templates = await resolve();
+		this._model_data = await this._model_data_resolve();
+		this._soft_cpuship_templates = await this._cpuship_data_resolve();
 
 		this._function_descriptions = await this.call_www_function("get_descriptions");
 	}
+	// get all of the model data
+	// mainly used for infomation like beam port starts, scale of the model etc
+	// the things we want out of it may be possible to expose via new EE scripting
+	// in which case this may stop needing to exist
+	async _model_data_resolve() {
+		const models = ee_server.convert_lua_json_to_array(await gm_tool.call_www_function("getModelData"));
+		const ret = {};
+		models.forEach(model => {
+			model.BeamPosition=ee_server.convert_lua_json_to_array(model.BeamPosition);
+			const name = model.Name;
+			delete model.Name;
+			ret[name] = model;
+		});
+		return ret;
+	}
+	async _cpuship_data_resolve() {
+		return ee_server.convert_lua_json_to_array(await(gm_tool.call_www_function("getCpushipSoftTemplates")));
+	}
 	get_cpuship_data() {
 		return this._soft_cpuship_templates;
+	}
+	get_model_data() {
+		return this._model_data;
 	}
 	get_prebuilt() {
 		// this wants to change to support local storage at some point soon
