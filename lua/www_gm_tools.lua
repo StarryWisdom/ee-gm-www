@@ -215,7 +215,7 @@ describeFunction("sat_tmp1",
 		{"start", "position"},
 		{"location", "position"}, -- todo fix naming location rather than user defined
 		{"speed", "number", default = 4000},
-		{"endCallback", "indirect_function", default = {call = "subspace_rift", max_time = 5, max_radius = 500, on_end = {call = "end_rift"}}}
+		{"endCallback", "indirect_function", ui_suppress = {"location"}, default = {call = "subspace_rift", max_time = 5, max_radius = 500, on_end = {call = "end_rift"}}}
 	})
 
 sat_tmp2 = sat_tmp
@@ -225,7 +225,7 @@ describeFunction("sat_tmp2",
 		{"start", "position"},
 		{"location", "position"}, -- todo fix naming location rather than user defined
 		{"speed", "number", default = 4000},
-		{"endCallback", "indirect_function", default = {call = "subspace_rift", max_time = 5, max_radius = 500, on_end = {call =  "jammer_pulse", max_time = 60, max_range = 5000, onEndCallback = {call = "null_function"}}}}
+		{"endCallback", "indirect_function", ui_suppress = {"location"}, default = {call = "subspace_rift", max_time = 5, max_radius = 500, on_end = {call =  "jammer_pulse", max_time = 60, max_range = 5000, onEndCallback = {call = "null_function"}}}}
 	})
 sat_tmp3 = sat_tmp
 describeFunction("sat_tmp3",
@@ -234,7 +234,7 @@ describeFunction("sat_tmp3",
 		{"start", "position"},
 		{"location", "position"}, -- todo fix naming location rather than user defined
 		{"speed", "number", default = 4000},
-		{"endCallback", "indirect_function", default = {call = "subspace_rift", max_time = 5, max_radius = 500, on_end = {call = "spawn_kraylor_ship", template = "Adder MK4"}}}
+		{"endCallback", "indirect_function", ui_suppress = {"location"}, default = {call = "subspace_rift", max_time = 5, max_radius = 500, on_end = {call = "spawn_kraylor_ship", template = "Adder MK4"}}}
 	})
 
 function spawn_kraylor_ship(location,template)

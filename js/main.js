@@ -500,6 +500,9 @@ class gm_tool_class {
 
 				const param = {};
 				function_div.params[arg] = param;
+				function_div.params[arg].removeThis = function () {
+					function_div.removeChild(div);
+				}
 
 				const type = args[arg].type;
 				if (type == "number") {
@@ -584,12 +587,13 @@ class gm_tool_class {
 								}
 							}
 						}
-					}
-					if (args[arg].ui_suppress != undefined) {
-						ee_server.convert_lua_json_to_array(args[arg].ui_suppress).forEach(arg => {
-							console.log(arg);
-							console.log(function_div.params);
-						});
+						if (args[arg].ui_suppress != undefined) {
+							ee_server.convert_lua_json_to_array(args[arg].ui_suppress).forEach(arg => {
+								if (div.firstChild.params[arg] != undefined) {
+									div.firstChild.params[arg].removeThis();
+								}
+							});
+						}
 					}
 					param.getValue = function ()
 					{
