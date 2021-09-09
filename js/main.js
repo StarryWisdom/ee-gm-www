@@ -976,7 +976,6 @@ class callback_tab {
 class update_debug_in_dev {
 	constructor () {
 		this.page_name = "update-dev";
-		this._upload = new lua_wrapper("sandbox/update_system_debug");
 	}
 	async show() {
 		const page = document.createElement("div");
