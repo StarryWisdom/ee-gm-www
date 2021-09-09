@@ -476,31 +476,15 @@ class gm_tool_class {
 			const call = {};
 			for (const p in div.params) {
 				if (div.params.hasOwnProperty(p)) {
-					const type = div.params[p].type;
-					if (type == "number") {
-						// todo check min / max / integer
-						// todo error check
-						call[p] = parseFloat(div.params[p].input.value);
-					} else if (type == "string") {
-						call[p] = div.params[p].input.value;
-					} else if (type == "npc_ship") {
-						call[p] = div.params[p].input.value;
-					} else if (type == "position") {
-						if (div.params[p].fetched_value) {
-							call[p] = div.params[p].fetched_value
-						}
-						// this needs to be better handled
-					} else if (type == "function") {
-						call[p] = div.params[p].input.build_call();
-						call[p].call = div.params[p].input.function_name;
-					} else {
-						error_logger.error("unknown type requested to be sent to EE")
-					}
+					call[p] = div.params[p].getValue();
 				}
 			}
 			return call;
 		}
 
+		// a table of each argument, element is an object with the following properties
+		// a getValue function, which will return the current value
+		// a setValue function, which will set the element to a value
 		div.params = {};
 		for (const arg in args) {
 			if (args.hasOwnProperty(arg)) {
@@ -513,27 +497,27 @@ class gm_tool_class {
 
 				const type = args[arg].type;
 				if (type == "number") {
-					// todo default value
 					const input = document.createElement("input");
-					div.params[arg]={type : "number", input : input};
+					div.params[arg] = {
+						getValue : function () {
+							return parseFloat(input.value);
+						},
+						setValue : function (value) {
+							input.value = value;
+						}
+					};
 					input.setAttribute("type","number");
-					input.setDefault = function (value) {
-						input.value = value;
-					}
-					if (args[arg].default) {
-						input.setDefault(args[arg].default);
-					}
 					div.appendChild(input);
 				} else if(type == "string") {
 					const input = document.createElement("input");
-					div.params[arg]={type : "string", input : input};
-					input.setDefault = function (value) {
-						console.log(value);
-						input.value = value;
-					}
-					if (args[arg].default) {
-						input.setDefault(args[arg].default);
-					}
+					div.params[arg] = {
+						getValue : function () {
+							return input.value;
+						},
+						setValue : function (value) {
+							input.value = value;
+						}
+					};
 					div.appendChild(input);
 				} else if (type == "npc_ship") {
 					const input = document.createElement("select");
@@ -544,13 +528,14 @@ class gm_tool_class {
 							opt.innerHTML = name;
 							input.appendChild(opt);
 					});
-					div.params[arg]={type : "string", input : input};
-					input.setDefault = function (value) {
-						input.value = value;
-					}
-					if (args[arg].default) {
-						input.setDefault(args[arg].default);
-					}
+					div.params[arg] = {
+						getValue : function () {
+							return input.value;
+						},
+						setValue : function (value) {
+							input.value = value;
+						}
+					};
 					div.appendChild(input);
 				} else if (type == "position") {
 					const run_via_click = document.createElement("button");
@@ -570,7 +555,11 @@ class gm_tool_class {
 							const loc = await gm_tool.call_www_function("get_gm_click2");
 							if (loc) {
 								console.log(loc);
-								div.params[arg] = {type : "position", fetched_value : loc};
+								div.params[arg] = {
+									getValue : function () {
+										return loc;
+									}
+								};
 								got.innerHTML = "done";
 							}
 						}
@@ -578,8 +567,9 @@ class gm_tool_class {
 						div.appendChild(got);
 					}
 				} else if (type == "function" || type == "indirect_function") {
+					div.params[arg]={};
 					const input=document.createElement("div");
-					input.setDefault=async function (values) {
+					div.params[arg].setValue=async function (values) {
 						if (input.firstChild) {
 							input.removeChild(input.firstChild);
 						}
@@ -590,23 +580,32 @@ class gm_tool_class {
 						for (const arg in values) {
 							if (values.hasOwnProperty(arg)) {
 								if (arg!="call") {
-									await input.firstChild.params[arg].input.setDefault(values[arg]);
+									await input.firstChild.params[arg].setValue(values[arg]);
 								}
 							}
 						}
 					}
-					await input.setDefault(args[arg].default); // we REQUIRE a default, the lua doesnt, this is wrong
-					div.params[arg]={type : "function", input : input};
+					if (args[arg].ui_suppress != undefined) {
+						ee_server.convert_lua_json_to_array(args[arg].ui_suppress).forEach(arg => {
+							console.log(arg);
+							console.log(div.params);
+						});
+					}
+					div.params[arg].getValue = function ()
+					{
+						const ret = input.build_call();
+						ret.call = input.function_name;
+						return ret;
+					}
 					div.appendChild(input);
 				} else {
 					error_logger.error("unknown type requested to be displayed");
 				}
 				// todo description of the arg
 				// todo title text
-
-				const inner_div = document.createElement("div");
-				div.appendChild(inner_div);
-
+				if (args[arg].default) {
+					await div.params[arg].setValue(args[arg].default);
+				}
 				div.appendChild(document.createElement("br"));
 			}
 		}
