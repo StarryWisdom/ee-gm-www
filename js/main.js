@@ -495,28 +495,27 @@ class gm_tool_class {
 				name.textContent = arg;
 				div.appendChild(name);
 
+				const param = {};
+				div.params[arg] = param;
+
 				const type = args[arg].type;
 				if (type == "number") {
 					const input = document.createElement("input");
-					div.params[arg] = {
-						getValue : function () {
-							return parseFloat(input.value);
-						},
-						setValue : function (value) {
-							input.value = value;
-						}
+					param.getValue = function () {
+						return parseFloat(input.value);
+					};
+					param.setValue = function (value) {
+						input.value = value;
 					};
 					input.setAttribute("type","number");
 					div.appendChild(input);
 				} else if(type == "string") {
 					const input = document.createElement("input");
-					div.params[arg] = {
-						getValue : function () {
-							return input.value;
-						},
-						setValue : function (value) {
-							input.value = value;
-						}
+					param.getValue = function () {
+						return input.value;
+					};
+					param.setValue = function (value) {
+						input.value = value;
 					};
 					div.appendChild(input);
 				} else if (type == "npc_ship") {
@@ -528,22 +527,23 @@ class gm_tool_class {
 							opt.innerHTML = name;
 							input.appendChild(opt);
 					});
-					div.params[arg] = {
-						getValue : function () {
-							return input.value;
-						},
-						setValue : function (value) {
-							input.value = value;
-						}
+					param.getValue = function () {
+						return input.value;
+					};
+					param.setValue = function (value) {
+						input.value = value;
 					};
 					div.appendChild(input);
 				} else if (type == "position") {
 					const run_via_click = document.createElement("button");
 					if (arg == "location") { // wrong but prevents error in saturdays game
+						param.getValue = function () {
+						};
 						run_via_click.textContent = "run via gmClick";
 						run_via_click.onclick = function () {
 							const call = div.build_call();
 							call.call = function_name;
+							delete call[arg];
 							gm_tool.call_www_function("gm_click_wrapper",{args : call});
 						};
 						div.appendChild(run_via_click);
@@ -567,9 +567,8 @@ class gm_tool_class {
 						div.appendChild(got);
 					}
 				} else if (type == "function" || type == "indirect_function") {
-					div.params[arg]={};
 					const input=document.createElement("div");
-					div.params[arg].setValue=async function (values) {
+					param.setValue=async function (values) {
 						if (input.firstChild) {
 							input.removeChild(input.firstChild);
 						}
@@ -591,7 +590,7 @@ class gm_tool_class {
 							console.log(div.params);
 						});
 					}
-					div.params[arg].getValue = function ()
+					param.getValue = function ()
 					{
 						const ret = input.build_call();
 						ret.call = input.function_name;
