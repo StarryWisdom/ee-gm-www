@@ -1,28 +1,5 @@
 _ENV = getScriptStorage()._cuf_gm._ENV
 
--- the indirect call is at least somewhat useful in chainging functions
--- it allows tables of parmeters to be completed and not to care about the order with which they are built
--- this is mostly a consideration for onGMClick and location
--- I think its possible this will be made obsolete in time though
-function indirect_call(args)
-	assert(type(args)=="table")
-	assert(type(args.call)=="string")
-	assert(getScriptStorage()._cuf_gm.functions[args.call] ~= nil, "attempted to call an undefined function")
-	assert(type(getScriptStorage()._cuf_gm.functions[args.call].fn) == "function")
-	assert(type(getScriptStorage()._cuf_gm.functions[args.call].args.arguments) == "table")
-	assert(type(getScriptStorage()._cuf_gm.functions[args.call].args) == "table")
-	local tbl = {}
-	for _,arg in ipairs(getScriptStorage()._cuf_gm.functions[args.call].args.arguments) do
-		-- todo check arguments are in the format described by describeFunction
-		assert(args[arg],arg)
-		table.insert(tbl,args[arg])
-	end
-	table.insert(tbl,args)
-	return getScriptStorage()._cuf_gm.functions[args.call].fn(table.unpack(tbl))
-end
-describeFunction("indirect_call")
-getScriptStorage()._cuf_gm.indirect_call = indirect_call
-
 -- more fully describeAndExportFunctionForWeb, but there are going to be an absurd number
 -- of these, I have no objection if a find and replace is desired
 -- description format is
@@ -99,6 +76,29 @@ function describeFunction(name,function_description,args_table)
 	-- it is probably a bad idea to read it outside of these
 	getScriptStorage()._cuf_gm.functions[name] = {fn = fn, args = description}
 end
+
+-- the indirect call is at least somewhat useful in chainging functions
+-- it allows tables of parmeters to be completed and not to care about the order with which they are built
+-- this is mostly a consideration for onGMClick and location
+-- I think its possible this will be made obsolete in time though
+function indirect_call(args)
+	assert(type(args)=="table")
+	assert(type(args.call)=="string")
+	assert(getScriptStorage()._cuf_gm.functions[args.call] ~= nil, "attempted to call an undefined function " .. args.call)
+	assert(type(getScriptStorage()._cuf_gm.functions[args.call].fn) == "function")
+	assert(type(getScriptStorage()._cuf_gm.functions[args.call].args.arguments) == "table")
+	assert(type(getScriptStorage()._cuf_gm.functions[args.call].args) == "table")
+	local tbl = {}
+	for _,arg in ipairs(getScriptStorage()._cuf_gm.functions[args.call].args.arguments) do
+		-- todo check arguments are in the format described by describeFunction
+		assert(args[arg],arg)
+		table.insert(tbl,args[arg])
+	end
+	table.insert(tbl,args)
+	return getScriptStorage()._cuf_gm.functions[args.call].fn(table.unpack(tbl))
+end
+describeFunction("indirect_call")
+getScriptStorage()._cuf_gm.indirect_call = indirect_call
 
 function getCpushipSoftTemplates()
 	local unusual = {}
@@ -348,7 +348,7 @@ function getUpdateData()
 end
 describeFunction("getUpdateData")
 
-function get_description()
+function get_descriptions()
 	local ret = {}
 	-- strip out the function itself
 	for name,fn in pairs(getScriptStorage()._cuf_gm.functions) do
@@ -361,7 +361,7 @@ function get_description()
 	end
 	return ret
 end
-describeFunction("get_description");
+describeFunction("get_descriptions");
 
 function mirror_in_dev()
 	getScriptStorage().fun = function ()
