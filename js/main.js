@@ -449,8 +449,9 @@ class gm_tool_class {
 				if (arg_num == "this") {
 					continue;
 				}
-				const arg_name = args[arg_num].name;
-				const arg_type = args[arg_num].type;
+				const arg_name = args[arg_num][1];
+				const arg_type = args[arg_num][2];
+				const arg_default = args[arg_num][3];
 				const div = document.createElement("div");
 				function_div.appendChild(div);
 
@@ -570,8 +571,8 @@ class gm_tool_class {
 				}
 				// todo description of the arg
 				// todo title text
-				if (args[arg_num].default) {
-					param.setValue(args[arg_num].default);
+				if (arg_default) {
+					param.setValue(arg_default);
 				}
 			}
 		}

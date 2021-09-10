@@ -35,19 +35,17 @@ function describeFunction(name,function_description,args_table)
 		assert(type(arg_type)=="string")
 		-- TODO no checking of default value
 		assert(arg_type == "number" or arg_type == "string" or arg_type == "position" or arg_type == "npc_ship" or arg_type == "indirect_function","describeFunction requires the a type for each argument")
-		description[arg_num] = {name = arg_name, type = arg_type, default = arg_description[3]}
 		for arg_name,arg_value in pairs(arg_description) do
 			if arg_name == 1 or arg_name == 2 or arg_name == 3 then
 			elseif arg_name == "min" then
 				assert(arg_type == "number")
-				description[arg_num].min = arg_description.min
 			elseif arg_name == "ui_suppress" ~= nil then
 				assert(arg_type == "indirect_function")
-				description[arg_num].ui_suppress = arg_description.ui_suppress
 			else
 				assert(false,"arg_description has a key that describeFunction doesnt about")
 			end
 		end
+		description[arg_num] = arg_description
 	end
 
 	-- description should be considered a contract between
@@ -428,6 +426,7 @@ function gm_click_wrapper(args)
 end
 describeFunction("gm_click_wrapper")
 
+-- note there seems to be 1 frame where these are moved to 0,0
 function sat_tmp(start,dest,speed,endCallback)
 	local art = Artifact():setPosition(start.x,start.y)
 	local time = distance(start.x,start.y,dest.x,dest.y)/speed
