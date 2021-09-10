@@ -12,10 +12,9 @@ _ENV = getScriptStorage()._cuf_gm._ENV
 -- each inner table is defined like
 -- name of the argument
 -- type of the argument - see below for types
+-- the default value for the argument, note this is not checked for type/value and is current web tool only
 -- the remainder of the table is a TODO being worked on
 function describeFunction(name,function_description,args_table)
--- todo overlay defaults, and suppression list  for parameters
--- make default mandatory?
 	-- this is about 90% verifying that the data is good
 	-- and 10% repacking the arguments to be used later in a more convient format
 	assert(type(name)=="string")
@@ -40,13 +39,17 @@ function describeFunction(name,function_description,args_table)
 		else
 			assert(false,"describeFunction requires the a type for each argument")
 		end
-		if arg_description.min ~= nil then
-			assert(arg_type == "number")
-			description[arg_num].min = arg_description.min
-		end
-		if arg_description.ui_suppress ~= nil then
-			assert(arg_type == "indirect_function")
-			description[arg_num].ui_suppress = arg_description.ui_suppress
+		for arg_name,arg_value in pairs(arg_description) do
+			if arg_name == 1 or arg_name == 2 or arg_name == 3 then
+			elseif arg_name == "min" then
+				assert(arg_type == "number")
+				description[arg_num].min = arg_description.min
+			elseif arg_name == "ui_suppress" ~= nil then
+				assert(arg_type == "indirect_function")
+				description[arg_num].ui_suppress = arg_description.ui_suppress
+			else
+				assert(false,"arg_description has a key that describeFunction doesnt about")
+			end
 		end
 	end
 
