@@ -28,46 +28,30 @@ function describeFunction(name,function_description,args_table)
 	local fn = getScriptStorage()._cuf_gm._ENV[name]
 	assert(type(fn)=="function",name)
 	local description = {this = function_description}
-	for _,arg_description in pairs(args_table) do
+	for arg_num,arg_description in pairs(args_table) do
 		local arg_name = arg_description[1]
 		assert(type(arg_name)=="string")
 		assert(arg_name ~= "description") -- description is reused elsewhere and is a problem to be an arg name
 		local arg_type = arg_description[2]
 		assert(type(arg_type)=="string")
-		description[arg_name] = {type = arg_type}
 		if arg_type == "number" or arg_type == "string" or arg_type == "position" or arg_type == "npc_ship" or arg_type == "indirect_function" then
-			description[arg_name] = {type = arg_type}
+			description[arg_num] = {name = arg_name, type = arg_type}
 		else
 			assert(false,"describeFunction requires the a type for each argument")
 		end
 		if arg_description.default ~= nil then
-			description[arg_name].default = arg_description.default
+			description[arg_num].default = arg_description.default
 		end
 		if arg_description.min ~= nil then
 			assert(arg_type == "number")
-			description[arg_name].min = arg_description.min
+			description[arg_num].min = arg_description.min
 		end
 		if arg_description.ui_suppress ~= nil then
 			assert(arg_type == "indirect_function")
-			description[arg_name].ui_suppress = arg_description.ui_suppress
+			description[arg_num].ui_suppress = arg_description.ui_suppress
 		end
 	end
-	-- this is only being created as its a pain to change and fix indirect_call
-	-- this should be merged into arg_table (probably)
-	description.arguments = {}
-	for _,arg in pairs(args_table) do
-		table.insert(description.arguments,arg[1])
-	end
-	for _,arg in pairs(description.arguments) do
-		local found = false
-		for _,v in ipairs(args_table) do
-			if (arg == v[1]) then
-				found = true
-			end
-		end
-		assert(found == true)
-		-- todo need to check required is present for the element in the table
-	end
+
 	-- description should be considered a contract between
 	-- 1) indirect call
 	-- 2) describeFunction
@@ -86,13 +70,12 @@ function indirect_call(args)
 	assert(type(args.call)=="string")
 	assert(getScriptStorage()._cuf_gm.functions[args.call] ~= nil, "attempted to call an undefined function " .. args.call)
 	assert(type(getScriptStorage()._cuf_gm.functions[args.call].fn) == "function")
-	assert(type(getScriptStorage()._cuf_gm.functions[args.call].args.arguments) == "table")
 	assert(type(getScriptStorage()._cuf_gm.functions[args.call].args) == "table")
 	local tbl = {}
-	for _,arg in ipairs(getScriptStorage()._cuf_gm.functions[args.call].args.arguments) do
+	for _,arg in ipairs(getScriptStorage()._cuf_gm.functions[args.call].args) do
 		-- todo check arguments are in the format described by describeFunction
-		assert(args[arg],arg)
-		table.insert(tbl,args[arg])
+		assert(args[arg.name],arg)
+		table.insert(tbl,args[arg.name])
 	end
 	table.insert(tbl,args)
 	return getScriptStorage()._cuf_gm.functions[args.call].fn(table.unpack(tbl))
@@ -356,7 +339,6 @@ function get_descriptions()
 		for key,value in pairs(fn.args) do
 			copy[key] = value
 		end
-		copy.arguments = nil
 		ret[name] = copy
 	end
 	return ret

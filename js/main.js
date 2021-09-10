@@ -444,26 +444,27 @@ class gm_tool_class {
 		// a table of each argument, element is an object with the following properties
 		// each element needs a getValue, setValue, removeThis function
 		function_div.params = {};
-		for (const arg in args) {
-			if (args.hasOwnProperty(arg)) {
-				if (arg == "this") {
+		for (const arg_num in args) {
+			if (args.hasOwnProperty(arg_num)) {
+				if (arg_num == "this") {
 					continue;
 				}
+				const arg_name = args[arg_num].name;
+				const arg_type = args[arg_num].type;
 				const div = document.createElement("div");
 				function_div.appendChild(div);
 
 				const name = document.createElement("a");
-				name.textContent = arg;
+				name.textContent = arg_name;
 				div.appendChild(name);
 
 				const param = {};
-				function_div.params[arg] = param;
-				function_div.params[arg].removeThis = function () {
+				function_div.params[arg_name] = param;
+				function_div.params[arg_name].removeThis = function () {
 					function_div.removeChild(div);
 				}
 
-				const type = args[arg].type;
-				if (type == "number") {
+				if (arg_type == "number") {
 					const input = document.createElement("input");
 					param.getValue = function () {
 						return parseFloat(input.value);
@@ -473,7 +474,7 @@ class gm_tool_class {
 					};
 					input.setAttribute("type","number");
 					div.appendChild(input);
-				} else if(type == "string") {
+				} else if(arg_type == "string") {
 					const input = document.createElement("input");
 					param.getValue = function () {
 						return input.value;
@@ -482,7 +483,7 @@ class gm_tool_class {
 						input.value = value;
 					};
 					div.appendChild(input);
-				} else if (type == "npc_ship") {
+				} else if (arg_type == "npc_ship") {
 					const input = document.createElement("select");
 					this.get_cpuship_data().forEach(k => {
 							const name = k.gm_name;
@@ -498,14 +499,14 @@ class gm_tool_class {
 						input.value = value;
 					};
 					div.appendChild(input);
-				} else if (type == "position") {
+				} else if (arg_type == "position") {
 					const get_value = document.createElement("button");
 					const got = document.createTextNode("");
 					get_value.textContent = "last fetched click";
 					get_value.onclick = async function () {
 						const loc = await gm_tool.call_www_function("get_gm_click2");
 						if (loc) {
-							function_div.params[arg] = {
+							function_div.params[arg_name] = {
 								getValue : function () {
 									return loc;
 								}
@@ -522,11 +523,11 @@ class gm_tool_class {
 					run_via_click.textContent = "run via gmClick";
 					run_via_click.onclick = function () {
 						const call = function_div.build_call(function_name);
-						delete call[arg];
+						delete call[arg_name];
 						gm_tool.call_www_function("gm_click_wrapper",{args : call});
 					};
 					div.appendChild(run_via_click);
-				} else if (type == "function" || type == "indirect_function") {
+				} else if (arg_type == "function" || arg_type == "indirect_function") {
 					// note firstChild is kind of broken with multiple functions
 					param.setValue = function (values) {
 						if (div.firstChild) {
@@ -540,10 +541,10 @@ class gm_tool_class {
 								}
 							}
 						}
-						if (args[arg].ui_suppress != undefined) {
-							ee_server.convert_lua_json_to_array(args[arg].ui_suppress).forEach(arg => {
-								if (div.firstChild.params[arg] != undefined) {
-									div.firstChild.params[arg].removeThis();
+						if (args[arg_num].ui_suppress != undefined) {
+							ee_server.convert_lua_json_to_array(args[arg_num].ui_suppress).forEach(arg => {
+								if (div.firstChild.params[arg_name] != undefined) {
+									div.firstChild.params[arg_name].removeThis();
 								}
 							});
 						}
@@ -558,8 +559,8 @@ class gm_tool_class {
 				}
 				// todo description of the arg
 				// todo title text
-				if (args[arg].default) {
-					function_div.params[arg].setValue(args[arg].default);
+				if (args[arg_num].default) {
+					function_div.params[arg_name].setValue(args[arg_num].default);
 				}
 			}
 		}
@@ -575,7 +576,6 @@ class gm_tool_class {
 			function_div.removeChild(run);
 		};
 		function_div.appendChild(run);
-
 		return function_div;
 	}
 	async exec_lua(code,filename) {
