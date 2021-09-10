@@ -420,16 +420,12 @@ class gm_tool_class {
 		const function_div = document.createElement("div");
 		// this needs improvement
 		const args = this._function_descriptions[function_name];
-		let desc = "";
-		let onclick = false;
-		if (args.this != undefined) {
-			desc = args.this[1];
-			onclick = true; // wrong but works for now
-		}
 
 		const title = document.createElement("a");
 		title.textContent = function_name + " settings";
-		title.title = desc;
+		if (args.this != undefined) {
+			title.title = args.this[1];
+		}
 		function_div.appendChild(title);
 		function_div.appendChild(document.createElement("br"));
 
