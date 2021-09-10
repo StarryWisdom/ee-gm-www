@@ -543,8 +543,8 @@ class gm_tool_class {
 						}
 						if (args[arg_num].ui_suppress != undefined) {
 							ee_server.convert_lua_json_to_array(args[arg_num].ui_suppress).forEach(arg => {
-								if (div.firstChild.params[arg_name] != undefined) {
-									div.firstChild.params[arg_name].removeThis();
+								if (div.firstChild.params[arg] != undefined) {
+									div.firstChild.params[arg].removeThis();
 								}
 							});
 						}
