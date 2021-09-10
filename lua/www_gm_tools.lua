@@ -34,13 +34,11 @@ function describeFunction(name,function_description,args_table)
 		assert(arg_name ~= "description") -- description is reused elsewhere and is a problem to be an arg name
 		local arg_type = arg_description[2]
 		assert(type(arg_type)=="string")
+		-- TODO no checking of default value
 		if arg_type == "number" or arg_type == "string" or arg_type == "position" or arg_type == "npc_ship" or arg_type == "indirect_function" then
-			description[arg_num] = {name = arg_name, type = arg_type}
+			description[arg_num] = {name = arg_name, type = arg_type, default = arg_description[3]}
 		else
 			assert(false,"describeFunction requires the a type for each argument")
-		end
-		if arg_description.default ~= nil then
-			description[arg_num].default = arg_description.default
 		end
 		if arg_description.min ~= nil then
 			assert(arg_type == "number")
@@ -448,8 +446,8 @@ describeFunction("sat_tmp1",
 	{
 		{"start", "position"},
 		{"location", "position"}, -- todo fix naming location rather than user defined
-		{"speed", "number", default = 4000},
-		{"endCallback", "indirect_function", ui_suppress = {"location"}, default = {call = "subspace_rift", max_time = 5, max_radius = 500, on_end = {call = "end_rift"}}}
+		{"speed", "number", 4000},
+		{"endCallback", "indirect_function", {call = "subspace_rift", max_time = 5, max_radius = 500, on_end = {call = "end_rift"}}, ui_suppress = {"location"}}
 	})
 
 sat_tmp2 = sat_tmp
@@ -458,8 +456,8 @@ describeFunction("sat_tmp2",
 	{
 		{"start", "position"},
 		{"location", "position"}, -- todo fix naming location rather than user defined
-		{"speed", "number", default = 4000},
-		{"endCallback", "indirect_function", ui_suppress = {"location"}, default = {call = "subspace_rift", max_time = 5, max_radius = 500, on_end = {call =  "jammer_pulse", max_time = 60, max_range = 5000, onEndCallback = {call = "null_function"}}}}
+		{"speed", "number", 4000},
+		{"endCallback", "indirect_function", {call = "subspace_rift", max_time = 5, max_radius = 500, on_end = {call =  "jammer_pulse", max_time = 60, max_range = 5000, onEndCallback = {call = "null_function"}}}, ui_suppress = {"location"}}
 	})
 sat_tmp3 = sat_tmp
 describeFunction("sat_tmp3",
@@ -467,8 +465,8 @@ describeFunction("sat_tmp3",
 	{
 		{"start", "position"},
 		{"location", "position"}, -- todo fix naming location rather than user defined
-		{"speed", "number", default = 4000},
-		{"endCallback", "indirect_function", ui_suppress = {"location"}, default = {call = "subspace_rift", max_time = 5, max_radius = 500, on_end = {call = "spawn_kraylor_ship", template = "Adder MK4"}}}
+		{"speed", "number", 4000},
+		{"endCallback", "indirect_function", {call = "subspace_rift", max_time = 5, max_radius = 500, on_end = {call = "spawn_kraylor_ship", template = "Adder MK4"}}, ui_suppress = {"location"}}
 	})
 
 function spawn_kraylor_ship(location,template)
@@ -614,10 +612,10 @@ end
 describeFunction("subspace_rift",
 	{"creates a tuneable rift effect, along with callback at end", "onclick"},
 	{
-		{"max_time", "number", min = 0, default = 5}, -- max?
+		{"max_time", "number", 5, min = 0}, -- max?
 		{"location", "position"},
-		{"max_radius", "number", min = 0, default = 500}, -- max?
-		{"on_end", "indirect_function", ui_suppress = {"location"}, default = {call = "end_rift"}}
+		{"max_radius", "number", 500, min = 0}, -- max?
+		{"on_end", "indirect_function", {call = "end_rift"}, ui_suppress = {"location"}}
 	})
 
 function rift_example(location,args) -- in time this should be removed
@@ -1601,10 +1599,10 @@ end
 describeFunction("jammer_pulse",
 	nil,
 	{
-		{"max_time", "number", default = 60},
-		{"max_range", "number", default = 5000},
+		{"max_time", "number", 60},
+		{"max_range", "number", 5000},
 		{"location", "position"},
-		{"onEndCallback", "indirect_function", default = {call = "null_function"}} -- change to function
+		{"onEndCallback", "indirect_function", {call = "null_function"}} -- change to function
 	})
 
 function old_test_start(args)
