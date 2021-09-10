@@ -529,30 +529,41 @@ class gm_tool_class {
 					div.appendChild(run_via_click);
 				} else if (arg_type == "function" || arg_type == "indirect_function") {
 					// note firstChild is kind of broken with multiple functions
+					const td2 = document.createElement("td");
+					const table = document.createElement("table");
+					const tr = document.createElement("tr");
+					const td1 = document.createElement("td");
+					table.appendChild(tr);
+					tr.appendChild(td1);
+					tr.appendChild(td2);
+					div.appendChild(table);
 					param.setValue = function (values) {
-						if (div.firstChild) {
-							div.removeChild(div.firstChild);
+						if (td2.firstChild) {
+							td2.removeChild(td2.firstChild);
 						}
-						div.appendChild(gm_tool.make_edit_div_for_function(values.call));
+						const function_edit = gm_tool.make_edit_div_for_function(values.call);
+						td2.appendChild(function_edit);
+						// todo this is bad / wrong
+
 						for (const arg in values) {
 							if (values.hasOwnProperty(arg)) {
 								if (arg!="call") {
-									div.firstChild.params[arg].setValue(values[arg]);
+									function_edit.params[arg].setValue(values[arg]);
 								}
 							}
 						}
 						if (args[arg_num].ui_suppress != undefined) {
 							ee_server.convert_lua_json_to_array(args[arg_num].ui_suppress).forEach(arg => {
-								if (div.firstChild.params[arg] != undefined) {
-									div.firstChild.params[arg].removeThis();
+								if (function_edit.params[arg] != undefined) {
+									function_edit.params[arg].removeThis();
 								}
 							});
 						}
-						div.firstChild.remove_go_button();
+						function_edit.remove_go_button();
 					}
 					param.getValue = function ()
 					{
-						return div.firstChild.build_call(div.firstChild.function_name);
+						return td2.firstChild.build_call(td2.firstChild.function_name);
 					}
 				} else {
 					error_logger.error("unknown type requested to be displayed");
@@ -560,7 +571,7 @@ class gm_tool_class {
 				// todo description of the arg
 				// todo title text
 				if (args[arg_num].default) {
-					function_div.params[arg_name].setValue(args[arg_num].default);
+					param.setValue(args[arg_num].default);
 				}
 			}
 		}
