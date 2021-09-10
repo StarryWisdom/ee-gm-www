@@ -531,6 +531,7 @@ class gm_tool_class {
 					};
 					div.appendChild(run_via_click);
 				} else if (type == "function" || type == "indirect_function") {
+					// note firstChild is kind of broken with multiple functions
 					param.setValue = function (values) {
 						if (div.firstChild) {
 							div.removeChild(div.firstChild);
@@ -550,6 +551,7 @@ class gm_tool_class {
 								}
 							});
 						}
+						div.firstChild.remove_go_button();
 					}
 					param.getValue = function ()
 					{
@@ -566,15 +568,17 @@ class gm_tool_class {
 			}
 		}
 
+
 		// todo consider how to manage multiple positions
-		if (!onclick) {
-			const run = document.createElement("button");
-			run.textContent = "go";
-			run.onclick = function () {
-				gm_tool.call_www_function(function_name,function_div.build_call());
-			};
-			function_div.appendChild(run);
-		}
+		const run = document.createElement("button");
+		run.textContent = "go";
+		run.onclick = function () {
+			gm_tool.call_www_function(function_name,function_div.build_call());
+		};
+		function_div.remove_go_button = function () {
+			function_div.removeChild(run);
+		};
+		function_div.appendChild(run);
 
 		return function_div;
 	}
