@@ -30,15 +30,12 @@ function describeFunction(name,function_description,args_table)
 	for arg_num,arg_description in pairs(args_table) do
 		local arg_name = arg_description[1]
 		assert(type(arg_name)=="string")
-		assert(arg_name ~= "description") -- description is reused elsewhere and is a problem to be an arg name
+		assert(arg_name ~= "description") -- description is reused elsewhere and is a problem to be an arg name TODO - old?
 		local arg_type = arg_description[2]
 		assert(type(arg_type)=="string")
 		-- TODO no checking of default value
-		if arg_type == "number" or arg_type == "string" or arg_type == "position" or arg_type == "npc_ship" or arg_type == "indirect_function" then
-			description[arg_num] = {name = arg_name, type = arg_type, default = arg_description[3]}
-		else
-			assert(false,"describeFunction requires the a type for each argument")
-		end
+		assert(arg_type == "number" or arg_type == "string" or arg_type == "position" or arg_type == "npc_ship" or arg_type == "indirect_function","describeFunction requires the a type for each argument")
+		description[arg_num] = {name = arg_name, type = arg_type, default = arg_description[3]}
 		for arg_name,arg_value in pairs(arg_description) do
 			if arg_name == 1 or arg_name == 2 or arg_name == 3 then
 			elseif arg_name == "min" then
