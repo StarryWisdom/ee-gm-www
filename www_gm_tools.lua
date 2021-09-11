@@ -1668,5 +1668,4 @@ describeFunction("set_timer_purpose",
 	nil,
 	{
 		{"reason", "string"},
-		{"location", "position"}
 	})
