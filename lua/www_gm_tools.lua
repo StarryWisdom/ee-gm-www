@@ -70,8 +70,8 @@ function indirect_call(args)
 	local tbl = {}
 	for _,arg in ipairs(getScriptStorage()._cuf_gm.functions[args.call].args) do
 		-- todo check arguments are in the format described by describeFunction
-		assert(args[arg.name],arg)
-		table.insert(tbl,args[arg.name])
+		assert(args[arg[1]],"argument not in list")
+		table.insert(tbl,args[arg[1]])
 	end
 	table.insert(tbl,args)
 	return getScriptStorage()._cuf_gm.functions[args.call].fn(table.unpack(tbl))
