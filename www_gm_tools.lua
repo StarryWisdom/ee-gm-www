@@ -618,6 +618,9 @@ function subspace_rift(max_time,location,max_radius,on_end)
 	end,
 		edit = {},
 	}
+	-- we run an update with 0 so as to set the position of the objects correctly on the first frame
+	-- it should be thought about if this should be the default for all update_system:addUpdate's
+	update_data.update(update_system,rift,0)
 	update_system:addUpdate(rift,"subspace_rift",update_data)
 end
 describeFunction("subspace_rift",
