@@ -39,6 +39,8 @@ function describeFunction(name,function_description,args_table)
 			if arg_name == 1 or arg_name == 2 or arg_name == 3 then
 			elseif arg_name == "min" then
 				assert(arg_type == "number")
+			elseif arg_name == "max" then
+				assert(arg_type == "number")
 			elseif arg_name == "ui_suppress" ~= nil then
 				assert(arg_type == "indirect_function")
 			else
