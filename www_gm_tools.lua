@@ -62,12 +62,11 @@ function describeFunction(name,function_description,args_table)
 	assert(type(args_table)=="table")
 	local fn = getScriptStorage()._cuf_gm._ENV[name]
 	assert(type(fn)=="function",name)
-	local description = {_this = function_description}
 	for arg_num,arg_description in pairs(args_table) do
 		checkVariableDescription(arg_description)
-		description[arg_num] = arg_description
 	end
-	getScriptStorage()._cuf_gm.functions[name] = {fn = fn, args = description}
+	args_table._this = function_description
+	getScriptStorage()._cuf_gm.functions[name] = {fn = fn, args = args_table}
 end
 
 -- the indirect call is at least somewhat useful in chainging functions
