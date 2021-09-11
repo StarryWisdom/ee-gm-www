@@ -428,11 +428,9 @@ function gm_click_wrapper(args)
 		-- and if the internal value isn't copyied it would result in wrong locations
 		local parameters = {}
 		for k,v in pairs(args.args) do
-			print(k,v)
 			parameters[k] = v
 		end
 		parameters.location= {x = x, y = y}
-		print(parameters.location.x,y)
 		indirect_call(parameters)
 	end)
 end
