@@ -1,61 +1,72 @@
 _ENV = getScriptStorage()._cuf_gm._ENV
 
+function checkVariableDescription(arg_description)
+	local arg_name = arg_description[1]
+	assert(type(arg_name)=="string")
+	assert(arg_name ~= "_this") -- description is reused elsewhere and is a problem to be an arg name TODO - old?
+	local arg_type = arg_description[2]
+	assert(type(arg_type)=="string")
+	-- TODO no checking of default value
+	assert(arg_type == "number" or arg_type == "string" or arg_type == "position" or arg_type == "npc_ship" or arg_type == "indirect_function","describeFunction requires the a type for each argument")
+	for arg_name,arg_value in pairs(arg_description) do
+		if arg_name == 1 or arg_name == 2 or arg_name == 3 then
+		elseif arg_name == "min" then
+			assert(arg_type == "number")
+		elseif arg_name == "max" then
+			assert(arg_type == "number")
+		elseif arg_name == "ui_suppress" ~= nil then
+			assert(arg_type == "indirect_function")
+		else
+			assert(false,"arg_description has a key that describeFunction doesnt about")
+		end
+	end
+end
+
 -- more fully describeAndExportFunctionForWeb, but there are going to be an absurd number
--- of these, I have no objection if a find and replace is desired
+-- of these so brevity is important, I have no objection if a find and replace is desired
+
 -- description format is
--- name of the function as a string (this is also looked in the global table, anonymous are presently not supported)
--- function description, which is a table or a string or nil
--- if function_description is a string then it is assumed as being function_description[1]
--- function_description[1] is a description used for the web tool
--- function_description[2+] is a list of tags to be used for sorting on the web UI
--- args table of tables is an optional table describing each argument given to the function
--- each inner table is defined like
--- name of the argument
--- type of the argument - see below for types
--- the default value for the argument, note this is not checked for type/value and is current web tool only
--- the remainder of the table is a TODO being worked on
+-- 1) name of the function as a string (the function call itself is pulled out of the global table)
+--                         as such anonymous functions are presently not supported
+-- 2) function description, which is a table or a string or nil
+--              if it is a string then it is assumed as being function_description[1]
+-- 2.1) function_description[1] is a description used for the web tool
+-- TODO 2.2) function_description[2+] is a list of tags to be used for sorting on the web UI
+-- 3) args_table a table of tables is an optional table describing each argument given to the function
+-- 3.0) each inner table is defined as follows
+-- 3.1) [1] name of the argument
+-- 3.2) [2] type of the argument - see below for types
+-- 3.3) [3] the default value for the argument, note this is not checked for type/value and is current web tool only
+-- 3.4) the remainder of the table is optional tags based on type
+-- for numbers -
+-- min - minimum value expected
+-- max - maximum value expected
+-- for indirect_function
+-- ui_suppress - the values this function provides for the function call (this will stop them being shown on the web tool)
+--
+-- types
+-- string - a lua string - example = "the answer"
+-- number - a lua number - example = 42
+-- position - a table of 2 numbers - {x,y} - example = {x = 6, y = 9}
+-- npc_ship - the template name for a npc ship, this can be set to valid softtemplates or stock templates - example "Adder MK4"
+-- indirect_function - a table that will be used for calling indirectCall (at the time of execution, not definition) example = {call = getCpushipSoftTemplates}
 function describeFunction(name,function_description,args_table)
 	-- this is about 90% verifying that the data is good
 	-- and 10% repacking the arguments to be used later in a more convient format
 	assert(type(name)=="string")
 	if type(function_description) ~= "table" then
-		function_description = {function_description or nil}
+		function_description = {function_description}
 	end
 	assert(type(function_description)=="table")
 	args_table = args_table or {}
 	assert(type(args_table)=="table")
 	local fn = getScriptStorage()._cuf_gm._ENV[name]
 	assert(type(fn)=="function",name)
-	local description = {this = function_description}
+	local description = {_this = function_description}
 	for arg_num,arg_description in pairs(args_table) do
-		local arg_name = arg_description[1]
-		assert(type(arg_name)=="string")
-		assert(arg_name ~= "description") -- description is reused elsewhere and is a problem to be an arg name TODO - old?
-		local arg_type = arg_description[2]
-		assert(type(arg_type)=="string")
-		-- TODO no checking of default value
-		assert(arg_type == "number" or arg_type == "string" or arg_type == "position" or arg_type == "npc_ship" or arg_type == "indirect_function","describeFunction requires the a type for each argument")
-		for arg_name,arg_value in pairs(arg_description) do
-			if arg_name == 1 or arg_name == 2 or arg_name == 3 then
-			elseif arg_name == "min" then
-				assert(arg_type == "number")
-			elseif arg_name == "max" then
-				assert(arg_type == "number")
-			elseif arg_name == "ui_suppress" ~= nil then
-				assert(arg_type == "indirect_function")
-			else
-				assert(false,"arg_description has a key that describeFunction doesnt about")
-			end
-		end
+		checkVariableDescription(arg_description)
 		description[arg_num] = arg_description
 	end
-
-	-- description should be considered a contract between
-	-- 1) indirect call
-	-- 2) describeFunction
-	-- 3) the web tool
-	-- if edited each of those locations need to be checked
-	-- it is probably a bad idea to read it outside of these
 	getScriptStorage()._cuf_gm.functions[name] = {fn = fn, args = description}
 end
 

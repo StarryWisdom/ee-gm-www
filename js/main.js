@@ -424,9 +424,7 @@ class gm_tool_class {
 
 		const title = document.createElement("a");
 		title.textContent = function_name + " settings";
-		if (args.this != undefined) {
-			title.title = args.this[1];
-		}
+		title.title = args._this[1];
 		function_div.appendChild(title);
 		function_div.appendChild(document.createElement("br"));
 
@@ -447,7 +445,7 @@ class gm_tool_class {
 		function_div.params = {};
 		for (const arg_num in args) {
 			if (args.hasOwnProperty(arg_num)) {
-				if (arg_num == "this") {
+				if (arg_num == "_this") {
 					continue;
 				}
 				const arg = args[arg_num];
