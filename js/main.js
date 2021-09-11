@@ -449,9 +449,10 @@ class gm_tool_class {
 				if (arg_num == "this") {
 					continue;
 				}
-				const arg_name = args[arg_num][1];
-				const arg_type = args[arg_num][2];
-				const arg_default = args[arg_num][3];
+				const arg = args[arg_num];
+				const arg_name = arg[1];
+				const arg_type = arg[2];
+				const arg_default = arg[3];
 				const div = document.createElement("div");
 				function_div.appendChild(div);
 
@@ -474,6 +475,12 @@ class gm_tool_class {
 						input.value = value;
 					};
 					input.setAttribute("type","number");
+					if (arg.min != undefined) {
+						input.min = arg.min;
+					}
+					if (arg.max != undefined) {
+						input.max = arg.max;
+					}
 					div.appendChild(input);
 				} else if(arg_type == "string") {
 					const input = document.createElement("input");
@@ -554,7 +561,7 @@ class gm_tool_class {
 							}
 						}
 						if (args[arg_num].ui_suppress != undefined) {
-							ee_server.convert_lua_json_to_array(args[arg_num].ui_suppress).forEach(arg => {
+							ee_server.convert_lua_json_to_array(arg.ui_suppress).forEach(arg => {
 								if (function_edit.params[arg] != undefined) {
 									function_edit.params[arg].removeThis();
 								}
