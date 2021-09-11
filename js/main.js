@@ -412,7 +412,7 @@ class gm_tool_class {
 	async cache_get_lua(filename) {
 		const cache_name = filename+".lua";
 		if (!this._ee_cache.has_key(cache_name)) {
-			this._ee_cache.set(cache_name,ee_server.fetch_file("lua/"+cache_name));
+			this._ee_cache.set(cache_name,ee_server.fetch_file(cache_name));
 		}
 		return this._ee_cache._cache[cache_name];
 	}
@@ -1095,7 +1095,7 @@ class prebuilt_tab {
 			button.textContent = base;
 			button.onclick = async function () {
 				// I probably should cache this
-				const lua = ee_server.fetch_file("lua/base snippets/"+base); // TODO WRONG
+				const lua = ee_server.fetch_file("base snippets/"+base); // TODO WRONG
 				gm_tool.upload_to_script_storage_and_exec(await lua);
 			};
 			page.appendChild(button);
