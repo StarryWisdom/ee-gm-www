@@ -583,7 +583,7 @@ function subspace_rift(max_time,location,max_radius,on_end)
 	local update_data = {
 	update = function (self, obj, delta)
 		local max_radius = max_radius -- how large it is when it has reached the maxium size
-		local max_time = max_time -- how long it takes to reach the maxium radius
+		local max_time = math.abs(max_time) -- how long it takes to reach the maxium radius
 		local current_radius = (getScenarioTime()-obj.start_time)*(max_radius/max_time)
 		if current_radius > max_radius then
 			if on_end ~= nil then
