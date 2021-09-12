@@ -7,7 +7,7 @@ function checkVariableDescription(arg_description)
 	local arg_type = arg_description[2]
 	assert(type(arg_type)=="string")
 	-- TODO no checking of default value
-	assert(arg_type == "number" or arg_type == "string" or arg_type == "position" or arg_type == "npc_ship" or arg_type == "indirect_function","describeFunction requires the a type for each argument")
+	assert(arg_type == "number" or arg_type == "string" or arg_type == "position" or arg_type == "npc_ship" or arg_type == "function","describeFunction requires the a type for each argument")
 	for arg_name,arg_value in pairs(arg_description) do
 		if arg_name == 1 or arg_name == 2 or arg_name == 3 then
 		elseif arg_name == "min" then
@@ -15,7 +15,7 @@ function checkVariableDescription(arg_description)
 		elseif arg_name == "max" then
 			assert(arg_type == "number")
 		elseif arg_name == "ui_suppress" ~= nil then
-			assert(arg_type == "indirect_function")
+			assert(arg_type == "function")
 		else
 			assert(false,"arg_description has a key that describeFunction doesnt about")
 		end
@@ -41,7 +41,7 @@ end
 -- for numbers -
 -- min - minimum value expected
 -- max - maximum value expected
--- for indirect_function
+-- for function
 -- ui_suppress - the values this function provides for the function call (this will stop them being shown on the web tool)
 --
 -- types
@@ -49,7 +49,7 @@ end
 -- number - a lua number - example = 42
 -- position - a table of 2 numbers - {x,y} - example = {x = 6, y = 9}
 -- npc_ship - the template name for a npc ship, this can be set to valid softtemplates or stock templates - example "Adder MK4"
--- indirect_function - a table that will be used for calling indirectCall (at the time of execution, not definition) example = {call = getCpushipSoftTemplates}
+-- function - the callee recives a function to be called, the caller provides a table which will be converted by convertWebCallTableToFunction - example = {call = getCpushipSoftTemplates}
 function describeFunction(name,function_description,args_table)
 	-- this is about 90% verifying that the data is good
 	-- and 10% repacking the arguments to be used later in a more convient format
@@ -69,24 +69,51 @@ function describeFunction(name,function_description,args_table)
 	getScriptStorage()._cuf_gm.functions[name] = {fn = fn, args = args_table}
 end
 
--- the indirect call is at least somewhat useful in chainging functions
--- it allows tables of parmeters to be completed and not to care about the order with which they are built
--- this is mostly a consideration for onGMClick and location
--- I think its possible this will be made obsolete in time though
-function indirect_call(args)
+function convertWebCallTableToFunction(args,callee_provides)
+	local callee_provides = callee_provides or {}
+	assert(type(callee_provides)=="table")
 	assert(type(args)=="table")
 	assert(type(args.call)=="string")
-	assert(getScriptStorage()._cuf_gm.functions[args.call] ~= nil, "attempted to call an undefined function " .. args.call)
-	assert(type(getScriptStorage()._cuf_gm.functions[args.call].fn) == "function")
-	assert(type(getScriptStorage()._cuf_gm.functions[args.call].args) == "table")
-	local tbl = {}
-	for _,arg in ipairs(getScriptStorage()._cuf_gm.functions[args.call].args) do
-		-- todo check arguments are in the format described by describeFunction
-		assert(args[arg[1]],"argument not in list")
-		table.insert(tbl,args[arg[1]])
+	local requested_function = getScriptStorage()._cuf_gm.functions[args.call]
+	assert(requested_function ~= nil, "attempted to call an undefined function " .. args.call)
+	assert(type(requested_function.fn) == "function")
+	assert(type(requested_function.args) == "table")
+	-- note there is a obvious optimisation that can happen if the callee_provides list is the same as the arg list (and if the order is the same)
+	-- in that case the code below could be replaced with return getScriptStorage()._cuf_gm.functions[args.call].fn
+	return function (...)
+		local to_call = {}
+		local arg_num = 1
+		for _,arg in ipairs(requested_function.args) do
+			local arg_name = arg[1]
+			local arg_type = arg[2]
+			local in_callee_provides = nil
+			for arg_num,suppressed in ipairs(callee_provides) do
+				if suppressed == arg_name then
+					in_callee_provides = arg_num
+				end
+			end
+			local value
+			if in_callee_provides then
+				assert(select("#",...)<= in_callee_provides)
+				value = select(in_callee_provides,...)
+			else
+				assert(args[arg_name],"argument not in list")
+				value = args[arg_name]
+			end
+			if arg_type == "function" then
+				value = convertWebCallTableToFunction(args[arg_name],arg.ui_suppress)
+			end
+			to_call[arg_num] = value
+			arg_num = arg_num +1
+		end
+		to_call[#requested_function.args+1] = args
+		return requested_function.fn(table.unpack(to_call,1,#requested_function.args+1))
 	end
-	table.insert(tbl,args)
-	return getScriptStorage()._cuf_gm.functions[args.call].fn(table.unpack(tbl))
+end
+
+-- this probably wants removing sooner rather than later
+function indirect_call(args)
+	return convertWebCallTableToFunction(args)()
 end
 describeFunction("indirect_call")
 getScriptStorage()._cuf_gm.indirect_call = indirect_call
@@ -443,8 +470,7 @@ function sat_tmp(start,dest,speed,endCallback)
 	dx,dy = vectorFromAngle(angleFromVectorNorth(start.x,start.y,dest.x,dest.y)+90,1)
 	local atEnd = function ()
 		art:destroy()
-		endCallback.location = dest
-		indirect_call(endCallback)
+		endCallback(dest)
 	end
 	update_system:addLinear(art,dx,dy,speed)
 	update_system:addPeriodicCallback(art,atEnd,time)
@@ -456,7 +482,7 @@ describeFunction("sat_tmp1",
 		{"start", "position"},
 		{"location", "position"}, -- todo fix naming location rather than user defined
 		{"speed", "number", 4000},
-		{"endCallback", "indirect_function", {call = "subspace_rift", max_time = 5, max_radius = 500, on_end = {call = "end_rift"}}, ui_suppress = {"location"}}
+		{"endCallback", "function", {call = "subspace_rift", max_time = 5, max_radius = 500, on_end = {call = "end_rift"}}, ui_suppress = {"location"}}
 	})
 
 sat_tmp2 = sat_tmp
@@ -466,7 +492,7 @@ describeFunction("sat_tmp2",
 		{"start", "position"},
 		{"location", "position"}, -- todo fix naming location rather than user defined
 		{"speed", "number", 4000},
-		{"endCallback", "indirect_function", {call = "subspace_rift", max_time = 5, max_radius = 500, on_end = {call =  "jammer_pulse", max_time = 60, max_range = 5000, onEndCallback = {call = "null_function"}}}, ui_suppress = {"location"}}
+		{"endCallback", "function", {call = "subspace_rift", max_time = 5, max_radius = 500, on_end = {call =  "jammer_pulse", max_time = 60, max_range = 5000, onEndCallback = {call = "null_function"}}}, ui_suppress = {"location"}}
 	})
 sat_tmp3 = sat_tmp
 describeFunction("sat_tmp3",
@@ -475,7 +501,7 @@ describeFunction("sat_tmp3",
 		{"start", "position"},
 		{"location", "position"}, -- todo fix naming location rather than user defined
 		{"speed", "number", 4000},
-		{"endCallback", "indirect_function", {call = "subspace_rift", max_time = 5, max_radius = 500, on_end = {call = "spawn_kraylor_ship", template = "Adder MK4"}}, ui_suppress = {"location"}}
+		{"endCallback", "function", {call = "subspace_rift", max_time = 5, max_radius = 500, on_end = {call = "spawn_kraylor_ship", template = "Adder MK4"}}, ui_suppress = {"location"}}
 	})
 
 function spawn_kraylor_ship(location,template)
@@ -487,11 +513,11 @@ describeFunction("spawn_kraylor_ship",
 		{"location", "position"},
 		{"template", "npc_ship"}
 	})
-function end_rift(args)
+function end_rift(location)
 	local count = 15
 	local dist_from_origin = 500
-	local x = args.location.x
-	local y = args.location.y
+	local x = location.x
+	local y = location.y
 	local faction = "Kraylor"
 	local missile_type = "HVLI"
 	local size = "Small"
@@ -558,7 +584,9 @@ function end_rift(args)
 		end --]]
 	end
 end
-describeFunction("end_rift")
+describeFunction("end_rift",
+	nil,
+	{{"location","position"}})
 
 function subspace_rift(max_time,location,max_radius,on_end)
 	-- we need graphical type at some point
@@ -596,10 +624,7 @@ function subspace_rift(max_time,location,max_radius,on_end)
 		local max_time = math.abs(max_time) -- how long it takes to reach the maxium radius
 		local current_radius = (getScenarioTime()-obj.start_time)*(max_radius/max_time)
 		if current_radius > max_radius then
-			if on_end ~= nil then
-				on_end.location = location
-				indirect_call(on_end)
-			end
+			on_end(location)
 			rift:destroy()
 			current_radius = max_radius
 			return
@@ -627,7 +652,7 @@ describeFunction("subspace_rift",
 		{"max_time", "number", 5, min = 0}, -- max?
 		{"location", "position"},
 		{"max_radius", "number", 500, min = 0}, -- max?
-		{"on_end", "indirect_function", {call = "end_rift"}, ui_suppress = {"location"}}
+		{"on_end", "function", {call = "end_rift"}, ui_suppress = {"location"}}
 	})
 
 function rift_example(location,args) -- in time this should be removed
@@ -1614,7 +1639,7 @@ describeFunction("jammer_pulse",
 		{"max_time", "number", 60},
 		{"max_range", "number", 5000},
 		{"location", "position"},
-		{"onEndCallback", "indirect_function", {call = "null_function"}} -- change to function
+		{"onEndCallback", "function", {call = "null_function"}}
 	})
 
 function old_test_start(args)
