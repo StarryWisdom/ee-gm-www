@@ -69,6 +69,10 @@ function describeFunction(name,function_description,args_table)
 	getScriptStorage()._cuf_gm.functions[name] = {fn = fn, args = args_table}
 end
 
+--todo check/test
+-- renaming var names
+-- ongmclick setting anything
+-- update setter
 function convertWebCallTableToFunction(args,callee_provides)
 	local callee_provides = callee_provides or {}
 	assert(type(callee_provides)=="table")
@@ -78,8 +82,16 @@ function convertWebCallTableToFunction(args,callee_provides)
 	assert(requested_function ~= nil, "attempted to call an undefined function " .. args.call)
 	assert(type(requested_function.fn) == "function")
 	assert(type(requested_function.args) == "table")
-	-- note there is a obvious optimisation that can happen if the callee_provides list is the same as the arg list (and if the order is the same)
-	-- in that case the code below could be replaced with return getScriptStorage()._cuf_gm.functions[args.call].fn
+	--[[ this section should work, I need some better examples to test the code on before I enable it
+	local do_we_need_to_wrap = false
+	for arg_num,arg in ipairs(requested_function.args) do
+		if arg[1] ~= callee_provides[arg_num] then
+			do_we_need_to_wrap = true
+		end
+		if arg[2] == "function" then
+			do_we_need_to_wrap = true
+		end
+	end --]]
 	return function (...)
 		local to_call = {}
 		local arg_num = 1
