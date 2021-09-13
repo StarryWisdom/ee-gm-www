@@ -446,22 +446,13 @@ function get_gm_click2()
 end
 describeFunction("get_gm_click2")
 
--- todo we need a safe wrapper around function calling here
--- and better documentation for functions
-function gm_click_wrapper(args)
-	-- todo type assert
+function gm_click_wrapper(onclick)
 	onGMClick(function (x,y)
-		-- we dont want to change the parameters table as we may be called multiple times
-		-- and if the internal value isn't copyied it would result in wrong locations
-		local parameters = {}
-		for k,v in pairs(args.args) do
-			parameters[k] = v
-		end
-		parameters.location= {x = x, y = y}
-		indirect_call(parameters)
+		onclick({x = x, y = y})
 	end)
 end
-describeFunction("gm_click_wrapper")
+describeFunction("gm_click_wrapper",nil,
+	{{"onclick", "function", {call = "null_function"},callee_provides = {"location"}}})
 
 -- note there seems to be 1 frame where these are moved to 0,0
 function sat_tmp(start,dest,speed,endCallback)

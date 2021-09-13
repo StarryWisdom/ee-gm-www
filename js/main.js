@@ -531,10 +531,10 @@ class gm_tool_class {
 					run_via_click.onclick = function () {
 						const call = function_div.build_call(function_name);
 						delete call[arg_name];
-						gm_tool.call_www_function("gm_click_wrapper",{args : call});
+						gm_tool.call_www_function("gm_click_wrapper",{onclick : call});
 					};
 					div.appendChild(run_via_click);
-				} else if (arg_type == "function" || arg_type == "indirect_function") {
+				} else if (arg_type == "function") {
 					// note firstChild is kind of broken with multiple functions
 					const td2 = document.createElement("td");
 					const table = document.createElement("table");
