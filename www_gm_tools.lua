@@ -113,7 +113,7 @@ end
 
 -- this probably wants removing sooner rather than later
 function indirect_call(args)
-	return convertWebCallTableToFunction(args)()
+	return callWithErrorHandling(convertWebCallTableToFunction(args))
 end
 describeFunction("indirect_call")
 getScriptStorage()._cuf_gm.indirect_call = indirect_call
