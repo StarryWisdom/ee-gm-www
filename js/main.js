@@ -559,8 +559,8 @@ class gm_tool_class {
 								}
 							}
 						}
-						if (args[arg_num].ui_suppress != undefined) {
-							ee_server.convert_lua_json_to_array(arg.ui_suppress).forEach(arg => {
+						if (args[arg_num].callee_provides != undefined) {
+							ee_server.convert_lua_json_to_array(arg.callee_provides).forEach(arg => {
 								if (function_edit.params[arg] != undefined) {
 									function_edit.params[arg].removeThis();
 								}

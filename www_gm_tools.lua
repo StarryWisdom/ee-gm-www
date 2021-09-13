@@ -14,7 +14,7 @@ function checkVariableDescription(arg_description)
 			assert(arg_type == "number")
 		elseif arg_name == "max" then
 			assert(arg_type == "number")
-		elseif arg_name == "ui_suppress" ~= nil then
+		elseif arg_name == "callee_provides" ~= nil then
 			assert(arg_type == "function")
 		else
 			assert(false,"arg_description has a key that describeFunction doesnt about")
@@ -42,7 +42,7 @@ end
 -- min - minimum value expected
 -- max - maximum value expected
 -- for function
--- ui_suppress - the values this function provides for the function call (this will stop them being shown on the web tool)
+-- callee_provides - the values this function provides for the function call (this will stop them being shown on the web tool)
 --
 -- types
 -- string - a lua string - example = "the answer"
@@ -101,7 +101,7 @@ function convertWebCallTableToFunction(args,callee_provides)
 				value = args[arg_name]
 			end
 			if arg_type == "function" then
-				value = convertWebCallTableToFunction(args[arg_name],arg.ui_suppress)
+				value = convertWebCallTableToFunction(args[arg_name],arg.callee_provides)
 			end
 			to_call[arg_num] = value
 			arg_num = arg_num +1
@@ -482,7 +482,7 @@ describeFunction("sat_tmp1",
 		{"start", "position"},
 		{"location", "position"}, -- todo fix naming location rather than user defined
 		{"speed", "number", 4000},
-		{"endCallback", "function", {call = "subspace_rift", max_time = 5, max_radius = 500, on_end = {call = "end_rift"}}, ui_suppress = {"location"}}
+		{"endCallback", "function", {call = "subspace_rift", max_time = 5, max_radius = 500, on_end = {call = "end_rift"}}, callee_provides = {"location"}}
 	})
 
 sat_tmp2 = sat_tmp
@@ -492,7 +492,7 @@ describeFunction("sat_tmp2",
 		{"start", "position"},
 		{"location", "position"}, -- todo fix naming location rather than user defined
 		{"speed", "number", 4000},
-		{"endCallback", "function", {call = "subspace_rift", max_time = 5, max_radius = 500, on_end = {call =  "jammer_pulse", max_time = 60, max_range = 5000, onEndCallback = {call = "null_function"}}}, ui_suppress = {"location"}}
+		{"endCallback", "function", {call = "subspace_rift", max_time = 5, max_radius = 500, on_end = {call =  "jammer_pulse", max_time = 60, max_range = 5000, onEndCallback = {call = "null_function"}}}, callee_provides = {"location"}}
 	})
 sat_tmp3 = sat_tmp
 describeFunction("sat_tmp3",
@@ -501,7 +501,7 @@ describeFunction("sat_tmp3",
 		{"start", "position"},
 		{"location", "position"}, -- todo fix naming location rather than user defined
 		{"speed", "number", 4000},
-		{"endCallback", "function", {call = "subspace_rift", max_time = 5, max_radius = 500, on_end = {call = "spawn_kraylor_ship", template = "Adder MK4"}}, ui_suppress = {"location"}}
+		{"endCallback", "function", {call = "subspace_rift", max_time = 5, max_radius = 500, on_end = {call = "spawn_kraylor_ship", template = "Adder MK4"}}, callee_provides = {"location"}}
 	})
 
 function spawn_kraylor_ship(location,template)
@@ -652,7 +652,7 @@ describeFunction("subspace_rift",
 		{"max_time", "number", 5, min = 0}, -- max?
 		{"location", "position"},
 		{"max_radius", "number", 500, min = 0}, -- max?
-		{"on_end", "function", {call = "end_rift"}, ui_suppress = {"location"}}
+		{"on_end", "function", {call = "end_rift"}, callee_provides = {"location"}}
 	})
 
 function rift_example(location,args) -- in time this should be removed
