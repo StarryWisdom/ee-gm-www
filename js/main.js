@@ -1136,7 +1136,7 @@ class prebuilt_tab {
 			const run = document.createElement("button");
 			run.textContent = base.name;
 			run.onclick = function () {
-				gm_tool.call_www_function("call_list",{call_list : base.call_list});
+				gm_tool.call_www_function("call_list",{functions : base.call_list});
 			};
 			page.appendChild(run);
 		});

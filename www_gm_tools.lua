@@ -6,10 +6,12 @@ function checkVariableDescription(arg_description)
 	assert(arg_name ~= "_this") -- description is reused elsewhere and is a problem to be an arg name TODO - old?
 	local arg_type = arg_description[2]
 	assert(type(arg_type)=="string")
-	-- TODO no checking of default value
+	-- TODO no checking of default value regarding type or any setting
 	assert(arg_type == "number" or arg_type == "string" or arg_type == "position" or arg_type == "npc_ship" or arg_type == "function","describeFunction requires the a type for each argument")
 	for arg_name,arg_value in pairs(arg_description) do
 		if arg_name == 1 or arg_name == 2 or arg_name == 3 then
+		elseif arg_name == 4 then
+			assert(arg_value == "array")
 		elseif arg_name == "min" then
 			assert(arg_type == "number")
 		elseif arg_name == "max" then
@@ -37,6 +39,7 @@ end
 -- 3.1) [1] name of the argument
 -- 3.2) [2] type of the argument - see below for types
 -- 3.3) [3] the default value for the argument, note this is not checked for type/value and is current web tool only
+-- 3.4) [4] may be the string "array" in which case this is a table from [1] to #table, this is badly tested, but required for the web tool, if this is going to be used elsewhere consider if better support is needed
 -- 3.4) the remainder of the table is optional tags based on type
 -- for numbers -
 -- min - minimum value expected
@@ -107,17 +110,27 @@ function convertWebCallTableToFunction(args,callee_provides)
 				assert(select("#",...)<= in_callee_provides)
 				value = select(in_callee_provides,...)
 			else
-				assert(args[arg_name],"argument not in list" .. arg_name)
-				value = args[arg_name]
+				if args[arg_name] then
+					value = args[arg_name]
+				else
+					value = arg.default
+					assert(value ~= nil,"argument not in list " .. arg_name .. " for function " .. args.call .. " (and there is no default)")
+				end
 			end
 			if arg_type == "function" then
-				value = convertWebCallTableToFunction(args[arg_name],arg.callee_provides)
+				if arg[4] == "array" then
+					for idx,function_table in ipairs(value) do
+						value[idx]=convertWebCallTableToFunction(function_table,arg.callee_provides)
+					end
+				else
+					value = convertWebCallTableToFunction(value,arg.callee_provides)
+				end
 			end
 			to_call[arg_num] = value
 			arg_num = arg_num +1
 		end
-		to_call[#requested_function.args+1] = args
-		return requested_function.fn(table.unpack(to_call,1,#requested_function.args+1))
+		-- reminder it is possible for entires in requested_function can be nil
+		return requested_function.fn(table.unpack(to_call,1,#requested_function.args))
 	end
 end
 
@@ -689,12 +702,9 @@ describeFunction("subspace_rift",
 		{"on_end", "function", {call = "end_rift"}, callee_provides = {"location"}}
 	})
 
-function rift_example(location,args) -- in time this should be removed
+function rift_example(location,max_radius,max_time,onEnd) -- in time this should be removed
 	local x = location.x
 	local y = location.y
-	local max_radius = args.c
-	local max_time = args.d
-	local onEnd = args.e
 -- we are going to require a central artifact
 -- this requirement probably should be removed at some point
 	local rift = getScriptStorage()._cuf_gm._ENV.newPhonySpaceObject()
@@ -726,9 +736,7 @@ function rift_example(location,args) -- in time this should be removed
 		local max_time = max_time -- how long it takes to reach the maxium radius
 		local current_radius = (getScenarioTime()-obj.start_time)*(max_radius/max_time)
 		if current_radius > max_radius then
-			if onEnd ~= nil then
-				indirect_call({call = onEnd})
-			end
+			onEnd()
 			rift:destroy()
 			current_radius = max_radius
 			return
@@ -771,7 +779,10 @@ end
 describeFunction("rift_example",
 	nil,
 	{
-		{"location", "position"}
+		{"location", "position"},
+		{"max_radius", "number"},
+		{"max_time", "number"},
+		{"onEnd","function",default = {call = "null_function"}}
 	})
 -- eff it short term one off code it is
 function base0()
@@ -1631,13 +1642,13 @@ function base5()
 	WarpJammer():setFaction("Kraylor"):setPosition(61374, 362198)
 end
 describeFunction("base5")
-function call_list(args)
-	assert(type(args.call_list)=="table")
-	for i=1, #args.call_list do
-		indirect_call(args.call_list[i])
+function call_list(functions) -- TODO  this is awkward
+	for i=1, #functions do
+		functions[i]()
 	end
 end
-describeFunction("call_list")
+describeFunction("call_list",nil,
+	{{"functions","function",nil,"array"}})
 
 function old_test_end()
 	_ENV = getScriptStorage()._cuf_gm._ENV
@@ -1676,16 +1687,10 @@ describeFunction("jammer_pulse",
 		{"onEndCallback", "function", {call = "null_function"}}
 	})
 
-function old_test_start(args)
-	_ENV = getScriptStorage()._cuf_gm._ENV
-
-	local max_time = args.max_time
-	local energy_cost = args.max_range
-	local max_range = args.max_range
-	local no_eng_msg = args.no_eng_msg
-	fleet_custom:addCustomButton("Science","tmp",args.name,wrapWithErrorHandling(function (p)
+function old_test_start(max_time,energy_cost,max_range,no_eng_msg,name)
+	fleet_custom:addCustomButton("Science","tmp",name,wrapWithErrorHandling(function (p)
 		if p ~= nil then
-			if p:getEnergyLevel() < args.energy_cost then
+			if p:getEnergyLevel() < energy_cost then
 				p:wrappedAddCustomMessage("Science","no_ene",no_eng_msg)
 			else
 				local jammer = WarpJammer():setPosition(p:getPosition())
@@ -1711,13 +1716,20 @@ function old_test_start(args)
 		end
 	end))
 end
-describeFunction("old_test_start")
+describeFunction("old_test_start",nil,
+	{
+		{"max_time","number"},
+		{"energy_cost","number"},
+		{"max_range","number"},
+		{"no_eng_msg","string"},
+		{"name","string"}
+	})
 
-function old_test_comms(args)
-	local msg = args.msg
+function old_test_comms(msg)
 	fleet_custom:addCustomMessage("Science","injected_msg",msg)
 end
-describeFunction("old_test_comms")
+describeFunction("old_test_comms",nil,
+	{{"msg","string"}})
 
 function set_timer_purpose(reason)
 	assert(type(reason)=="string")
