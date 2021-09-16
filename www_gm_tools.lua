@@ -22,7 +22,7 @@ function checkVariableDescription(arg_description)
 	end
 end
 
--- more fully describeAndExportFunctionForWeb, but there are going to be an absurd number
+-- the name is better as describeAndExportFunctionForWeb, but there are going to be an absurd number
 -- of these so brevity is important, I have no objection if a find and replace is desired
 
 -- description format is
@@ -71,8 +71,6 @@ end
 
 --todo check/test
 -- renaming var names
--- ongmclick setting anything
--- update setter
 function convertWebCallTableToFunction(args,callee_provides)
 	local callee_provides = callee_provides or {}
 	assert(type(callee_provides)=="table")
@@ -109,7 +107,7 @@ function convertWebCallTableToFunction(args,callee_provides)
 				assert(select("#",...)<= in_callee_provides)
 				value = select(in_callee_provides,...)
 			else
-				assert(args[arg_name],"argument not in list")
+				assert(args[arg_name],"argument not in list" .. arg_name)
 				value = args[arg_name]
 			end
 			if arg_type == "function" then
@@ -336,12 +334,16 @@ function getExtraTemplateData()
 end
 describeFunction("getExtraTemplateData")
 
-PesudoMultiplayerID = 0
+if PesudoMultiplayerID == nil then -- when in sandbox this can go
+	PesudoMultiplayerID = 0
+	pesudoMultiplayerTable = {}
+end
 
 function getObjectPesudoMultiplayerID(obj)
 	if obj:isValid() then
 		if obj._pesudoMultiplayerID == nil then
 			obj._pesudoMultiplayerID = PesudoMultiplayerID
+			pesudoMultiplayerTable[obj._pesudoMultiplayerID] = obj -- this needs hooks into destroy
 			PesudoMultiplayerID = PesudoMultiplayerID +1
 			if obj.typeName == nil then
 				-- todo add to soft template list
@@ -351,7 +353,8 @@ function getObjectPesudoMultiplayerID(obj)
 	end
 end
 
-function getObjectByPesudoMultiplayerID(ID)
+function getObjectByPesudoMultiplayerID(id)
+	return pesudoMultiplayerTable[id]
 end
 
 function getUpdateData()
@@ -369,14 +372,42 @@ function getUpdateData()
 				return "custom"
 			end
 		end
+		local get_updates = function(obj)
+			local ret = {}
+			for _,update in ipairs(obj.update_list) do
+				for element,edit_table in pairs(update.edit) do
+					-- todo this is kind of wrong
+					edit_table.value = update[edit_table[1]]
+					if type(edit_table.value) == "table" then
+						edit_table.value = "table"
+					end
+				end
+				table.insert(ret,{name = update.name, id = getObjectPesudoMultiplayerID(update), edit = update.edit})
+			end
+			return ret
+		end
 		table.insert(ret,{
 				id = getObjectPesudoMultiplayerID(obj),
-				description = get_description(obj)
+				description = get_description(obj),
+				updates = get_updates(obj)
 		})
 	end
 	return ret
 end
 describeFunction("getUpdateData")
+
+-- todo it would be nice if this was possible to call via order of arguments
+function updateSetNumber(update_id,edit_name,value)
+local a = getObjectByPesudoMultiplayerID(update_id)
+	getObjectByPesudoMultiplayerID(update_id)[edit_name] = value
+end
+describeFunction("updateSetNumber",
+	nil,
+	{
+		{"update_id","number"}, -- really pesudo id? eh this is horrible
+		{"edit_name","string"},
+		{"value","number"}
+	})
 
 function get_descriptions()
 	local ret = {}

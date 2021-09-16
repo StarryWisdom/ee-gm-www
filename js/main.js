@@ -989,16 +989,47 @@ class update_debug_in_dev {
 		const table = document.createElement("table");
 		page.appendChild(table);
 
-		console.log(data);
 		data.forEach(update_obj => {
-			const tr = document.createElement("tr");
-			table.appendChild(tr)
-			let td = document.createElement("td");
-			tr.appendChild(td)
-			console.log(update_obj);
-			td.innerHTML = update_obj.description + "(" + update_obj.id + ")";
-			td = document.createElement("td");
-			tr.appendChild(td)
+				const tr = document.createElement("tr");
+				table.appendChild(tr)
+				let td = document.createElement("td");
+				tr.appendChild(td)
+				td.innerHTML = update_obj.description + "(" + update_obj.id + ")";
+				td = document.createElement("td");
+				tr.appendChild(td)
+			if (update_obj.description == "Pastern") { //hacky way to only work with updated updates
+				const whole_div = document.createElement("div");
+				td.appendChild(whole_div);
+				ee_server.convert_lua_json_to_array(update_obj.updates).forEach(update => {
+					const update_table = document.createElement("table");
+					whole_div.appendChild(update_table);
+					ee_server.convert_lua_json_to_array(update.edit).forEach(update_edit => {
+
+						const tr = document.createElement("tr");
+						update_table.appendChild(tr);
+						const td_name = document.createElement("td");
+						tr.appendChild(td_name);
+						td_name.innerHTML=update_edit[1];
+
+						const td_edit = document.createElement("td");
+						tr.appendChild(td_edit);
+						const input = document.createElement("input");
+						input.value = update_edit.value;
+						td_edit.appendChild(input);
+
+						const td_submit = document.createElement("td");
+						tr.appendChild(td_submit);
+						const button = document.createElement("button");
+						td_submit.appendChild(button);
+						button.textContent = "submit";
+						// this needs to dispatch based on type
+						// it would be alarmingly logical for it to have common logic with make_edit_div_for_function
+						button.onclick = function () {
+							gm_tool.call_www_function("updateSetNumber",{update_id : update.id, edit_name : update_edit[1], value : input.value});
+						}
+					});
+				});
+			}
 		});
 	}
 }
