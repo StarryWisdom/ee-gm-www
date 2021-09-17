@@ -1,25 +1,27 @@
 _ENV = getScriptStorage()._cuf_gm._ENV
 
-function checkVariableDescription(arg_description)
-	local arg_name = arg_description[1]
-	assert(type(arg_name)=="string")
-	assert(arg_name ~= "_this") -- description is reused elsewhere and is a problem to be an arg name TODO - old?
-	local arg_type = arg_description[2]
-	assert(type(arg_type)=="string")
-	-- TODO no checking of default value regarding type or any setting
-	assert(arg_type == "number" or arg_type == "string" or arg_type == "position" or arg_type == "npc_ship" or arg_type == "function","describeFunction requires the a type for each argument")
-	for arg_name,arg_value in pairs(arg_description) do
-		if arg_name == 1 or arg_name == 2 or arg_name == 3 then
-		elseif arg_name == 4 then
-			assert(arg_value == "array")
-		elseif arg_name == "min" then
-			assert(arg_type == "number")
-		elseif arg_name == "max" then
-			assert(arg_type == "number")
-		elseif arg_name == "callee_provides" ~= nil then
-			assert(arg_type == "function")
-		else
-			assert(false,"arg_description has a key that describeFunction doesnt about")
+function checkVariableDescriptions(args_table)
+	for arg_num,arg_description in pairs(args_table) do
+		local arg_name = arg_description[1]
+		assert(type(arg_name)=="string")
+		assert(arg_name ~= "_this") -- description is reused elsewhere and is a problem to be an arg name TODO - old?
+		local arg_type = arg_description[2]
+		assert(type(arg_type)=="string")
+		-- TODO no checking of default value regarding type or any setting
+		assert(arg_type == "number" or arg_type == "string" or arg_type == "position" or arg_type == "npc_ship" or arg_type == "function","describeFunction requires the a type for each argument")
+		for arg_name,arg_value in pairs(arg_description) do
+			if arg_name == 1 or arg_name == 2 or arg_name == 3 then
+			elseif arg_name == 4 then
+				assert(arg_value == "array")
+			elseif arg_name == "min" then
+				assert(arg_type == "number")
+			elseif arg_name == "max" then
+				assert(arg_type == "number")
+			elseif arg_name == "callee_provides" ~= nil then
+				assert(arg_type == "function")
+			else
+				assert(false,"arg_description has a key that describeFunction doesnt about")
+			end
 		end
 	end
 end
@@ -65,15 +67,14 @@ function describeFunction(name,function_description,args_table)
 	assert(type(args_table)=="table")
 	local fn = getScriptStorage()._cuf_gm._ENV[name]
 	assert(type(fn)=="function",name)
-	for arg_num,arg_description in pairs(args_table) do
-		checkVariableDescription(arg_description)
-	end
+	checkVariableDescriptions(args_table)
 	args_table._this = function_description
 	getScriptStorage()._cuf_gm.functions[name] = {fn = fn, args = args_table}
 end
 
 --todo check/test
 -- renaming var names
+-- changing function setting in web tool being reflected in engine
 function convertWebCallTableToFunction(args,callee_provides)
 	local callee_provides = callee_provides or {}
 	assert(type(callee_provides)=="table")
