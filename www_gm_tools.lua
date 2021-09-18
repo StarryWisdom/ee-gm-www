@@ -1642,12 +1642,12 @@ end
 describeFunction("null_function")
 
 function jammer_pulse(max_time,max_range,location,onEndCallback)
-	local jammer = WarpJammer():setPosition(location.x,location.y)
+	local jammer = WarpJammer():setPosition(location.x,location.y) -- it would be nice to have a faction here
 	local update_data = {
 		update = function (self, obj, delta)
 			self.t = self.t + delta
 			if self.t > self.max_time then
-				indirect_call(onEndCallback)
+				onEndCallback()
 				obj:destroy()
 			end
 			obj:setRange(math.sin((self.t/self.max_time)*math.pi)*self.max_range)
