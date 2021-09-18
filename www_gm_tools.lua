@@ -523,33 +523,13 @@ function sat_tmp(start,dest,speed,endCallback)
 	update_system:addLinear(art,dx,dy,speed)
 	update_system:addPeriodicCallback(art,atEnd,time)
 end
-sat_tmp1 = sat_tmp
-describeFunction("sat_tmp1",
+describeFunction("sat_tmp",
 	nil,
 	{
 		{"start", "position"},
 		{"location", "position"}, -- todo fix naming location rather than user defined
 		{"speed", "number", 4000},
 		{"endCallback", "function", {call = "subspace_rift", max_time = 5, max_radius = 500, on_end = {call = "end_rift"}}, callee_provides = {"location"}}
-	})
-
-sat_tmp2 = sat_tmp
-describeFunction("sat_tmp2",
-	nil,
-	{
-		{"start", "position"},
-		{"location", "position"}, -- todo fix naming location rather than user defined
-		{"speed", "number", 4000},
-		{"endCallback", "function", {call = "subspace_rift", max_time = 5, max_radius = 500, on_end = {call =  "jammer_pulse", max_time = 60, max_range = 5000, onEndCallback = {call = "null_function"}}}, callee_provides = {"location"}}
-	})
-sat_tmp3 = sat_tmp
-describeFunction("sat_tmp3",
-	nil,
-	{
-		{"start", "position"},
-		{"location", "position"}, -- todo fix naming location rather than user defined
-		{"speed", "number", 4000},
-		{"endCallback", "function", {call = "subspace_rift", max_time = 5, max_radius = 500, on_end = {call = "spawn_kraylor_ship", template = "Adder MK4"}}, callee_provides = {"location"}}
 	})
 
 function spawn_kraylor_ship(location,template)
