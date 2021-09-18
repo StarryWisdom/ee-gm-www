@@ -899,6 +899,13 @@ class script_tab {
 			const str_output = sorted_array.CpuShip.join("\n").concat("\n",sorted_array.other.join("\n"));
 			output.textContent = str_output;
 		};
+		const exec_button = document.createElement("button");
+		exec_button.textContent = "exec";
+		exec_button.onclick = function () {
+			const str = "_ENV = getScriptStorage()._cuf_gm._ENV \n" + output.value;
+			gm_tool.exec_lua(str,"webExec");
+		}
+		page.appendChild(exec_button);
 		// TODO some sort of mirroring code
 		// TODO inner tabs?
 		return page;
