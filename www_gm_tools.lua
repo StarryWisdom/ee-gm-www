@@ -1633,7 +1633,7 @@ describeFunction("call_list",nil,
 
 function old_test_end()
 	_ENV = getScriptStorage()._cuf_gm._ENV
-	fleet_custom:removeCustom("tmp")
+	playerFleet:removeCustom("tmp")
 end
 describeFunction("old_test_end")
 
@@ -1669,7 +1669,7 @@ describeFunction("jammer_pulse",
 	})
 
 function old_test_start(max_time,energy_cost,max_range,no_eng_msg,name)
-	fleet_custom:addCustomButton("Science","tmp",name,wrapWithErrorHandling(function (p)
+	playerFleet:addCustomButton("Science","tmp",name,wrapWithErrorHandling(function (p)
 		if p ~= nil then
 			if p:getEnergyLevel() < energy_cost then
 				p:wrappedAddCustomMessage("Science","no_ene",no_eng_msg)
@@ -1707,7 +1707,7 @@ describeFunction("old_test_start",nil,
 	})
 
 function old_test_comms(msg)
-	fleet_custom:addCustomMessage("Science","injected_msg",msg)
+	playerFleet:addCustomMessage("Science","injected_msg",msg)
 end
 describeFunction("old_test_comms",nil,
 	{{"msg","string"}})
