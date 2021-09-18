@@ -1712,11 +1712,7 @@ end
 describeFunction("old_test_comms",nil,
 	{{"msg","string"}})
 
-function set_timer_purpose(reason)
-	assert(type(reason)=="string")
-	timer_purpose = reason
-end
-describeFunction("set_timer_purpose",
+describeFunction("setTimerPurpose",
 	nil,
 	{
 		{"reason", "string"},
