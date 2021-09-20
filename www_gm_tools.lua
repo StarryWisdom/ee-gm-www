@@ -22,7 +22,11 @@ function checkVariableDescriptions(args_table)
 		local arg_default = arg_description[3]
 		if arg_default ~= nil then
 			-- this is to check the default argument if present is of the correct type
-			webConvertArgument(arg_default,arg_description)
+			-- sadly it is much harder to check functions as they wont run in the order expected
+			-- as such we will just assume they are OK for now
+			if arg_type ~= "function" then
+				webConvertArgument(arg_default,arg_description)
+			end
 		end
 		assert(arg_type == "number" or arg_type == "string" or arg_type == "position" or arg_type == "npc_ship" or arg_type == "function","describeFunction requires the a type for each argument")
 		for arg_name,arg_value in pairs(arg_description) do
