@@ -2,7 +2,7 @@ _ENV = getScriptStorage()._cuf_gm._ENV
 
 function isValidVariableDescriptionType(type_str)
 	assert(type(type_str) == "string")
-	if type_str == "string" or type_str == "number" or type_str == "position" or type_str == "npc_ship" or type_str == "function" then
+	if type_str == "string" or type_str == "number" or type_str == "position" or type_str == "npc_ship_template" or type_str == "function" then
 		return true
 	else
 		return false
@@ -28,7 +28,7 @@ function checkVariableDescriptions(args_table)
 				webConvertArgument(arg_default,arg_description)
 			end
 		end
-		assert(arg_type == "number" or arg_type == "string" or arg_type == "position" or arg_type == "npc_ship" or arg_type == "function","describeFunction requires the a type for each argument")
+		assert(arg_type == "number" or arg_type == "string" or arg_type == "position" or arg_type == "npc_ship_template" or arg_type == "function","describeFunction requires the a type for each argument")
 		for arg_name,arg_value in pairs(arg_description) do
 			if arg_name == 1 or arg_name == 2 or arg_name == 3 then
 			elseif arg_name == 4 then
@@ -73,7 +73,7 @@ end
 -- string - a lua string - example = "the answer"
 -- number - a lua number - example = 42
 -- position - a table of 2 numbers - {x,y} - example = {x = 6, y = 9}
--- npc_ship - the template name for a npc ship, this can be set to valid softtemplates or stock templates - example "Adder MK4"
+-- npc_ship_template - the template name for a npc ship, this can be set to valid softtemplates or stock templates - example "Adder MK4"
 -- function - the callee recives a function to be called, the caller provides a table which will be converted by convertWebCallTableToFunction - example = {call = getCpushipSoftTemplates}
 function describeFunction(name,function_description,args_table)
 	-- this is about 90% verifying that the data is good
@@ -126,7 +126,7 @@ function webConvertScalar(value, argSettings)
 		assert(type(value) == "table")
 		assert(type(value.x) == "number")
 		assert(type(value.y) == "number")
-	elseif convert_to == "npc_ship" then
+	elseif convert_to == "npc_ship_template" then
 		-- checking this is a valid template name would be nice
 		assert(type(value) == "string")
 	else
@@ -601,7 +601,7 @@ describeFunction("spawn_kraylor_ship",
 	nil,
 	{
 		{"location", "position"},
-		{"template", "npc_ship"}
+		{"template", "npc_ship_template"}
 	})
 function end_rift(location)
 	local count = 15

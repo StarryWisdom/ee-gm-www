@@ -490,7 +490,7 @@ class gm_tool_class {
 						input.value = value;
 					};
 					div.appendChild(input);
-				} else if (arg_type == "npc_ship") {
+				} else if (arg_type == "npc_ship_template") {
 					const input = document.createElement("select");
 					this.get_cpuship_data().forEach(k => {
 							const name = k.gm_name;
