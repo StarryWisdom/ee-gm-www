@@ -36,7 +36,7 @@ function checkVariableDescriptions(args_table)
 				assert(arg_type == "number")
 			elseif arg_name == "max" then
 				assert(arg_type == "number")
-			elseif arg_name == "callee_provides" ~= nil then
+			elseif arg_name == "caller_provides" ~= nil then
 				assert(arg_type == "function")
 			else
 				assert(false,"arg_description has a key that describeFunction doesnt about")
@@ -66,17 +66,15 @@ end
 -- min - minimum value expected
 -- max - maximum value expected
 -- for function
--- callee_provides - the values this function provides for the function call (this will stop them being shown on the web tool)
+-- caller_provides - the values this function provides for the function call (this will stop them being shown on the web tool)
 --
 -- types
 -- string - a lua string - example = "the answer"
 -- number - a lua number - example = 42
 -- position - a table of 2 numbers - {x,y} - example = {x = 6, y = 9}
 -- npc_ship_template - the template name for a npc ship, this can be set to valid softtemplates or stock templates - example "Adder MK4"
--- function - the callee recives a function to be called, the caller provides a table which will be converted by convertWebCallTableToFunction - example = {call = getCpushipSoftTemplates} renaming the callee_provides list is possible with a table called _callee_provides_rename - look at webConvertScalar for details
+-- function - the caller recives a function to be called, the caller provides a table which will be converted by convertWebCallTableToFunction - example = {call = getCpushipSoftTemplates} renaming the caller_provides list is possible with a table called _caller_provides_rename - look at webConvertScalar for details
 function describeFunction(name,function_description,args_table)
-	-- this is about 90% verifying that the data is good
-	-- and 10% repacking the arguments to be used later in a more convient format
 	assert(type(name)=="string")
 	if type(function_description) ~= "table" then
 		function_description = {function_description}
@@ -103,18 +101,18 @@ function webConvertScalar(value, argSettings)
 		value = indirect_call(value)
 	end
 	if convert_to == "function" then
-		local callee_provides = {}
-		if argSettings.callee_provides then
-			for _,var in pairs(argSettings.callee_provides) do
-				if value._callee_provides_rename ~= nil then
-					if value._callee_provides_rename[var] ~= nil then
-						var = value._callee_provides_rename[var]
+		local caller_provides = {}
+		if argSettings.caller_provides then
+			for _,var in pairs(argSettings.caller_provides) do
+				if value._caller_provides_rename ~= nil then
+					if value._caller_provides_rename[var] ~= nil then
+						var = value._caller_provides_rename[var]
 					end
 				end
-				table.insert(callee_provides,var)
+				table.insert(caller_provides,var)
 			end
 		end
-		value = convertWebCallTableToFunction(value,callee_provides)
+		value = convertWebCallTableToFunction(value,caller_provides)
 		assert(type(value) == "function")
 	elseif covert_to == "string" then
 		assert(type(value) == "string")
@@ -146,41 +144,42 @@ function webConvertArgument(value, argSettings)
 	return value
 end
 
-function convertWebCallTableToFunction(args,callee_provides)
-	local callee_provides = callee_provides or {}
-	assert(type(callee_provides)=="table")
+function convertWebCallTableToFunction(args,caller_provides)
+	local caller_provides = caller_provides or {}
+	assert(type(caller_provides)=="table")
 	assert(type(args)=="table")
 	assert(type(args.call)=="string")
 	local requested_function = getScriptStorage()._cuf_gm.functions[args.call]
 	assert(requested_function ~= nil, "attempted to call an undefined function " .. args.call)
 	assert(type(requested_function.fn) == "function")
 	assert(type(requested_function.args) == "table")
-	--[[ -- if all arguments are provided by the callee and in the same order then the function is just the requested function
-	-- as such we may as well do the following, this needs testing however before I enable it
 	local do_we_need_to_wrap = false
 	for arg_num,arg in ipairs(requested_function.args) do
-		if arg[1] ~= callee_provides[arg_num] then
+		if arg[1] ~= caller_provides[arg_num] then
 			do_we_need_to_wrap = true
 		end
 		if arg[2] == "function" then
 			do_we_need_to_wrap = true
 		end
-	end --]]
+	end
+	if not do_we_need_to_wrap then
+		return requested_function.fn
+	end
 	return function (...)
 		local to_call = {}
 		local arg_num = 1
 		for _,arg in ipairs(requested_function.args) do
 			local arg_name = arg[1]
-			local in_callee_provides = nil
-			for arg_num,suppressed in ipairs(callee_provides) do
+			local in_caller_provides = nil
+			for arg_num,suppressed in ipairs(caller_provides) do
 				if suppressed == arg_name then
-					in_callee_provides = arg_num
+					in_caller_provides = arg_num
 				end
 			end
 			local value
-			if in_callee_provides then
-				assert(select("#",...)<= in_callee_provides)
-				value = select(in_callee_provides,...)
+			if in_caller_provides then
+				assert(select("#",...)<= in_caller_provides)
+				value = select(in_caller_provides,...)
 			elseif args[arg_name] then
 				value = args[arg_name]
 			else
@@ -569,7 +568,7 @@ function gm_click_wrapper(onclick)
 	end)
 end
 describeFunction("gm_click_wrapper",nil,
-	{{"onclick", "function", {call = "null_function"},callee_provides = {"location"}}})
+	{{"onclick", "function", {call = "null_function"},caller_provides = {"location"}}})
 
 -- note there seems to be 1 frame where these are moved to 0,0
 function sat_tmp(start,dest,speed,endCallback)
@@ -589,7 +588,7 @@ describeFunction("sat_tmp",
 		{"start", "position"},
 		{"location", "position"}, -- todo fix naming location rather than user defined
 		{"speed", "number", 4000},
-		{"endCallback", "function", {call = "subspace_rift", max_time = 5, max_radius = 500, on_end = {call = "end_rift"}}, callee_provides = {"location"}}
+		{"endCallback", "function", {call = "subspace_rift", max_time = 5, max_radius = 500, on_end = {call = "end_rift"}}, caller_provides = {"location"}}
 	})
 
 function spawn_kraylor_ship(location,template)
@@ -740,7 +739,7 @@ describeFunction("subspace_rift",
 		{"max_time", "number", 5, min = 0}, -- max?
 		{"location", "position"},
 		{"max_radius", "number", 500, min = 0}, -- max?
-		{"on_end", "function", {call = "end_rift"}, callee_provides = {"location"}}
+		{"on_end", "function", {call = "end_rift"}, caller_provides = {"location"}}
 	})
 
 function rift_example(location,max_radius,max_time,onEnd) -- in time this should be removed

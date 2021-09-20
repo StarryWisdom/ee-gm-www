@@ -5,7 +5,7 @@ prebuilt = [
 	]},
 	{name : "function_chain_test",
 	call_list : [
-		{call : "gm_click_wrapper", onclick : {call : "subspace_rift", max_time : {call : "irandom", min : 1, max : 20}, max_radius : 3000, on_end : {call : "end_rift", _callee_provides_rename : {"location2" : "location"}}}}
+		{call : "gm_click_wrapper", onclick : {call : "subspace_rift", max_time : {call : "irandom", min : 1, max : 20}, max_radius : 3000, on_end : {call : "end_rift", _caller_provides_rename : {"location2" : "location"}}}}
 	]},
 	{name : "start1",
 	call_list : [
