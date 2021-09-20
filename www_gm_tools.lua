@@ -4,10 +4,17 @@ function checkVariableDescriptions(args_table)
 	for arg_num,arg_description in pairs(args_table) do
 		local arg_name = arg_description[1]
 		assert(type(arg_name)=="string")
-		assert(arg_name ~= "_this") -- description is reused elsewhere and is a problem to be an arg name TODO - old?
+		-- _this is the name for the table describing the current function, we cant also have an argument of _this
+		assert(arg_name ~= "_this")
+
 		local arg_type = arg_description[2]
 		assert(type(arg_type)=="string")
-		-- TODO no checking of default value regarding type or any setting
+
+		local arg_default = arg_description[3]
+		if arg_default ~= nil then
+			-- this is to check the default argument if present is of the correct type
+			webConvertArgument(arg_default,arg_description)
+		end
 		assert(arg_type == "number" or arg_type == "string" or arg_type == "position" or arg_type == "npc_ship" or arg_type == "function","describeFunction requires the a type for each argument")
 		for arg_name,arg_value in pairs(arg_description) do
 			if arg_name == 1 or arg_name == 2 or arg_name == 3 then
