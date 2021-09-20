@@ -28,7 +28,6 @@ function checkVariableDescriptions(args_table)
 				webConvertArgument(arg_default,arg_description)
 			end
 		end
-		assert(arg_type == "number" or arg_type == "string" or arg_type == "position" or arg_type == "npc_ship_template" or arg_type == "function","describeFunction requires the a type for each argument")
 		for arg_name,arg_value in pairs(arg_description) do
 			if arg_name == 1 or arg_name == 2 or arg_name == 3 then
 			elseif arg_name == 4 then
