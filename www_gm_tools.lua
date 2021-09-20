@@ -1,5 +1,14 @@
 _ENV = getScriptStorage()._cuf_gm._ENV
 
+function isValidVariableDescriptionType(type_str)
+	assert(type(type_str) == "string")
+	if type_str == "string" or type_str == "number" or type_str == "position" or type_str == "npc_ship" or type_str == "function" then
+		return true
+	else
+		return false
+	end
+end
+
 function checkVariableDescriptions(args_table)
 	for arg_num,arg_description in pairs(args_table) do
 		local arg_name = arg_description[1]
@@ -8,7 +17,7 @@ function checkVariableDescriptions(args_table)
 		assert(arg_name ~= "_this")
 
 		local arg_type = arg_description[2]
-		assert(type(arg_type)=="string")
+		assert(isValidVariableDescriptionType(arg_type))
 
 		local arg_default = arg_description[3]
 		if arg_default ~= nil then
