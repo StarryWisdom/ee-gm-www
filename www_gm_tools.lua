@@ -104,7 +104,18 @@ function webConvertScalar(value, argSettings)
 		value = indirect_call(value)
 	end
 	if convert_to == "function" then
-		value = convertWebCallTableToFunction(value,argSettings.callee_provides)
+		local callee_provides = {}
+		if argSettings.callee_provides then
+			for _,var in pairs(argSettings.callee_provides) do
+				if value._callee_provides_rename ~= nil then
+					if value._callee_provides_rename[var] ~= nil then
+						var = value._callee_provides_rename[var]
+					end
+				end
+				table.insert(callee_provides,var)
+			end
+		end
+		value = convertWebCallTableToFunction(value,callee_provides)
 		assert(type(value) == "function")
 	elseif covert_to == "string" then
 		assert(type(value) == "string")
@@ -138,9 +149,6 @@ function webConvertArgument(value, argSettings)
 	return value
 end
 
---todo check/test
--- renaming var names
--- changing function setting in web tool being reflected in engine
 function convertWebCallTableToFunction(args,callee_provides)
 	local callee_provides = callee_provides or {}
 	assert(type(callee_provides)=="table")
@@ -556,6 +564,7 @@ function get_gm_click2()
 end
 describeFunction("get_gm_click2")
 
+-- this needs work so as to make sure changes show in engine quickly
 function gm_click_wrapper(onclick)
 	onGMClick(function (x,y)
 		onclick({x = x, y = y})
