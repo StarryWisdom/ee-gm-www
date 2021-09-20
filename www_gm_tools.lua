@@ -72,6 +72,45 @@ function describeFunction(name,function_description,args_table)
 	getScriptStorage()._cuf_gm.functions[name] = {fn = fn, args = args_table}
 end
 
+-- convert a single value from a web call
+-- only copes with converting functions from the web calling table format
+function webConvertScalar(value, argSettings)
+	local convert_to = argSettings[2]
+	if convert_to == "function" then
+		value = convertWebCallTableToFunction(value,argSettings.callee_provides)
+		assert(type(value) == "function")
+	elseif covert_to == "string" then
+		assert(type(value) == "string")
+	elseif convert_to == "number" then
+		-- it is worth considering if min / max should be checked here or not
+		assert(type(value) == "number")
+	elseif convert_to == "position" then
+		assert(type(value) == "table")
+		assert(type(value.x) == "number")
+		assert(type(value.y) == "number")
+	elseif convert_to == "npc_ship" then
+		-- checking this is a valid template name would be nice
+		assert(type(value) == "string")
+	else
+		assert(false)
+	end
+	return value
+end
+
+-- currently we only cope with conversions to / from functions
+-- ideally we would signal other types as errors
+function webConvertArgument(value, argSettings)
+	local is_array = (argSettings[4] == "array")
+	if is_array then
+		for idx,scalar in ipairs(value) do
+			value[idx] = webConvertScalar(scalar, argSettings)
+		end
+	else
+		value = webConvertScalar(value, argSettings)
+	end
+	return value
+end
+
 --todo check/test
 -- renaming var names
 -- changing function setting in web tool being reflected in engine
@@ -118,16 +157,7 @@ function convertWebCallTableToFunction(args,callee_provides)
 					assert(value ~= nil,"argument not in list " .. arg_name .. " for function " .. args.call .. " (and there is no default)")
 				end
 			end
-			if arg_type == "function" then
-				if arg[4] == "array" then
-					for idx,function_table in ipairs(value) do
-						value[idx]=convertWebCallTableToFunction(function_table,arg.callee_provides)
-					end
-				else
-					value = convertWebCallTableToFunction(value,arg.callee_provides)
-				end
-			end
-			to_call[arg_num] = value
+			to_call[arg_num] = webConvertArgument(value,arg)
 			arg_num = arg_num +1
 		end
 		-- reminder it is possible for entires in requested_function can be nil
