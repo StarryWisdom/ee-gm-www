@@ -76,6 +76,13 @@ end
 -- only copes with converting functions from the web calling table format
 function webConvertScalar(value, argSettings)
 	local convert_to = argSettings[2]
+	local is_web_function = false
+	if type(value) == "table" and type(value.call) == "string" then
+		is_web_function = true
+	end
+	if is_web_function and convert_to ~= "function" then
+		value = indirect_call(value)
+	end
 	if convert_to == "function" then
 		value = convertWebCallTableToFunction(value,argSettings.callee_provides)
 		assert(type(value) == "function")

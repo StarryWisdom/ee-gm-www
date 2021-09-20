@@ -3,6 +3,10 @@ prebuilt = [
 	call_list : [
 		{call : "base0"}
 	]},
+	{name : "function_chain_test",
+	call_list : [
+		{call : "gm_click_wrapper", onclick : {call : "subspace_rift", max_time : {call : "irandom", min : 1, max : 20}, max_radius : 3000, on_end : {call : "null_function"}}}
+	]},
 	{name : "start1",
 	call_list : [
 		{call : "rift_example", location : {x : 41023, y : 365191}, max_radius : 7000, max_time : 60, onEnd : {call : "base1"}},
