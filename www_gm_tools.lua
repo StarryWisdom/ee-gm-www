@@ -54,7 +54,7 @@ end
 -- 2) function description, which is a table or a string or nil
 --              if it is a string then it is assumed as being function_description[1]
 -- 2.1) function_description[1] is a description used for the web tool
--- TODO 2.2) function_description[2+] is a list of tags to be used for sorting on the web UI
+-- 2.2) function_description[2+] is a list of tags to be used for sorting on the web UI
 -- 3) args_table a table of tables is an optional table describing each argument given to the function
 -- 3.0) each inner table is defined as follows
 -- 3.1) [1] name of the argument
@@ -73,7 +73,7 @@ end
 -- number - a lua number - example = 42
 -- position - a table of 2 numbers - {x,y} - example = {x = 6, y = 9}
 -- npc_ship_template - the template name for a npc ship, this can be set to valid softtemplates or stock templates - example "Adder MK4"
--- function - the callee recives a function to be called, the caller provides a table which will be converted by convertWebCallTableToFunction - example = {call = getCpushipSoftTemplates}
+-- function - the callee recives a function to be called, the caller provides a table which will be converted by convertWebCallTableToFunction - example = {call = getCpushipSoftTemplates} renaming the callee_provides list is possible with a table called _callee_provides_rename - look at webConvertScalar for details
 function describeFunction(name,function_description,args_table)
 	-- this is about 90% verifying that the data is good
 	-- and 10% repacking the arguments to be used later in a more convient format
@@ -134,8 +134,6 @@ function webConvertScalar(value, argSettings)
 	return value
 end
 
--- currently we only cope with conversions to / from functions
--- ideally we would signal other types as errors
 function webConvertArgument(value, argSettings)
 	local is_array = (argSettings[4] == "array")
 	if is_array then
@@ -157,7 +155,8 @@ function convertWebCallTableToFunction(args,callee_provides)
 	assert(requested_function ~= nil, "attempted to call an undefined function " .. args.call)
 	assert(type(requested_function.fn) == "function")
 	assert(type(requested_function.args) == "table")
-	--[[ this section should work, I need some better examples to test the code on before I enable it
+	--[[ -- if all arguments are provided by the callee and in the same order then the function is just the requested function
+	-- as such we may as well do the following, this needs testing however before I enable it
 	local do_we_need_to_wrap = false
 	for arg_num,arg in ipairs(requested_function.args) do
 		if arg[1] ~= callee_provides[arg_num] then
@@ -196,7 +195,7 @@ function convertWebCallTableToFunction(args,callee_provides)
 	end
 end
 
--- this probably wants removing sooner rather than later
+-- this is the entry point for the web gm tool
 function indirect_call(args)
 	return callWithErrorHandling(convertWebCallTableToFunction(args))
 end
