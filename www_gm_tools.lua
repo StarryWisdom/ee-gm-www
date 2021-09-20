@@ -1717,3 +1717,8 @@ describeFunction("setTimerPurpose",
 	{
 		{"reason", "string"},
 	})
+describeFunction("irandom",nil,
+	{
+		{"min","number"},
+		{"max","number"}
+	})
