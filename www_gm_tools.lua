@@ -173,7 +173,6 @@ end
 function indirect_call(args)
 	return callWithErrorHandling(convertWebCallTableToFunction(args))
 end
-describeFunction("indirect_call")
 getScriptStorage()._cuf_gm.indirect_call = indirect_call
 
 function getCpushipSoftTemplates()
