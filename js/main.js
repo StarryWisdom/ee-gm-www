@@ -386,7 +386,7 @@ class gm_tool_class {
 		return this.exec_lua(code,"");
 	}
 	async call_www_function(name,args = {}) {
-		let code = "return getScriptStorage()._cuf_gm.indirect_call(";
+		let code = "return getScriptStorage()._cuf_gm.indirectCall(";
 		args.call=name;
 		code +=  this._call_convert_to_string(args);
 		code += ")";
