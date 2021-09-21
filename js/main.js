@@ -433,7 +433,10 @@ class gm_tool_class {
 			const call = {};
 			for (const p in function_div.params) {
 				if (function_div.params.hasOwnProperty(p)) {
-					call[p] = function_div.params[p].getValue();
+					const value = function_div.params[p].getValue();
+					if (value != undefined) {
+						call[p] = value;
+					}
 				}
 			}
 			call.call = function_name;
@@ -468,7 +471,11 @@ class gm_tool_class {
 				if (arg_type == "number") {
 					const input = document.createElement("input");
 					param.getValue = function () {
-						return parseFloat(input.value);
+						let ret = parseFloat(input.value);
+						if (input.value != NaN) {
+							return undefined;
+						}
+						return ret;
 					};
 					param.setValue = function (value) {
 						input.value = value;
@@ -577,7 +584,7 @@ class gm_tool_class {
 				}
 				// todo description of the arg
 				// todo title text
-				if (arg_default) {
+				if (arg_default != undefined) {
 					param.setValue(arg_default);
 				}
 			}
