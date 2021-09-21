@@ -472,7 +472,7 @@ class gm_tool_class {
 					const input = document.createElement("input");
 					param.getValue = function () {
 						let ret = parseFloat(input.value);
-						if (input.value != NaN) {
+						if (ret == NaN) {
 							return undefined;
 						}
 						return ret;
