@@ -136,9 +136,6 @@ end
 function getExtraTemplateData()
 	local templates = {}
 	local ShipTemplateOrig = ShipTemplate
-	local returnSelf = function (self)
-		return self
-	end
 	_G.ShipTemplate = function ()
 		local data = {
 			Type = "ship"
@@ -167,42 +164,15 @@ function getExtraTemplateData()
 				data.Type = type
 				return self
 			end,
-			setLocaleName = returnSelf,
-			setDescription = returnSelf,
-			setHull = returnSelf,
-			setShields = returnSelf,
-			setClass = returnSelf,
-			setSpeed = returnSelf,
-			setDefaultAI = returnSelf,
-			setBeam = returnSelf,
-			setLocaleName = returnSelf,
-			setImpulseSoundFile = returnSelf,
-			setCombatManeuver = returnSelf,
-			setEnergyStorage = returnSelf,
-			setRepairCrewCount = returnSelf,
-			addRoomSystem = returnSelf,
-			addDoor = returnSelf,
-			addDoor = returnSelf,
-			setTubes = returnSelf,
-			setTubeSize = returnSelf,
-			setWeaponStorage = returnSelf,
-			setTubeDirection = returnSelf,
-			setWeaponTubeExclusiveFor = returnSelf,
-			setBeamWeaponTurret = returnSelf,
-			addRoom = returnSelf,
-			setBeamWeapon = returnSelf,
-			setWarpSpeed = returnSelf,
-			weaponTubeDisallowMissle = returnSelf,
-			setJumpDrive = returnSelf,
-			weaponTubeAllowMissle= returnSelf,
-			setJumpDriveRange = returnSelf,
-			setDockClasses = returnSelf,
-			setCloaking = returnSelf,
-			setSharesEnergyWithDocked = returnSelf,
-			setRepairDocked = returnSelf,
-			setRestocksMissilesDocked = returnSelf,
-			setRestocksScanProbes = returnSelf,
 		}
+		-- any unknown entries will just return a function returning self
+		-- this makes us mostly not care if new things are exported from EE
+		setmetatable(ret,{__index =
+			function ()
+				return function (self)
+					return self
+				end
+			end})
 		table.insert(templates,data)
 		return ret
 	end
