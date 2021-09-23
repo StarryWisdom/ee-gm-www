@@ -1,5 +1,7 @@
 _ENV = getScriptStorage()._cuf_gm._ENV
 
+-- todo tidy up checkVariableDescriptions
+
 function getCpushipSoftTemplates()
 	local unusual = {}
 	local normal = {}
@@ -46,162 +48,159 @@ describeFunction("getCpushipSoftTemplates",
 	{"get information of cpuships soft templates (note it temporarily creates all ship types)"})
 
 
-models = {}
-templates = {}
-
-_ENV = _G
-ModelDataOrig = ModelData
-function ModelData ()
-	local data = {
-		BeamPosition = {}
-	}
-
-	local ret = {
-		setName = function (self,name)
-			data.Name=name
-			return self
-		end,
-		setMesh = function (self,mesh)
-			data.Mesh=mesh
-			return self
-		end,
-		setTexture = function (self,texture)
-			data.Texture=texture
-			return self
-		end,
-		setSpecular = function (self,specular)
-			data.Specular=specular
-			return self
-		end,
-		setIllumination = function (self,illumination)
-			data.Illumination = illumination
-			return self
-		end,
-		setRenderOffset = function (self,x,y,z)
-			data.RenderOffset = {x=x,y=y,z=z}
-			return self
-		end,
-		setScale = function (self,scale)
-			data.Scale = scale
-			return self
-		end,
-		setRadius = function (self,radius)
-			data.Radius = radius
-			return self
-		end,
-		setCollisionBox = function (self,x,y)
-			data.CollisionBox = {x=x, y=y, z=z}
-			return self
-		end,
-		addBeamPosition = function (self,x,y,z)
-			if data.BeamPosition == nil then
-				data.BeamPosition = {}
-			end
-			table.insert(data.BeamPosition,{x=x, y=y, z=z})
-			return self
-		end,
-		addEngineEmitter = function (self,x,y,z)
-			if data.EngineEmitter == nil then
-				data.EngineEmitter = {}
-			end
-			table.insert(data.EngineEmitter,{x=x, y=y, z=z})
-			return self
-		end,
-		addTubePosition = function (self,x,y,z)
-			if data.TubePosition == nil then
-				data.TubePosition = {}
-			end
-			table.insert(data.TubePosition,{x=x, y=y, z=z})
-			return self
-		end
-	}
-	table.insert(getScriptStorage()._cuf_gm._ENV.models,data)
-	return ret
-end
-require("model_data.lua")
-ModelData = ModelDataOrig
-
-ShipTemplateOrig = ShipTemplate
-function returnSelf (self)
-	return self
-end
-function ShipTemplate ()
-	local data = {
-		Type = "ship"
-	}
-	local ret = {
-		setName = function (self,name)
-			data.Name=name
-			return self
-		end,
-		setModel = function (self,model)
-			data.Model = model
-			return self
-		end,
-		setRadarTrace = function (self,radarTrace)
-			data.RadarTrace = radarTrace
-			return self
-		end,
-		copy = function (self,name)
-			return ShipTemplate()
-				:setModel(data.Model)
-				:setName(name)
-				:setRadarTrace(data.RadarTrace)
-				:setType(data.Type)
-		end,
-		setType = function (self, type)
-			data.Type = type
-			return self
-		end,
-		setLocaleName = returnSelf,
-		setDescription = returnSelf,
-		setHull = returnSelf,
-		setShields = returnSelf,
-		setClass = returnSelf,
-		setSpeed = returnSelf,
-		setDefaultAI = returnSelf,
-		setBeam = returnSelf,
-		setLocaleName = returnSelf,
-		setImpulseSoundFile = returnSelf,
-		setCombatManeuver = returnSelf,
-		setEnergyStorage = returnSelf,
-		setRepairCrewCount = returnSelf,
-		addRoomSystem = returnSelf,
-		addDoor = returnSelf,
-		addDoor = returnSelf,
-		setTubes = returnSelf,
-		setTubeSize = returnSelf,
-		setWeaponStorage = returnSelf,
-		setTubeDirection = returnSelf,
-		setWeaponTubeExclusiveFor = returnSelf,
-		setBeamWeaponTurret = returnSelf,
-		addRoom = returnSelf,
-		setBeamWeapon = returnSelf,
-		setWarpSpeed = returnSelf,
-		weaponTubeDisallowMissle = returnSelf,
-		setJumpDrive = returnSelf,
-		weaponTubeAllowMissle= returnSelf,
-		setJumpDriveRange = returnSelf,
-		setDockClasses = returnSelf,
-		setCloaking = returnSelf,
-		setSharesEnergyWithDocked = returnSelf,
-		setRepairDocked = returnSelf,
-		setRestocksMissilesDocked = returnSelf,
-		setRestocksScanProbes = returnSelf,
-	}
-	table.insert(getScriptStorage()._cuf_gm._ENV.templates,data)
-	return ret
-end
-require("shipTemplates.lua")
-ShipTemplate = ShipTemplateOrig
-_ENV = getScriptStorage()._cuf_gm._ENV
-
 function getModelData()
+	local models = {}
+	local ModelDataOrig = ModelData
+
+	_G.ModelData = function ()
+		local data = {
+			BeamPosition = {}
+		}
+		local ret = {
+			setName = function (self,name)
+				data.Name=name
+				return self
+			end,
+			setMesh = function (self,mesh)
+				data.Mesh=mesh
+				return self
+			end,
+			setTexture = function (self,texture)
+				data.Texture=texture
+				return self
+			end,
+			setSpecular = function (self,specular)
+				data.Specular=specular
+				return self
+			end,
+			setIllumination = function (self,illumination)
+				data.Illumination = illumination
+				return self
+			end,
+			setRenderOffset = function (self,x,y,z)
+				data.RenderOffset = {x=x,y=y,z=z}
+				return self
+			end,
+			setScale = function (self,scale)
+				data.Scale = scale
+				return self
+			end,
+			setRadius = function (self,radius)
+				data.Radius = radius
+				return self
+			end,
+			setCollisionBox = function (self,x,y)
+				data.CollisionBox = {x=x, y=y, z=z}
+				return self
+			end,
+			addBeamPosition = function (self,x,y,z)
+				if data.BeamPosition == nil then
+					data.BeamPosition = {}
+				end
+				table.insert(data.BeamPosition,{x=x, y=y, z=z})
+				return self
+			end,
+			addEngineEmitter = function (self,x,y,z)
+				if data.EngineEmitter == nil then
+					data.EngineEmitter = {}
+				end
+				table.insert(data.EngineEmitter,{x=x, y=y, z=z})
+				return self
+			end,
+			addTubePosition = function (self,x,y,z)
+				if data.TubePosition == nil then
+					data.TubePosition = {}
+				end
+				table.insert(data.TubePosition,{x=x, y=y, z=z})
+				return self
+			end
+		}
+		table.insert(models,data)
+		return ret
+	end
+	require("model_data.lua")
+
+	_G.ModelData = ModelDataOrig
 	return models
 end
 describeFunction("getModelData")
 
 function getExtraTemplateData()
+	local templates = {}
+	local ShipTemplateOrig = ShipTemplate
+	local returnSelf = function (self)
+		return self
+	end
+	_G.ShipTemplate = function ()
+		local data = {
+			Type = "ship"
+		}
+		local ret = {
+			setName = function (self,name)
+				data.Name=name
+				return self
+			end,
+			setModel = function (self,model)
+				data.Model = model
+				return self
+			end,
+			setRadarTrace = function (self,radarTrace)
+				data.RadarTrace = radarTrace
+				return self
+			end,
+			copy = function (self,name)
+				return ShipTemplate()
+					:setModel(data.Model)
+					:setName(name)
+					:setRadarTrace(data.RadarTrace)
+					:setType(data.Type)
+			end,
+			setType = function (self, type)
+				data.Type = type
+				return self
+			end,
+			setLocaleName = returnSelf,
+			setDescription = returnSelf,
+			setHull = returnSelf,
+			setShields = returnSelf,
+			setClass = returnSelf,
+			setSpeed = returnSelf,
+			setDefaultAI = returnSelf,
+			setBeam = returnSelf,
+			setLocaleName = returnSelf,
+			setImpulseSoundFile = returnSelf,
+			setCombatManeuver = returnSelf,
+			setEnergyStorage = returnSelf,
+			setRepairCrewCount = returnSelf,
+			addRoomSystem = returnSelf,
+			addDoor = returnSelf,
+			addDoor = returnSelf,
+			setTubes = returnSelf,
+			setTubeSize = returnSelf,
+			setWeaponStorage = returnSelf,
+			setTubeDirection = returnSelf,
+			setWeaponTubeExclusiveFor = returnSelf,
+			setBeamWeaponTurret = returnSelf,
+			addRoom = returnSelf,
+			setBeamWeapon = returnSelf,
+			setWarpSpeed = returnSelf,
+			weaponTubeDisallowMissle = returnSelf,
+			setJumpDrive = returnSelf,
+			weaponTubeAllowMissle= returnSelf,
+			setJumpDriveRange = returnSelf,
+			setDockClasses = returnSelf,
+			setCloaking = returnSelf,
+			setSharesEnergyWithDocked = returnSelf,
+			setRepairDocked = returnSelf,
+			setRestocksMissilesDocked = returnSelf,
+			setRestocksScanProbes = returnSelf,
+		}
+		table.insert(templates,data)
+		return ret
+	end
+	require("shipTemplates.lua")
+
+	_G.ShipTemplate = ShipTemplateOrig
 	return templates
 end
 describeFunction("getExtraTemplateData")
