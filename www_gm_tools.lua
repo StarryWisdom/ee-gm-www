@@ -2,6 +2,18 @@ _ENV = getScriptStorage()._cuf_gm._ENV
 
 -- todo tidy up checkVariableDescriptions
 
+-- todo need to memorise return value
+-- and document this function
+function newWebClient()
+	return {
+		cpushipSoftTemplates = getCpushipSoftTemplates(),
+		modelData = getModelData(),
+		extraTemplateData = getExtraTemplateData(),
+		functionDescriptions = getDescriptions()
+	}
+end
+describeFunction("newWebClient","inform the scenario we have a new webClient and return needed data")
+
 function getCpushipSoftTemplates()
 	local unusual = {}
 	local normal = {}
@@ -44,9 +56,6 @@ function getCpushipSoftTemplates()
 	end
 	return ret
 end
-describeFunction("getCpushipSoftTemplates",
-	{"get information of cpuships soft templates (note it temporarily creates all ship types)"})
-
 
 function getModelData()
 	local models = {}
@@ -123,7 +132,6 @@ function getModelData()
 	_G.ModelData = ModelDataOrig
 	return models
 end
-describeFunction("getModelData")
 
 function getExtraTemplateData()
 	local templates = {}
@@ -203,7 +211,6 @@ function getExtraTemplateData()
 	_G.ShipTemplate = ShipTemplateOrig
 	return templates
 end
-describeFunction("getExtraTemplateData")
 
 if PesudoMultiplayerID == nil then -- when in sandbox this can go
 	PesudoMultiplayerID = 0
@@ -280,7 +287,7 @@ describeFunction("updateSetNumber",
 		{"value","number"}
 	})
 
-function get_descriptions()
+function getDescriptions()
 	local ret = {}
 	-- strip out the function itself
 	for name,fn in pairs(getScriptStorage()._cuf_gm.functions) do
@@ -292,7 +299,6 @@ function get_descriptions()
 	end
 	return ret
 end
-describeFunction("get_descriptions");
 
 function mirror_in_dev()
 	getScriptStorage().fun = function ()

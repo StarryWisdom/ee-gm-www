@@ -219,14 +219,10 @@ class data_cache {
 // it may be possible with time and work for this to be removed
 // this would require EE scripting to be exapanded
 class get_extra_template_data{
-	constructor (cache) {
-		this._cache = cache;
-		// this needlessly fills the cache with the lua
-		// this could be fixed, but is not currently important
-		this._cache.set("template_data",this.resolve());
+	constructor (raw) {
+		this._raw = this.resolve(raw)
 	}
-	async resolve() {
-		const raw = await gm_tool.call_www_function("getExtraTemplateData");
+	async resolve(raw) {
 		const template_data = ee_server.convert_lua_json_to_array(raw);
 		const ret = {};
 		template_data.forEach(template => {
@@ -241,7 +237,7 @@ class get_extra_template_data{
 		return ret;
 	}
 	async get() {
-		return this._cache.get("template_data");
+		return this._raw;
 	}
 }
 
@@ -298,23 +294,24 @@ class gm_tool_class {
 	async init() {
 		this._ee_cache = new data_cache();
 		// set up all of the classes for server requesting data
-		await this.exec_lua(await gm_tool.cache_get_lua("www_gm_tools"),"www_gm_tools")
+		await this.exec_lua(await gm_tool.cache_get_lua("www_gm_tools"),"www_gm_tools");
+		const newClient = await this.call_www_function("newWebClient");
 
-		this.get_extra_template_data = new get_extra_template_data(this._ee_cache);
+		this.get_extra_template_data = new get_extra_template_data(newClient.extraTemplateData);
 		this.get_player_soft_template = new get_player_soft_template(this._ee_cache);
 
 
-		this._model_data = await this._model_data_resolve();
-		this._soft_cpuship_templates = await this._cpuship_data_resolve();
+		this._model_data = this._model_data_resolve(newClient.modelData);
+		this._soft_cpuship_templates = await this._cpuship_data_resolve(newClient.cpushipSoftTemplates);
 
-		this._function_descriptions = await this.call_www_function("get_descriptions");
+		this._function_descriptions = newClient.functionDescriptions;
 	}
 	// get all of the model data
 	// mainly used for infomation like beam port starts, scale of the model etc
 	// the things we want out of it may be possible to expose via new EE scripting
 	// in which case this may stop needing to exist
-	async _model_data_resolve() {
-		const models = ee_server.convert_lua_json_to_array(await gm_tool.call_www_function("getModelData"));
+	_model_data_resolve(raw) {
+		const models = ee_server.convert_lua_json_to_array(raw);
 		const ret = {};
 		models.forEach(model => {
 			model.BeamPosition=ee_server.convert_lua_json_to_array(model.BeamPosition);
@@ -324,8 +321,8 @@ class gm_tool_class {
 		});
 		return ret;
 	}
-	async _cpuship_data_resolve() {
-		return ee_server.convert_lua_json_to_array(await(gm_tool.call_www_function("getCpushipSoftTemplates")));
+	_cpuship_data_resolve(raw) {
+		return ee_server.convert_lua_json_to_array(raw);
 	}
 	get_cpuship_data() {
 		return this._soft_cpuship_templates;
