@@ -622,7 +622,7 @@ describeFunction("rift_example",
 		{"location", "position"},
 		{"max_radius", "number"},
 		{"max_time", "number"},
-		{"onEnd","function",default = {call = "null_function"}}
+		{"onEnd","function",{call = "null_function"}}
 	})
 -- eff it short term one off code it is
 function base0()
