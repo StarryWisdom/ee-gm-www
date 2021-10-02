@@ -452,6 +452,9 @@ class gm_tool_class {
 				const arg_name = arg[1];
 				const arg_type = arg[2];
 				const arg_default = arg[3];
+				if (arg_type == "meta") {
+					continue;
+				}
 				const div = document.createElement("div");
 				function_div.appendChild(div);
 
