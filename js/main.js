@@ -347,7 +347,22 @@ class gm_tool_class {
 		return ret;
 	}
 	_cpuship_data_resolve(raw) {
-		return ee_server.convert_lua_json_to_array(raw);
+		const array = ee_server.convert_lua_json_to_array(raw);
+		array.sort((first, second) => {
+			if (first.gm_unusual != second.gm_unusual) {
+				if (first.gm_unusual) {
+					return -1;
+				} else {
+					return 1;
+				}
+			}
+			if (first.gm_name < second.gm_name) {
+				return -1;
+			} else {
+				return 1;
+			}
+		});
+		return array;
 	}
 	get_cpuship_data() {
 		return this._soft_cpuship_templates;

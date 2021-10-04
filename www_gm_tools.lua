@@ -4,6 +4,16 @@ _ENV = getScriptStorage()._cuf_gm._ENV
 -- and document this function
 -- todo update tick (for gcing disconnected web clients)
 -- remember testing multiple _clientID for gmclick
+
+-- this is fairly expensive in CPU terms
+-- at the time of testing on my desktop it is about 80ms of CPU time
+-- given the expected amount of times running this is probably acceptable
+-- this could be cached in 2 places to remove this if it becomes an issue
+-- the web tool could store inside of webStorage and only request on the
+-- event of a version missmatch for EE or sandbox
+-- caching is possible within the sandbox, but I have not tested if the
+-- expensive part is walking over the fairly large amount of data to be copied
+-- in which case it wont help
 function newWebClient()
 	getScriptStorage()._cuf_gm.webID = getScriptStorage()._cuf_gm.webID + 1
 	local webID = getScriptStorage()._cuf_gm.webID
@@ -19,8 +29,7 @@ end
 getScriptStorage()._cuf_gm.newWebClient = newWebClient
 
 function getCpushipSoftTemplates()
-	local unusual = {}
-	local normal = {}
+	local softTemplates = {}
 	for k,v in pairs(ship_template) do
 		local get_ship_data = function (create,tbl)
 			local ship = create("Human Navy",tbl.gm_name)
@@ -40,27 +49,16 @@ function getCpushipSoftTemplates()
 			gm_unusual = v.unusual,
 			gm_base = v.base,
 		}
-		-- we sort the data here, at some point this probably should be done in the web interface
-		-- but that wont be for a while yet
-		if v.unusual then
-			table.insert(unusual,this_ship)
-		else
-			table.insert(normal,this_ship)
-		end
 		get_ship_data(v.create,this_ship)
+		table.insert(softTemplates,this_ship)
 	end
-	local ret = {}
-	table.sort(normal,function (a,b) return a.gm_name < b.gm_name end)
-	table.sort(unusual,function (a,b) return a.gm_name < b.gm_name end)
-	for _,ship in ipairs(unusual) do
-		table.insert(ret,ship)
-	end
-	for _,ship in ipairs(normal) do
-		table.insert(ret,ship)
-	end
-	return ret
+	return softTemplates
 end
 
+-- the original use for this is beam positions
+-- this should probably be available inside of lua without doing this
+-- if beam position is exported consider reviewing if this is still needed
+-- this may be expensive in CPU terms - see newWebClient
 function getModelData()
 	local models = {}
 	local ModelDataOrig = ModelData
@@ -137,6 +135,10 @@ function getModelData()
 	return models
 end
 
+-- this was originally written to help the web tool
+-- it only exports the members without getters
+-- with some EE engine fixes it may be possible to remove
+-- this may be expensive in CPU terms - see newWebClient
 function getExtraTemplateData()
 	local templates = {}
 	local ShipTemplateOrig = ShipTemplate
@@ -149,14 +151,17 @@ function getExtraTemplateData()
 				data.Name=name
 				return self
 			end,
+			-- we need to look up the model to find the beam origin points
 			setModel = function (self,model)
 				data.Model = model
 				return self
 			end,
+			 -- SpaceShip::getRadarTrace() currently doesn't exist
 			setRadarTrace = function (self,radarTrace)
 				data.RadarTrace = radarTrace
 				return self
 			end,
+			-- the template files chain templates together, we need to mimic this or have odd errors
 			copy = function (self,name)
 				return ShipTemplate()
 					:setModel(data.Model)
@@ -164,6 +169,8 @@ function getExtraTemplateData()
 					:setRadarTrace(data.RadarTrace)
 					:setType(data.Type)
 			end,
+			-- we need to be able to figure out if we are looking at a CpuShip, PlayerSpaceship or SpaceStation
+			-- this may? not be needed if the other functions where exported
 			setType = function (self, type)
 				data.Type = type
 				return self
