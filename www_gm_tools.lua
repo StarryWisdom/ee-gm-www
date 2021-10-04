@@ -132,22 +132,6 @@ function get_playership_softtemplate(ship_template)
 end
 describeFunction("get_playership_softtemplate",nil,{{"ship_template","string"}})
 
-function addGMClickedMessage(_clientID,location)
-	addWebMessageForClient(_clientID,{msg = "gmClicked", x = location.x, y = location.y})
-end
-describeFunction("addGMClickedMessage",nil,{
-	{"_clientID","meta"},
-	{"location", "position"}})
-
--- this needs work so as to make sure changes show in engine quickly
-function gm_click_wrapper(onclick)
-	onGMClick(function (x,y)
-		onclick({x = x, y = y})
-	end)
-end
-describeFunction("gm_click_wrapper",nil,
-	{{"onclick", "function", {call = "null_function"},caller_provides = {"location"}}})
-
 -- note there seems to be 1 frame where these are moved to 0,0
 function sat_tmp(start,dest,speed,endCallback)
 	local art = Artifact():setPosition(start.x,start.y)
