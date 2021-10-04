@@ -295,8 +295,9 @@ class gm_tool_class {
 		this._ee_cache = new data_cache();
 		// set up all of the classes for server requesting data
 		await this.exec_lua(await gm_tool.cache_get_lua("www_gm_tools"),"www_gm_tools");
-		const newClient = await this.call_www_function("newWebClient");
+		const newClient = await this.direct_www_call("newWebClient");
 
+		this._id = newClient.id;
 		this.get_extra_template_data = new get_extra_template_data(newClient.extraTemplateData);
 		this.get_player_soft_template = new get_player_soft_template(this._ee_cache);
 
@@ -305,6 +306,30 @@ class gm_tool_class {
 		this._soft_cpuship_templates = await this._cpuship_data_resolve(newClient.cpushipSoftTemplates);
 
 		this._function_descriptions = newClient.functionDescriptions;
+		setInterval(this._server_tick,1000);
+	}
+	set_on_click(fn) {
+		this._on_click = fn;
+	}
+	async _server_tick() {
+		// at some point consideration should be given to failure states
+		// we only need this to have one pending
+		// the server going down should be considered
+		// as should there being a temporary network issue
+		gm_tool._read_server_messages((await gm_tool.direct_www_call("webCall",gm_tool._id)).serverMessages);
+	}
+	_read_server_messages(messages) {
+		messages = ee_server.convert_lua_json_to_array(messages);
+		messages.forEach(message => {
+			if (message.msg == "gmClicked") {
+				if (this._on_click != undefined) {
+					this._on_click(message.x,message.y);
+				}
+			} else {
+				console.log(message);
+				// todo no client id message
+			}
+		});
 	}
 	// get all of the model data
 	// mainly used for infomation like beam port starts, scale of the model etc
@@ -383,11 +408,10 @@ class gm_tool_class {
 		return this.exec_lua(code,"");
 	}
 	async call_www_function(name,args = {}) {
-		let code = "return getScriptStorage()._cuf_gm.indirectCall(";
 		args.call=name;
-		code +=  this._call_convert_to_string(args);
-		code += ")";
-		return this.exec_lua(code,"");
+		const ee_ret = await this.direct_www_call("webCall",this._id,args);
+		gm_tool._read_server_messages(ee_ret.serverMessages);
+		return ee_ret.ret;
 	}
 	async upload_to_script_storage_and_exec(str) {
 		const max_length = ee_server.max_exec_length/2;// we are just going to be cautious on the chunks we upload rather than check the exact number of chars
@@ -516,17 +540,19 @@ class gm_tool_class {
 				} else if (arg_type == "position") {
 					const get_value = document.createElement("button");
 					const got = document.createTextNode("");
-					get_value.textContent = "last fetched click";
+					get_value.textContent = "get via click";
+					const fn = function(x,y) {
+						const loc = {x : x, y : y};
+						function_div.params[arg_name] = {
+							getValue : function () {
+								return loc;
+							}
+						};
+						got.data = loc.x + "," + loc.y;
+					}
 					get_value.onclick = async function () {
-						const loc = await gm_tool.call_www_function("get_gm_click2");
-						if (loc) {
-							function_div.params[arg_name] = {
-								getValue : function () {
-									return loc;
-								}
-							};
-							got.data = loc.x + "," + loc.y;
-						}
+						await gm_tool.call_www_function("gm_click_wrapper",{onclick : {call : "addGMClickedMessage"}});
+						gm_tool.set_on_click(fn);
 					}
 					div.appendChild(get_value);
 					div.appendChild(got);

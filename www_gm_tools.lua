@@ -1,18 +1,22 @@
 _ENV = getScriptStorage()._cuf_gm._ENV
 
--- todo tidy up checkVariableDescriptions
-
 -- todo need to memorise return value
 -- and document this function
+-- todo update tick (for gcing disconnected web clients)
+-- remember testing multiple _clientID for gmclick
 function newWebClient()
+	getScriptStorage()._cuf_gm.webID = getScriptStorage()._cuf_gm.webID + 1
+	local webID = getScriptStorage()._cuf_gm.webID
+	getScriptStorage()._cuf_gm.serverMessages[webID] = {}
 	return {
+		id = webID,
 		cpushipSoftTemplates = getCpushipSoftTemplates(),
 		modelData = getModelData(),
 		extraTemplateData = getExtraTemplateData(),
 		functionDescriptions = getDescriptions()
 	}
 end
-describeFunction("newWebClient","inform the scenario we have a new webClient and return needed data")
+getScriptStorage()._cuf_gm.newWebClient = newWebClient
 
 function getCpushipSoftTemplates()
 	local unusual = {}
@@ -324,17 +328,12 @@ function get_playership_softtemplate(ship_template)
 end
 describeFunction("get_playership_softtemplate",nil,{{"ship_template","string"}})
 
-function get_gm_click1()
-	onGMClick(function (x,y)
-		getScriptStorage().last_gm_click = {x=x,y=y}
-	end)
+function addGMClickedMessage(_clientID,location)
+	addWebMessageForClient(_clientID,{msg = "gmClicked", x = location.x, y = location.y})
 end
-describeFunction("get_gm_click1")
-
-function get_gm_click2()
-	return getScriptStorage().last_gm_click
-end
-describeFunction("get_gm_click2")
+describeFunction("addGMClickedMessage",nil,{
+	{"_clientID","meta"},
+	{"location", "position"}})
 
 -- this needs work so as to make sure changes show in engine quickly
 function gm_click_wrapper(onclick)
