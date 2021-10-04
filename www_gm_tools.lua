@@ -30,26 +30,21 @@ getScriptStorage()._cuf_gm.newWebClient = newWebClient
 
 function getCpushipSoftTemplates()
 	local softTemplates = {}
-	for k,v in pairs(ship_template) do
-		local get_ship_data = function (create,tbl)
-			local ship = create("Human Navy",tbl.gm_name)
-			tbl["type_name"] = ship:getTypeName()
-			ship:destroy()
+	for ship_template_name,template in pairs(ship_template) do
+		local this_ship = {}
+		-- shallow copy, this should be moved to a library
+		for key,value in pairs(template) do
+			this_ship[key] = value
 		end
-		this_ship = {
-			gm_name = k,
-			strength = v.strength,
-			gm_adder = v.adder,
-			gm_missiler = v.gm_missiler,
-			gm_beamer = v.beamer,
-			gm_frigate = v.frigate,
-			gm_chaser = v.chaser,
-			gm_fighter = v.fighter,
-			gm_drone = v.drone,
-			gm_unusual = v.unusual,
-			gm_base = v.base,
-		}
-		get_ship_data(v.create,this_ship)
+
+		this_ship.name = ship_template_name
+		-- the gm button name != the typeName (sometimes)
+		-- we need to have both later in the web tool so we
+		-- to create a real ship to find the type name
+		local ship = this_ship.create("Human Navy",this_ship.name)
+		this_ship["type_name"] = ship:getTypeName()
+		ship:destroy()
+		this_ship.create = nil -- remove functions from the table
 		table.insert(softTemplates,this_ship)
 	end
 	return softTemplates

@@ -349,14 +349,14 @@ class gm_tool_class {
 	_cpuship_data_resolve(raw) {
 		const array = ee_server.convert_lua_json_to_array(raw);
 		array.sort((first, second) => {
-			if (first.gm_unusual != second.gm_unusual) {
-				if (first.gm_unusual) {
+			if (first.unusual != second.unusual) {
+				if (first.unusual) {
 					return -1;
 				} else {
 					return 1;
 				}
 			}
-			if (first.gm_name < second.gm_name) {
+			if (first.name < second.name) {
 				return -1;
 			} else {
 				return 1;
@@ -536,10 +536,10 @@ class gm_tool_class {
 						input.value = value;
 					};
 					div.appendChild(input);
-				} else if (arg_type == "npc_ship_template") {
+				} else if (arg_type == "npc_ship_template") { // sigh why npc_ship_template rather than CpuShip_template
 					const input = document.createElement("select");
 					this.get_cpuship_data().forEach(k => {
-							const name = k.gm_name;
+							const name = k.name;
 							const opt = document.createElement("option");
 							opt.value = name;
 							opt.innerHTML = name;
